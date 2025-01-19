@@ -1,16 +1,29 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useStore } from './../useStore'
+import { useProgressStore } from '../useProgressStore'
+import { useSupabaseStore } from '@/useSupabaseStore'
 
-const store = useStore()
+const progressStore = useProgressStore()
+const supabaseStore = useSupabaseStore()
+
 const password = ref('')
 const username = ref('')
 const participantNumber = ref('')
 const errorMessage = ref('')
 
+const globalPassword = 'klinPsych'
+
 async function handleLogin () {
   try {
-    await store.login(password.value, username.value, participantNumber.value)
+    if (password.value === globalPassword) {
+      supabaseStore.isAuthenticated = true
+
+      supabaseStore.user.username = username.value
+      supabaseStore.user.participantNumber = participantNumber.value
+      progressStore.startStudy()
+    } else {
+      throw new Error('Invalid password')
+    }
   } catch (error: any) {
     console.error('Error:', error)
     errorMessage.value = "Passwort ist ungültig"

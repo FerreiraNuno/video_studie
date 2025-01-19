@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { ref, defineEmits } from 'vue'
-import { useStore } from './../useStore'
+import { useProgressStore } from '../useProgressStore'
 
-const store = useStore()
+const progressStore = useProgressStore()
 const rating = ref(5)
 
 function submitRating () {
   console.log('Rating submitted:', rating.value)
-  store.finishSection()
+  progressStore.finishSection()
 }
 </script>
 

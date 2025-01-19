@@ -1,15 +1,10 @@
 import { defineStore } from "pinia"
+import { useSupabaseStore } from './useSupabaseStore'
 import { ref } from "vue"
 
-export const useStore = defineStore('store', () => {
-  const globalPassword = 'klinPsych'
+export const useProgressStore = defineStore('progressStore', () => {
+  const supabaseStore = useSupabaseStore()
 
-  // auth
-  const isAuthenticated = ref(false)
-  const user = ref({
-    username: '',
-    participantNumber: ''
-  })
   // state
   const currentIndex = ref(0)
   const isVideo = ref(false)
@@ -37,6 +32,7 @@ export const useStore = defineStore('store', () => {
     if (currentIndex.value === 2) {
       finishStudy()
     } else {
+      supabaseStore.saveProgress()
       startNextSection()
     }
   }
@@ -46,28 +42,13 @@ export const useStore = defineStore('store', () => {
     isOver.value = true
   }
 
-  function login (password: string, username: string, participantNumber: string) {
-    if (password === globalPassword) {
-      isAuthenticated.value = true
-
-      user.value.username = username
-      user.value.participantNumber = participantNumber
-      startStudy()
-    } else {
-      throw new Error('Invalid password')
-    }
-  }
-
-
   return {
-    isAuthenticated,
-    user,
     currentIndex,
     isVideo,
     isOver,
+    startStudy,
     startNextSection,
     startRating,
     finishSection,
-    login,
   }
 })
