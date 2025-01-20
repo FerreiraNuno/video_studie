@@ -61,4 +61,8 @@ p {
   font-size: 1.25rem;
   color: #585858;
 }
+
+video {
+  height: 500px;
+}
 </style>
