@@ -3,7 +3,7 @@
 
 <template>
   <div>
-    <h2>Thank you for participating!</h2>
+    <h2>Danke für die Teilnahme!</h2>
   </div>
 </template>
 
