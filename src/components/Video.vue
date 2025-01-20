@@ -7,15 +7,15 @@ const progressStore = useProgressStore()
 const videoElement = ref<HTMLVideoElement | null>(null)
 
 const videoSources = [
-  '/videos/video_1.mp4',
-  '/videos/video_2.mp4',
-  '/videos/video_3.mp4',
-  '/videos/video_4.mp4',
-  '/videos/video_5.mp4',
-  '/videos/video_6.mp4',
-  '/videos/video_7.mp4',
-  '/videos/video_8.mp4',
-  '/videos/video_9.mp4',
+  `${import.meta.env.BASE_URL}videos/video_1.mp4`,
+  `${import.meta.env.BASE_URL}videos/video_2.mp4`,
+  `${import.meta.env.BASE_URL}videos/video_3.mp4`,
+  `${import.meta.env.BASE_URL}videos/video_4.mp4`,
+  `${import.meta.env.BASE_URL}videos/video_5.mp4`,
+  `${import.meta.env.BASE_URL}videos/video_6.mp4`,
+  `${import.meta.env.BASE_URL}videos/video_7.mp4`,
+  `${import.meta.env.BASE_URL}videos/video_8.mp4`,
+  `${import.meta.env.BASE_URL}videos/video_9.mp4`,
 ]
 
 onMounted(() => {
