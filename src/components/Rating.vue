@@ -1,14 +1,20 @@
 <script setup lang="ts">
-import { ref, defineEmits } from 'vue'
-import { useProgressStore } from '../useProgressStore'
+import { ref } from 'vue'
+import { useProgressStore } from '../useProgress.store'
+import { useSupabaseStore } from '@/useSupabase.store'
 
 const progressStore = useProgressStore()
+const supabaseStore = useSupabaseStore()
 const rating = ref(5)
 
-function submitRating () {
+async function submitRating () {
   console.log('Rating submitted:', rating.value)
+
+  await supabaseStore.saveRating(progressStore.currentIndex + 1, rating.value)
+
   progressStore.finishSection()
 }
+
 </script>
 
 <template>

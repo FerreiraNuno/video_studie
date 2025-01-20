@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useProgressStore } from '../useProgressStore'
-import { useSupabaseStore } from '@/useSupabaseStore'
+import { useProgressStore } from '../useProgress.store'
+import { useSupabaseStore } from '@/useSupabase.store'
 
 const progressStore = useProgressStore()
 const supabaseStore = useSupabaseStore()
@@ -20,7 +20,7 @@ async function handleLogin () {
 
       supabaseStore.user.username = username.value
       supabaseStore.user.participantNumber = participantNumber.value
-      progressStore.startStudy()
+      await progressStore.startStudy()
     } else {
       throw new Error('Invalid password')
     }

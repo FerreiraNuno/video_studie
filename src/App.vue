@@ -3,8 +3,9 @@ import Login from './components/Login.vue'
 import Rating from './components/Rating.vue'
 import Video from './components/Video.vue'
 import Ending from './components/Ending.vue'
-import { useProgressStore } from './useProgressStore'
-import { useSupabaseStore } from './useSupabaseStore'
+import Loading from './components/Loading.vue'
+import { useProgressStore } from './useProgress.store'
+import { useSupabaseStore } from './useSupabase.store'
 
 const progressStore = useProgressStore()
 const supabaseStore = useSupabaseStore()
@@ -22,7 +23,8 @@ const supabaseStore = useSupabaseStore()
   <div v-else>
     <Ending v-if="progressStore.isOver" />
     <Video v-else-if="progressStore.isVideo" />
-    <Rating v-else />
+    <Rating v-else-if="progressStore.isRating" />
+    <Loading v-else />
   </div>
 </template>
 

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { useProgressStore } from '@/useProgressStore'
-import { ref, onMounted, defineEmits } from 'vue'
+import { useProgressStore } from '@/useProgress.store'
+import { ref, onMounted } from 'vue'
 
 const progressStore = useProgressStore()
 
@@ -9,7 +9,13 @@ const videoElement = ref<HTMLVideoElement | null>(null)
 const videoSources = [
   '/videos/video_1.mp4',
   '/videos/video_2.mp4',
-  '/videos/video_3.mp4'
+  '/videos/video_3.mp4',
+  '/videos/video_4.mp4',
+  '/videos/video_5.mp4',
+  '/videos/video_6.mp4',
+  '/videos/video_7.mp4',
+  '/videos/video_8.mp4',
+  '/videos/video_9.mp4',
 ]
 
 onMounted(() => {
