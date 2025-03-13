@@ -5,8 +5,6 @@ import { useProgressStore } from './useProgress.store'
 
 
 export const useSupabaseStore = defineStore('supabaseStore', () => {
-  const progressStore = useProgressStore()
-
   // auth
   const isAuthenticated = ref(false)
   const user = ref({
@@ -15,15 +13,14 @@ export const useSupabaseStore = defineStore('supabaseStore', () => {
   })
 
 
-  async function saveProgress () {
+  async function saveProgress (phase: number) {
     const { participantNumber, username } = user.value
 
     const { error } = await supabase.from('progress').upsert(
       {
+        phase: phase,
         participant_number: participantNumber,
         username: username,
-        current_index: progressStore.currentIndex,
-        is_over: progressStore.isOver,
       },
       { onConflict: 'participant_number' } // Match rows based on the unique constraint
     )
@@ -40,7 +37,7 @@ export const useSupabaseStore = defineStore('supabaseStore', () => {
 
     const { data, error } = await supabase
       .from('progress')
-      .select('current_index, is_over')
+      .select('phase')
       .eq('participant_number', participantNumber)
       .eq('username', username)
       .single()
@@ -48,14 +45,16 @@ export const useSupabaseStore = defineStore('supabaseStore', () => {
     return { data, error }
   }
 
-  async function saveRating (videoIndex: number, rating: number) {
+  async function saveRating (videoIndex: number, ratings: { pain: number, credibility: number, difficulty: number }) {
     const { participantNumber } = user.value
 
     const { error } = await supabase.from('ratings').insert([
       {
         participant_number: participantNumber,
         video_index: videoIndex,
-        rating: rating,
+        pain_rating: ratings.pain,
+        credibility_rating: ratings.credibility,
+        difficulty_rating: ratings.difficulty,
       },
     ])
 
@@ -66,7 +65,34 @@ export const useSupabaseStore = defineStore('supabaseStore', () => {
     }
   }
 
+  async function saveUserData (formData: any) {
+    const { participantNumber } = user.value
 
+    const { error } = await supabase.from('form_data').insert([
+      {
+        participant_number: participantNumber,
+        gender: formData.gender,
+        age: formData.age,
+        education: formData.education,
+        ethnicity: formData.ethnicity,
+        current_activity: formData.currentActivity,
+        current_activity_detail: formData.currentActivityDetail,
+        chronic_pain: formData.chronicPain,
+        pain_location: formData.painLocation,
+        private_pain_experience: formData.privatePainExperience,
+        private_pain_relation: formData.privatePainRelation,
+        professional_pain_experience: formData.professionalPainExperience,
+        professional_pain_activity: formData.professionalPainActivity,
+      },
+    ])
+
+    if (error) {
+      console.error('Error saving form data:', error)
+      return error
+    } else {
+      console.log('Form data saved successfully')
+    }
+  }
 
   return {
     isAuthenticated,
@@ -74,5 +100,6 @@ export const useSupabaseStore = defineStore('supabaseStore', () => {
     saveProgress,
     loadProgress,
     saveRating,
+    saveUserData,
   }
 })

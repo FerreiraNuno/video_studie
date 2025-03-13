@@ -10,22 +10,25 @@ const password = ref('')
 const username = ref('')
 const participantNumber = ref('')
 const errorMessage = ref('')
+const loading = ref(false)
 
 const globalPassword = 'klinPsych'
 
 async function handleLogin () {
-  try {
-    if (password.value === globalPassword) {
-      supabaseStore.isAuthenticated = true
+  if (password.value === globalPassword) {
 
-      supabaseStore.user.username = username.value
-      supabaseStore.user.participantNumber = participantNumber.value
-      await progressStore.startStudy()
+    supabaseStore.user.username = username.value
+    supabaseStore.user.participantNumber = participantNumber.value
+    loading.value = true
+    const response = await supabaseStore.loadProgress()
+    loading.value = false
+    if (response.error && response.error.code !== 'PGRST116') {
+      errorMessage.value = response.error.message
     } else {
-      throw new Error('Invalid password')
+      supabaseStore.isAuthenticated = true
+      await progressStore.startStudy()
     }
-  } catch (error: any) {
-    console.error('Error:', error)
+  } else {
     errorMessage.value = "Passwort ist ungültig"
   }
 }
@@ -85,9 +88,16 @@ async function handleLogin () {
 
         <div class="submit-group">
           <button
+            v-if="!loading"
             type="submit"
             class="submit-button"
           >Log In</button>
+          <button
+            v-else
+            type="submit"
+            class="submit-button"
+            disabled
+          >Loading...</button>
           <div
             v-if="errorMessage"
             class="error-message"

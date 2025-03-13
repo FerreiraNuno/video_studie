@@ -1,10 +1,7 @@
 <script setup lang="ts">
 import { useProgressStore } from '@/useProgress.store'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, defineProps, defineEmits } from 'vue'
 
-const progressStore = useProgressStore()
-
-const videoElement = ref<HTMLVideoElement | null>(null)
 
 const videoSources = [
   `${import.meta.env.BASE_URL}videos/video_1.mp4`,
@@ -18,11 +15,21 @@ const videoSources = [
   `${import.meta.env.BASE_URL}videos/video_9.mp4`,
 ]
 
+const props = defineProps<{
+  videoIndex: number,
+}>()
+
+const emit = defineEmits<{
+  (e: 'video-ended'): void
+}>()
+
+const videoElement = ref<HTMLVideoElement | null>(null)
+
 onMounted(() => {
   if (videoElement.value) {
     videoElement.value.addEventListener('ended', () => {
       console.log('Video has finished playing')
-      progressStore.startRating()
+      emit('video-ended')
     })
   }
 })
@@ -30,13 +37,13 @@ onMounted(() => {
 
 <template>
   <div class="video-container">
-    <h2>Video Nummer {{ progressStore.currentIndex + 1 }}</h2>
+    <h2>Video Nummer {{ props.videoIndex }}</h2>
     <video
       autoplay
       ref="videoElement"
     >
       <source
-        :src="videoSources[progressStore.currentIndex]"
+        :src="videoSources[props.videoIndex - 1]"
         type="video/mp4"
       >
       Your browser does not support the video tag.
