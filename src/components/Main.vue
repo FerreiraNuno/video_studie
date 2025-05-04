@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import PhaseThree from './PhaseThree.vue'
 import PhaseOne from './PhaseOne.vue'
 import PhaseTwo from './PhaseTwo.vue'
 import Ending from './Ending.vue'
@@ -15,6 +16,7 @@ const progressStore = useProgressStore()
   <PhaseTwo v-else-if="progressStore.phase == 2" />
 
   <!-- Phase 3 -->
+  <PhaseThree v-else-if="progressStore.phase == 3" />
 
   <!-- Phase 4 -->
   <Ending v-else />

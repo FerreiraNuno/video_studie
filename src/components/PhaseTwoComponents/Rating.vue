@@ -12,15 +12,16 @@ const buttonDisabled = ref(false)
 
 const props = defineProps<{
   videoIndex: number
+  filename: string
 }>()
 
 const emit = defineEmits<{
-  (e: 'rating-submitted', ratings: { pain: number, credibility: number, difficulty: number }): void
+  (e: 'rating-submitted', ratings: { pain: number, credibility: number, difficulty: number }, filename: string): void
 }>()
 
 function nextStep () {
   if (currentStep.value < 3) {
-    currentStep.value++
+    currentStep.value += 1
     resetCountdown()
   } else {
     submitRating()
@@ -32,12 +33,12 @@ async function submitRating () {
     pain: painRating.value,
     credibility: credibilityRating.value,
     difficulty: difficultyRating.value
-  })
+  }, props.filename)
 }
 
 function resetCountdown () {
-  countdown.value = 0 // change to 3
-  buttonDisabled.value = false // change to true
+  countdown.value = supabaseStore.isDevelopment ? 0 : 2
+  buttonDisabled.value = supabaseStore.isDevelopment ? false : true
   const interval = setInterval(() => {
     if (countdown.value > 0) {
       countdown.value--
@@ -55,8 +56,9 @@ onMounted(() => {
 
 <template>
   <div class="rating-container">
-    <div v-if="currentStep === 1">
+    <template v-if="currentStep === 1">
       <h2>Schmerzintensität</h2>
+      <h4>(0-10: kein Schmerz, stärkster vorstellbarer Schmerz)</h4>
       <input
         type="range"
         min="0"
@@ -65,10 +67,11 @@ onMounted(() => {
         class="slider"
       />
       <div class="rating-value">{{ painRating }}</div>
-    </div>
+    </template>
 
-    <div v-else-if="currentStep === 2">
+    <template v-else-if="currentStep === 2">
       <h2>Glaubhaftigkeit der Schmerzen</h2>
+      <h4>(0-10: überhaupt nicht glaubhaft, äußerst glaubhaft)</h4>
       <input
         type="range"
         min="0"
@@ -77,10 +80,11 @@ onMounted(() => {
         class="slider"
       />
       <div class="rating-value">{{ credibilityRating }}</div>
-    </div>
+    </template>
 
-    <div v-else-if="currentStep === 3">
+    <template v-else-if="currentStep === 3">
       <h2>Schwierigkeit der Beurteilung</h2>
+      <h4>(0-10: überhaupt nicht schwierig, äußerst schwierig)</h4>
       <input
         type="range"
         min="0"
@@ -89,7 +93,7 @@ onMounted(() => {
         class="slider"
       />
       <div class="rating-value">{{ difficultyRating }}</div>
-    </div>
+    </template>
 
     <button
       @click="nextStep"
@@ -112,6 +116,11 @@ onMounted(() => {
 
 h2 {
   text-align: center;
+  margin-bottom: 0;
+}
+
+h4 {
+  margin-top: 0;
 }
 
 .slider {

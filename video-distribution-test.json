@@ -1,0 +1,1677 @@
+[
+  {
+    "run": 1,
+    "videos": [
+      {
+        "filename": "female_old_unspecific_04.mp4",
+        "personId": "f_o_4",
+        "gender": "female",
+        "ageGroup": "old",
+        "videoType": "unspecific",
+        "context": "bus"
+      },
+      {
+        "filename": "male_old_unspecific_01.mp4",
+        "personId": "m_o_1",
+        "gender": "male",
+        "ageGroup": "old",
+        "videoType": "unspecific",
+        "context": "bus"
+      },
+      {
+        "filename": "male_young_unspecific_05.mp4",
+        "personId": "m_y_5",
+        "gender": "male",
+        "ageGroup": "young",
+        "videoType": "unspecific",
+        "context": "bus"
+      },
+      {
+        "filename": "female_old_pain_03.mp4",
+        "personId": "f_o_3",
+        "gender": "female",
+        "ageGroup": "old",
+        "videoType": "pain-specific",
+        "context": "bus"
+      },
+      {
+        "filename": "female_old_pain_01.mp4",
+        "personId": "f_o_1",
+        "gender": "female",
+        "ageGroup": "old",
+        "videoType": "pain-specific",
+        "context": "bus"
+      },
+      {
+        "filename": "male_young_unspecific_03.mp4",
+        "personId": "m_y_3",
+        "gender": "male",
+        "ageGroup": "young",
+        "videoType": "unspecific",
+        "context": "bus"
+      },
+      {
+        "filename": "female_young_pain_02.mp4",
+        "personId": "f_y_2",
+        "gender": "female",
+        "ageGroup": "young",
+        "videoType": "pain-specific",
+        "context": "bus"
+      },
+      {
+        "filename": "female_old_unspecific_02.mp4",
+        "personId": "f_o_2",
+        "gender": "female",
+        "ageGroup": "old",
+        "videoType": "unspecific",
+        "context": "bus"
+      },
+      {
+        "filename": "female_young_unspecific_01.mp4",
+        "personId": "f_y_1",
+        "gender": "female",
+        "ageGroup": "young",
+        "videoType": "unspecific",
+        "context": "bus"
+      },
+      {
+        "filename": "male_young_pain_04.mp4",
+        "personId": "m_y_4",
+        "gender": "male",
+        "ageGroup": "young",
+        "videoType": "pain-specific",
+        "context": "bus"
+      },
+      {
+        "filename": "male_old_pain_02.mp4",
+        "personId": "m_o_2",
+        "gender": "male",
+        "ageGroup": "old",
+        "videoType": "pain-specific",
+        "context": "bus"
+      },
+      {
+        "filename": "male_old_pain_03.mp4",
+        "personId": "m_o_3",
+        "gender": "male",
+        "ageGroup": "old",
+        "videoType": "pain-specific",
+        "context": "bus"
+      },
+      {
+        "filename": "male_young_pain_01.mp4",
+        "personId": "m_y_1",
+        "gender": "male",
+        "ageGroup": "young",
+        "videoType": "pain-specific",
+        "context": "bus"
+      },
+      {
+        "filename": "female_young_unspecific_03.mp4",
+        "personId": "f_y_3",
+        "gender": "female",
+        "ageGroup": "young",
+        "videoType": "unspecific",
+        "context": "bus"
+      },
+      {
+        "filename": "male_young_unspecific_02.mp4",
+        "personId": "m_y_2",
+        "gender": "male",
+        "ageGroup": "young",
+        "videoType": "unspecific",
+        "context": "bus"
+      },
+      {
+        "filename": "female_young_pain_04.mp4",
+        "personId": "f_y_4",
+        "gender": "female",
+        "ageGroup": "young",
+        "videoType": "pain-specific",
+        "context": "doctor"
+      },
+      {
+        "filename": "female_young_pain_05.mp4",
+        "personId": "f_y_5",
+        "gender": "female",
+        "ageGroup": "young",
+        "videoType": "pain-specific",
+        "context": "doctor"
+      },
+      {
+        "filename": "male_old_pain_01.mp4",
+        "personId": "m_o_1",
+        "gender": "male",
+        "ageGroup": "old",
+        "videoType": "pain-specific",
+        "context": "doctor"
+      },
+      {
+        "filename": "female_old_unspecific_03.mp4",
+        "personId": "f_o_3",
+        "gender": "female",
+        "ageGroup": "old",
+        "videoType": "unspecific",
+        "context": "doctor"
+      },
+      {
+        "filename": "male_old_unspecific_04.mp4",
+        "personId": "m_o_4",
+        "gender": "male",
+        "ageGroup": "old",
+        "videoType": "unspecific",
+        "context": "doctor"
+      },
+      {
+        "filename": "female_young_unspecific_02.mp4",
+        "personId": "f_y_2",
+        "gender": "female",
+        "ageGroup": "young",
+        "videoType": "unspecific",
+        "context": "doctor"
+      },
+      {
+        "filename": "female_old_pain_02.mp4",
+        "personId": "f_o_2",
+        "gender": "female",
+        "ageGroup": "old",
+        "videoType": "pain-specific",
+        "context": "doctor"
+      },
+      {
+        "filename": "female_young_pain_01.mp4",
+        "personId": "f_y_1",
+        "gender": "female",
+        "ageGroup": "young",
+        "videoType": "pain-specific",
+        "context": "doctor"
+      },
+      {
+        "filename": "male_old_unspecific_02.mp4",
+        "personId": "m_o_2",
+        "gender": "male",
+        "ageGroup": "old",
+        "videoType": "unspecific",
+        "context": "doctor"
+      },
+      {
+        "filename": "male_young_unspecific_01.mp4",
+        "personId": "m_y_1",
+        "gender": "male",
+        "ageGroup": "young",
+        "videoType": "unspecific",
+        "context": "doctor"
+      },
+      {
+        "filename": "male_young_pain_02.mp4",
+        "personId": "m_y_2",
+        "gender": "male",
+        "ageGroup": "young",
+        "videoType": "pain-specific",
+        "context": "doctor"
+      },
+      {
+        "filename": "female_young_unspecific_04.mp4",
+        "personId": "f_y_4",
+        "gender": "female",
+        "ageGroup": "young",
+        "videoType": "unspecific",
+        "context": "pension"
+      },
+      {
+        "filename": "female_young_unspecific_05.mp4",
+        "personId": "f_y_5",
+        "gender": "female",
+        "ageGroup": "young",
+        "videoType": "unspecific",
+        "context": "pension"
+      },
+      {
+        "filename": "female_old_pain_04.mp4",
+        "personId": "f_o_4",
+        "gender": "female",
+        "ageGroup": "old",
+        "videoType": "pain-specific",
+        "context": "pension"
+      },
+      {
+        "filename": "male_young_pain_05.mp4",
+        "personId": "m_y_5",
+        "gender": "male",
+        "ageGroup": "young",
+        "videoType": "pain-specific",
+        "context": "pension"
+      },
+      {
+        "filename": "male_old_pain_04.mp4",
+        "personId": "m_o_4",
+        "gender": "male",
+        "ageGroup": "old",
+        "videoType": "pain-specific",
+        "context": "pension"
+      },
+      {
+        "filename": "female_old_unspecific_01.mp4",
+        "personId": "f_o_1",
+        "gender": "female",
+        "ageGroup": "old",
+        "videoType": "unspecific",
+        "context": "pension"
+      },
+      {
+        "filename": "male_young_pain_03.mp4",
+        "personId": "m_y_3",
+        "gender": "male",
+        "ageGroup": "young",
+        "videoType": "pain-specific",
+        "context": "pension"
+      },
+      {
+        "filename": "male_young_unspecific_04.mp4",
+        "personId": "m_y_4",
+        "gender": "male",
+        "ageGroup": "young",
+        "videoType": "unspecific",
+        "context": "pension"
+      },
+      {
+        "filename": "male_old_unspecific_03.mp4",
+        "personId": "m_o_3",
+        "gender": "male",
+        "ageGroup": "old",
+        "videoType": "unspecific",
+        "context": "pension"
+      },
+      {
+        "filename": "female_young_pain_03.mp4",
+        "personId": "f_y_3",
+        "gender": "female",
+        "ageGroup": "young",
+        "videoType": "pain-specific",
+        "context": "pension"
+      }
+    ],
+    "distribution": {
+      "bus": {
+        "total": 15,
+        "painSpecific": 7,
+        "unspecific": 8,
+        "gender": {
+          "male": 8,
+          "female": 7
+        },
+        "ageGroup": {
+          "young": 8,
+          "old": 7
+        }
+      },
+      "doctor": {
+        "total": 11,
+        "painSpecific": 6,
+        "unspecific": 5,
+        "gender": {
+          "male": 5,
+          "female": 6
+        },
+        "ageGroup": {
+          "young": 6,
+          "old": 5
+        }
+      },
+      "pension": {
+        "total": 10,
+        "painSpecific": 5,
+        "unspecific": 5,
+        "gender": {
+          "male": 5,
+          "female": 5
+        },
+        "ageGroup": {
+          "young": 6,
+          "old": 4
+        }
+      }
+    },
+    "sameContextErrors": []
+  },
+  {
+    "run": 2,
+    "videos": [
+      {
+        "filename": "male_young_unspecific_03.mp4",
+        "personId": "m_y_3",
+        "gender": "male",
+        "ageGroup": "young",
+        "videoType": "unspecific",
+        "context": "bus"
+      },
+      {
+        "filename": "female_old_unspecific_04.mp4",
+        "personId": "f_o_4",
+        "gender": "female",
+        "ageGroup": "old",
+        "videoType": "unspecific",
+        "context": "bus"
+      },
+      {
+        "filename": "male_young_pain_05.mp4",
+        "personId": "m_y_5",
+        "gender": "male",
+        "ageGroup": "young",
+        "videoType": "pain-specific",
+        "context": "bus"
+      },
+      {
+        "filename": "male_young_unspecific_01.mp4",
+        "personId": "m_y_1",
+        "gender": "male",
+        "ageGroup": "young",
+        "videoType": "unspecific",
+        "context": "bus"
+      },
+      {
+        "filename": "male_young_pain_04.mp4",
+        "personId": "m_y_4",
+        "gender": "male",
+        "ageGroup": "young",
+        "videoType": "pain-specific",
+        "context": "bus"
+      },
+      {
+        "filename": "male_old_unspecific_01.mp4",
+        "personId": "m_o_1",
+        "gender": "male",
+        "ageGroup": "old",
+        "videoType": "unspecific",
+        "context": "bus"
+      },
+      {
+        "filename": "female_young_unspecific_01.mp4",
+        "personId": "f_y_1",
+        "gender": "female",
+        "ageGroup": "young",
+        "videoType": "unspecific",
+        "context": "bus"
+      },
+      {
+        "filename": "female_young_unspecific_03.mp4",
+        "personId": "f_y_3",
+        "gender": "female",
+        "ageGroup": "young",
+        "videoType": "unspecific",
+        "context": "bus"
+      },
+      {
+        "filename": "female_young_unspecific_04.mp4",
+        "personId": "f_y_4",
+        "gender": "female",
+        "ageGroup": "young",
+        "videoType": "unspecific",
+        "context": "bus"
+      },
+      {
+        "filename": "male_old_unspecific_02.mp4",
+        "personId": "m_o_2",
+        "gender": "male",
+        "ageGroup": "old",
+        "videoType": "unspecific",
+        "context": "bus"
+      },
+      {
+        "filename": "female_old_pain_02.mp4",
+        "personId": "f_o_2",
+        "gender": "female",
+        "ageGroup": "old",
+        "videoType": "pain-specific",
+        "context": "bus"
+      },
+      {
+        "filename": "female_young_pain_02.mp4",
+        "personId": "f_y_2",
+        "gender": "female",
+        "ageGroup": "young",
+        "videoType": "pain-specific",
+        "context": "bus"
+      },
+      {
+        "filename": "male_young_pain_03.mp4",
+        "personId": "m_y_3",
+        "gender": "male",
+        "ageGroup": "young",
+        "videoType": "pain-specific",
+        "context": "doctor"
+      },
+      {
+        "filename": "male_old_unspecific_04.mp4",
+        "personId": "m_o_4",
+        "gender": "male",
+        "ageGroup": "old",
+        "videoType": "unspecific",
+        "context": "doctor"
+      },
+      {
+        "filename": "male_old_unspecific_03.mp4",
+        "personId": "m_o_3",
+        "gender": "male",
+        "ageGroup": "old",
+        "videoType": "unspecific",
+        "context": "doctor"
+      },
+      {
+        "filename": "female_young_pain_05.mp4",
+        "personId": "f_y_5",
+        "gender": "female",
+        "ageGroup": "young",
+        "videoType": "pain-specific",
+        "context": "doctor"
+      },
+      {
+        "filename": "male_young_unspecific_05.mp4",
+        "personId": "m_y_5",
+        "gender": "male",
+        "ageGroup": "young",
+        "videoType": "unspecific",
+        "context": "doctor"
+      },
+      {
+        "filename": "male_young_pain_01.mp4",
+        "personId": "m_y_1",
+        "gender": "male",
+        "ageGroup": "young",
+        "videoType": "pain-specific",
+        "context": "doctor"
+      },
+      {
+        "filename": "female_old_unspecific_01.mp4",
+        "personId": "f_o_1",
+        "gender": "female",
+        "ageGroup": "old",
+        "videoType": "unspecific",
+        "context": "doctor"
+      },
+      {
+        "filename": "male_young_unspecific_04.mp4",
+        "personId": "m_y_4",
+        "gender": "male",
+        "ageGroup": "young",
+        "videoType": "unspecific",
+        "context": "doctor"
+      },
+      {
+        "filename": "female_young_pain_01.mp4",
+        "personId": "f_y_1",
+        "gender": "female",
+        "ageGroup": "young",
+        "videoType": "pain-specific",
+        "context": "doctor"
+      },
+      {
+        "filename": "female_young_pain_03.mp4",
+        "personId": "f_y_3",
+        "gender": "female",
+        "ageGroup": "young",
+        "videoType": "pain-specific",
+        "context": "doctor"
+      },
+      {
+        "filename": "female_old_unspecific_03.mp4",
+        "personId": "f_o_3",
+        "gender": "female",
+        "ageGroup": "old",
+        "videoType": "unspecific",
+        "context": "doctor"
+      },
+      {
+        "filename": "male_young_pain_02.mp4",
+        "personId": "m_y_2",
+        "gender": "male",
+        "ageGroup": "young",
+        "videoType": "pain-specific",
+        "context": "doctor"
+      },
+      {
+        "filename": "male_old_pain_04.mp4",
+        "personId": "m_o_4",
+        "gender": "male",
+        "ageGroup": "old",
+        "videoType": "pain-specific",
+        "context": "pension"
+      },
+      {
+        "filename": "female_old_pain_04.mp4",
+        "personId": "f_o_4",
+        "gender": "female",
+        "ageGroup": "old",
+        "videoType": "pain-specific",
+        "context": "pension"
+      },
+      {
+        "filename": "male_old_pain_03.mp4",
+        "personId": "m_o_3",
+        "gender": "male",
+        "ageGroup": "old",
+        "videoType": "pain-specific",
+        "context": "pension"
+      },
+      {
+        "filename": "female_young_unspecific_05.mp4",
+        "personId": "f_y_5",
+        "gender": "female",
+        "ageGroup": "young",
+        "videoType": "unspecific",
+        "context": "pension"
+      },
+      {
+        "filename": "female_old_pain_01.mp4",
+        "personId": "f_o_1",
+        "gender": "female",
+        "ageGroup": "old",
+        "videoType": "pain-specific",
+        "context": "pension"
+      },
+      {
+        "filename": "male_old_pain_01.mp4",
+        "personId": "m_o_1",
+        "gender": "male",
+        "ageGroup": "old",
+        "videoType": "pain-specific",
+        "context": "pension"
+      },
+      {
+        "filename": "female_old_pain_03.mp4",
+        "personId": "f_o_3",
+        "gender": "female",
+        "ageGroup": "old",
+        "videoType": "pain-specific",
+        "context": "pension"
+      },
+      {
+        "filename": "female_young_pain_04.mp4",
+        "personId": "f_y_4",
+        "gender": "female",
+        "ageGroup": "young",
+        "videoType": "pain-specific",
+        "context": "pension"
+      },
+      {
+        "filename": "male_old_pain_02.mp4",
+        "personId": "m_o_2",
+        "gender": "male",
+        "ageGroup": "old",
+        "videoType": "pain-specific",
+        "context": "pension"
+      },
+      {
+        "filename": "male_young_unspecific_02.mp4",
+        "personId": "m_y_2",
+        "gender": "male",
+        "ageGroup": "young",
+        "videoType": "unspecific",
+        "context": "pension"
+      },
+      {
+        "filename": "female_old_unspecific_02.mp4",
+        "personId": "f_o_2",
+        "gender": "female",
+        "ageGroup": "old",
+        "videoType": "unspecific",
+        "context": "pension"
+      },
+      {
+        "filename": "female_young_unspecific_02.mp4",
+        "personId": "f_y_2",
+        "gender": "female",
+        "ageGroup": "young",
+        "videoType": "unspecific",
+        "context": "pension"
+      }
+    ],
+    "distribution": {
+      "bus": {
+        "total": 12,
+        "painSpecific": 4,
+        "unspecific": 8,
+        "gender": {
+          "male": 6,
+          "female": 6
+        },
+        "ageGroup": {
+          "young": 8,
+          "old": 4
+        }
+      },
+      "doctor": {
+        "total": 12,
+        "painSpecific": 6,
+        "unspecific": 6,
+        "gender": {
+          "male": 7,
+          "female": 5
+        },
+        "ageGroup": {
+          "young": 8,
+          "old": 4
+        }
+      },
+      "pension": {
+        "total": 12,
+        "painSpecific": 8,
+        "unspecific": 4,
+        "gender": {
+          "male": 5,
+          "female": 7
+        },
+        "ageGroup": {
+          "young": 4,
+          "old": 8
+        }
+      }
+    },
+    "sameContextErrors": []
+  },
+  {
+    "run": 3,
+    "videos": [
+      {
+        "filename": "female_old_pain_02.mp4",
+        "personId": "f_o_2",
+        "gender": "female",
+        "ageGroup": "old",
+        "videoType": "pain-specific",
+        "context": "bus"
+      },
+      {
+        "filename": "male_old_pain_04.mp4",
+        "personId": "m_o_4",
+        "gender": "male",
+        "ageGroup": "old",
+        "videoType": "pain-specific",
+        "context": "bus"
+      },
+      {
+        "filename": "male_old_unspecific_03.mp4",
+        "personId": "m_o_3",
+        "gender": "male",
+        "ageGroup": "old",
+        "videoType": "unspecific",
+        "context": "bus"
+      },
+      {
+        "filename": "female_young_pain_03.mp4",
+        "personId": "f_y_3",
+        "gender": "female",
+        "ageGroup": "young",
+        "videoType": "pain-specific",
+        "context": "bus"
+      },
+      {
+        "filename": "male_old_pain_01.mp4",
+        "personId": "m_o_1",
+        "gender": "male",
+        "ageGroup": "old",
+        "videoType": "pain-specific",
+        "context": "bus"
+      },
+      {
+        "filename": "male_young_pain_01.mp4",
+        "personId": "m_y_1",
+        "gender": "male",
+        "ageGroup": "young",
+        "videoType": "pain-specific",
+        "context": "bus"
+      },
+      {
+        "filename": "female_old_unspecific_01.mp4",
+        "personId": "f_o_1",
+        "gender": "female",
+        "ageGroup": "old",
+        "videoType": "unspecific",
+        "context": "bus"
+      },
+      {
+        "filename": "female_young_unspecific_04.mp4",
+        "personId": "f_y_4",
+        "gender": "female",
+        "ageGroup": "young",
+        "videoType": "unspecific",
+        "context": "bus"
+      },
+      {
+        "filename": "female_old_unspecific_03.mp4",
+        "personId": "f_o_3",
+        "gender": "female",
+        "ageGroup": "old",
+        "videoType": "unspecific",
+        "context": "bus"
+      },
+      {
+        "filename": "male_young_unspecific_02.mp4",
+        "personId": "m_y_2",
+        "gender": "male",
+        "ageGroup": "young",
+        "videoType": "unspecific",
+        "context": "bus"
+      },
+      {
+        "filename": "female_young_pain_02.mp4",
+        "personId": "f_y_2",
+        "gender": "female",
+        "ageGroup": "young",
+        "videoType": "pain-specific",
+        "context": "bus"
+      },
+      {
+        "filename": "male_old_unspecific_02.mp4",
+        "personId": "m_o_2",
+        "gender": "male",
+        "ageGroup": "old",
+        "videoType": "unspecific",
+        "context": "bus"
+      },
+      {
+        "filename": "female_old_pain_04.mp4",
+        "personId": "f_o_4",
+        "gender": "female",
+        "ageGroup": "old",
+        "videoType": "pain-specific",
+        "context": "bus"
+      },
+      {
+        "filename": "male_young_unspecific_04.mp4",
+        "personId": "m_y_4",
+        "gender": "male",
+        "ageGroup": "young",
+        "videoType": "unspecific",
+        "context": "bus"
+      },
+      {
+        "filename": "male_old_pain_03.mp4",
+        "personId": "m_o_3",
+        "gender": "male",
+        "ageGroup": "old",
+        "videoType": "pain-specific",
+        "context": "doctor"
+      },
+      {
+        "filename": "female_young_unspecific_03.mp4",
+        "personId": "f_y_3",
+        "gender": "female",
+        "ageGroup": "young",
+        "videoType": "unspecific",
+        "context": "doctor"
+      },
+      {
+        "filename": "male_old_unspecific_01.mp4",
+        "personId": "m_o_1",
+        "gender": "male",
+        "ageGroup": "old",
+        "videoType": "unspecific",
+        "context": "doctor"
+      },
+      {
+        "filename": "male_young_unspecific_01.mp4",
+        "personId": "m_y_1",
+        "gender": "male",
+        "ageGroup": "young",
+        "videoType": "unspecific",
+        "context": "doctor"
+      },
+      {
+        "filename": "male_young_unspecific_03.mp4",
+        "personId": "m_y_3",
+        "gender": "male",
+        "ageGroup": "young",
+        "videoType": "unspecific",
+        "context": "doctor"
+      },
+      {
+        "filename": "female_old_pain_01.mp4",
+        "personId": "f_o_1",
+        "gender": "female",
+        "ageGroup": "old",
+        "videoType": "pain-specific",
+        "context": "doctor"
+      },
+      {
+        "filename": "female_young_pain_04.mp4",
+        "personId": "f_y_4",
+        "gender": "female",
+        "ageGroup": "young",
+        "videoType": "pain-specific",
+        "context": "doctor"
+      },
+      {
+        "filename": "female_old_pain_03.mp4",
+        "personId": "f_o_3",
+        "gender": "female",
+        "ageGroup": "old",
+        "videoType": "pain-specific",
+        "context": "doctor"
+      },
+      {
+        "filename": "male_young_pain_05.mp4",
+        "personId": "m_y_5",
+        "gender": "male",
+        "ageGroup": "young",
+        "videoType": "pain-specific",
+        "context": "doctor"
+      },
+      {
+        "filename": "female_young_pain_05.mp4",
+        "personId": "f_y_5",
+        "gender": "female",
+        "ageGroup": "young",
+        "videoType": "pain-specific",
+        "context": "doctor"
+      },
+      {
+        "filename": "male_young_pain_02.mp4",
+        "personId": "m_y_2",
+        "gender": "male",
+        "ageGroup": "young",
+        "videoType": "pain-specific",
+        "context": "doctor"
+      },
+      {
+        "filename": "female_young_unspecific_02.mp4",
+        "personId": "f_y_2",
+        "gender": "female",
+        "ageGroup": "young",
+        "videoType": "unspecific",
+        "context": "doctor"
+      },
+      {
+        "filename": "female_young_unspecific_01.mp4",
+        "personId": "f_y_1",
+        "gender": "female",
+        "ageGroup": "young",
+        "videoType": "unspecific",
+        "context": "doctor"
+      },
+      {
+        "filename": "female_old_unspecific_04.mp4",
+        "personId": "f_o_4",
+        "gender": "female",
+        "ageGroup": "old",
+        "videoType": "unspecific",
+        "context": "doctor"
+      },
+      {
+        "filename": "female_old_unspecific_02.mp4",
+        "personId": "f_o_2",
+        "gender": "female",
+        "ageGroup": "old",
+        "videoType": "unspecific",
+        "context": "pension"
+      },
+      {
+        "filename": "male_old_unspecific_04.mp4",
+        "personId": "m_o_4",
+        "gender": "male",
+        "ageGroup": "old",
+        "videoType": "unspecific",
+        "context": "pension"
+      },
+      {
+        "filename": "male_young_pain_03.mp4",
+        "personId": "m_y_3",
+        "gender": "male",
+        "ageGroup": "young",
+        "videoType": "pain-specific",
+        "context": "pension"
+      },
+      {
+        "filename": "male_young_unspecific_05.mp4",
+        "personId": "m_y_5",
+        "gender": "male",
+        "ageGroup": "young",
+        "videoType": "unspecific",
+        "context": "pension"
+      },
+      {
+        "filename": "female_young_unspecific_05.mp4",
+        "personId": "f_y_5",
+        "gender": "female",
+        "ageGroup": "young",
+        "videoType": "unspecific",
+        "context": "pension"
+      },
+      {
+        "filename": "male_old_pain_02.mp4",
+        "personId": "m_o_2",
+        "gender": "male",
+        "ageGroup": "old",
+        "videoType": "pain-specific",
+        "context": "pension"
+      },
+      {
+        "filename": "female_young_pain_01.mp4",
+        "personId": "f_y_1",
+        "gender": "female",
+        "ageGroup": "young",
+        "videoType": "pain-specific",
+        "context": "pension"
+      },
+      {
+        "filename": "male_young_pain_04.mp4",
+        "personId": "m_y_4",
+        "gender": "male",
+        "ageGroup": "young",
+        "videoType": "pain-specific",
+        "context": "pension"
+      }
+    ],
+    "distribution": {
+      "bus": {
+        "total": 14,
+        "painSpecific": 7,
+        "unspecific": 7,
+        "gender": {
+          "male": 7,
+          "female": 7
+        },
+        "ageGroup": {
+          "young": 6,
+          "old": 8
+        }
+      },
+      "doctor": {
+        "total": 14,
+        "painSpecific": 7,
+        "unspecific": 7,
+        "gender": {
+          "male": 6,
+          "female": 8
+        },
+        "ageGroup": {
+          "young": 9,
+          "old": 5
+        }
+      },
+      "pension": {
+        "total": 8,
+        "painSpecific": 4,
+        "unspecific": 4,
+        "gender": {
+          "male": 5,
+          "female": 3
+        },
+        "ageGroup": {
+          "young": 5,
+          "old": 3
+        }
+      }
+    },
+    "sameContextErrors": []
+  },
+  {
+    "run": 4,
+    "videos": [
+      {
+        "filename": "female_old_unspecific_02.mp4",
+        "personId": "f_o_2",
+        "gender": "female",
+        "ageGroup": "old",
+        "videoType": "unspecific",
+        "context": "bus"
+      },
+      {
+        "filename": "male_old_unspecific_03.mp4",
+        "personId": "m_o_3",
+        "gender": "male",
+        "ageGroup": "old",
+        "videoType": "unspecific",
+        "context": "bus"
+      },
+      {
+        "filename": "male_young_unspecific_05.mp4",
+        "personId": "m_y_5",
+        "gender": "male",
+        "ageGroup": "young",
+        "videoType": "unspecific",
+        "context": "bus"
+      },
+      {
+        "filename": "female_young_pain_05.mp4",
+        "personId": "f_y_5",
+        "gender": "female",
+        "ageGroup": "young",
+        "videoType": "pain-specific",
+        "context": "bus"
+      },
+      {
+        "filename": "male_old_unspecific_02.mp4",
+        "personId": "m_o_2",
+        "gender": "male",
+        "ageGroup": "old",
+        "videoType": "unspecific",
+        "context": "bus"
+      },
+      {
+        "filename": "male_young_unspecific_04.mp4",
+        "personId": "m_y_4",
+        "gender": "male",
+        "ageGroup": "young",
+        "videoType": "unspecific",
+        "context": "bus"
+      },
+      {
+        "filename": "female_young_unspecific_04.mp4",
+        "personId": "f_y_4",
+        "gender": "female",
+        "ageGroup": "young",
+        "videoType": "unspecific",
+        "context": "bus"
+      },
+      {
+        "filename": "female_young_pain_02.mp4",
+        "personId": "f_y_2",
+        "gender": "female",
+        "ageGroup": "young",
+        "videoType": "pain-specific",
+        "context": "bus"
+      },
+      {
+        "filename": "female_old_unspecific_01.mp4",
+        "personId": "f_o_1",
+        "gender": "female",
+        "ageGroup": "old",
+        "videoType": "unspecific",
+        "context": "bus"
+      },
+      {
+        "filename": "male_young_pain_02.mp4",
+        "personId": "m_y_2",
+        "gender": "male",
+        "ageGroup": "young",
+        "videoType": "pain-specific",
+        "context": "bus"
+      },
+      {
+        "filename": "male_old_pain_04.mp4",
+        "personId": "m_o_4",
+        "gender": "male",
+        "ageGroup": "old",
+        "videoType": "pain-specific",
+        "context": "bus"
+      },
+      {
+        "filename": "female_old_pain_03.mp4",
+        "personId": "f_o_3",
+        "gender": "female",
+        "ageGroup": "old",
+        "videoType": "pain-specific",
+        "context": "bus"
+      },
+      {
+        "filename": "female_young_pain_01.mp4",
+        "personId": "f_y_1",
+        "gender": "female",
+        "ageGroup": "young",
+        "videoType": "pain-specific",
+        "context": "bus"
+      },
+      {
+        "filename": "male_young_unspecific_01.mp4",
+        "personId": "m_y_1",
+        "gender": "male",
+        "ageGroup": "young",
+        "videoType": "unspecific",
+        "context": "doctor"
+      },
+      {
+        "filename": "male_old_pain_03.mp4",
+        "personId": "m_o_3",
+        "gender": "male",
+        "ageGroup": "old",
+        "videoType": "pain-specific",
+        "context": "doctor"
+      },
+      {
+        "filename": "female_young_unspecific_05.mp4",
+        "personId": "f_y_5",
+        "gender": "female",
+        "ageGroup": "young",
+        "videoType": "unspecific",
+        "context": "doctor"
+      },
+      {
+        "filename": "male_old_pain_02.mp4",
+        "personId": "m_o_2",
+        "gender": "male",
+        "ageGroup": "old",
+        "videoType": "pain-specific",
+        "context": "doctor"
+      },
+      {
+        "filename": "male_old_pain_01.mp4",
+        "personId": "m_o_1",
+        "gender": "male",
+        "ageGroup": "old",
+        "videoType": "pain-specific",
+        "context": "doctor"
+      },
+      {
+        "filename": "female_old_unspecific_04.mp4",
+        "personId": "f_o_4",
+        "gender": "female",
+        "ageGroup": "old",
+        "videoType": "unspecific",
+        "context": "doctor"
+      },
+      {
+        "filename": "male_young_unspecific_03.mp4",
+        "personId": "m_y_3",
+        "gender": "male",
+        "ageGroup": "young",
+        "videoType": "unspecific",
+        "context": "doctor"
+      },
+      {
+        "filename": "female_young_unspecific_03.mp4",
+        "personId": "f_y_3",
+        "gender": "female",
+        "ageGroup": "young",
+        "videoType": "unspecific",
+        "context": "doctor"
+      },
+      {
+        "filename": "male_old_unspecific_04.mp4",
+        "personId": "m_o_4",
+        "gender": "male",
+        "ageGroup": "old",
+        "videoType": "unspecific",
+        "context": "doctor"
+      },
+      {
+        "filename": "female_young_unspecific_01.mp4",
+        "personId": "f_y_1",
+        "gender": "female",
+        "ageGroup": "young",
+        "videoType": "unspecific",
+        "context": "doctor"
+      },
+      {
+        "filename": "male_young_pain_01.mp4",
+        "personId": "m_y_1",
+        "gender": "male",
+        "ageGroup": "young",
+        "videoType": "pain-specific",
+        "context": "pension"
+      },
+      {
+        "filename": "female_old_pain_02.mp4",
+        "personId": "f_o_2",
+        "gender": "female",
+        "ageGroup": "old",
+        "videoType": "pain-specific",
+        "context": "pension"
+      },
+      {
+        "filename": "male_young_pain_05.mp4",
+        "personId": "m_y_5",
+        "gender": "male",
+        "ageGroup": "young",
+        "videoType": "pain-specific",
+        "context": "pension"
+      },
+      {
+        "filename": "male_young_pain_04.mp4",
+        "personId": "m_y_4",
+        "gender": "male",
+        "ageGroup": "young",
+        "videoType": "pain-specific",
+        "context": "pension"
+      },
+      {
+        "filename": "male_old_unspecific_01.mp4",
+        "personId": "m_o_1",
+        "gender": "male",
+        "ageGroup": "old",
+        "videoType": "unspecific",
+        "context": "pension"
+      },
+      {
+        "filename": "female_old_pain_04.mp4",
+        "personId": "f_o_4",
+        "gender": "female",
+        "ageGroup": "old",
+        "videoType": "pain-specific",
+        "context": "pension"
+      },
+      {
+        "filename": "male_young_pain_03.mp4",
+        "personId": "m_y_3",
+        "gender": "male",
+        "ageGroup": "young",
+        "videoType": "pain-specific",
+        "context": "pension"
+      },
+      {
+        "filename": "female_young_pain_03.mp4",
+        "personId": "f_y_3",
+        "gender": "female",
+        "ageGroup": "young",
+        "videoType": "pain-specific",
+        "context": "pension"
+      },
+      {
+        "filename": "female_young_pain_04.mp4",
+        "personId": "f_y_4",
+        "gender": "female",
+        "ageGroup": "young",
+        "videoType": "pain-specific",
+        "context": "pension"
+      },
+      {
+        "filename": "female_young_unspecific_02.mp4",
+        "personId": "f_y_2",
+        "gender": "female",
+        "ageGroup": "young",
+        "videoType": "unspecific",
+        "context": "pension"
+      },
+      {
+        "filename": "female_old_pain_01.mp4",
+        "personId": "f_o_1",
+        "gender": "female",
+        "ageGroup": "old",
+        "videoType": "pain-specific",
+        "context": "pension"
+      },
+      {
+        "filename": "male_young_unspecific_02.mp4",
+        "personId": "m_y_2",
+        "gender": "male",
+        "ageGroup": "young",
+        "videoType": "unspecific",
+        "context": "pension"
+      },
+      {
+        "filename": "female_old_unspecific_03.mp4",
+        "personId": "f_o_3",
+        "gender": "female",
+        "ageGroup": "old",
+        "videoType": "unspecific",
+        "context": "pension"
+      }
+    ],
+    "distribution": {
+      "bus": {
+        "total": 13,
+        "painSpecific": 6,
+        "unspecific": 7,
+        "gender": {
+          "male": 6,
+          "female": 7
+        },
+        "ageGroup": {
+          "young": 7,
+          "old": 6
+        }
+      },
+      "doctor": {
+        "total": 10,
+        "painSpecific": 3,
+        "unspecific": 7,
+        "gender": {
+          "male": 6,
+          "female": 4
+        },
+        "ageGroup": {
+          "young": 5,
+          "old": 5
+        }
+      },
+      "pension": {
+        "total": 13,
+        "painSpecific": 9,
+        "unspecific": 4,
+        "gender": {
+          "male": 6,
+          "female": 7
+        },
+        "ageGroup": {
+          "young": 8,
+          "old": 5
+        }
+      }
+    },
+    "sameContextErrors": []
+  },
+  {
+    "run": 5,
+    "videos": [
+      {
+        "filename": "female_old_pain_02.mp4",
+        "personId": "f_o_2",
+        "gender": "female",
+        "ageGroup": "old",
+        "videoType": "pain-specific",
+        "context": "bus"
+      },
+      {
+        "filename": "female_old_unspecific_04.mp4",
+        "personId": "f_o_4",
+        "gender": "female",
+        "ageGroup": "old",
+        "videoType": "unspecific",
+        "context": "bus"
+      },
+      {
+        "filename": "female_young_pain_05.mp4",
+        "personId": "f_y_5",
+        "gender": "female",
+        "ageGroup": "young",
+        "videoType": "pain-specific",
+        "context": "bus"
+      },
+      {
+        "filename": "male_young_pain_02.mp4",
+        "personId": "m_y_2",
+        "gender": "male",
+        "ageGroup": "young",
+        "videoType": "pain-specific",
+        "context": "bus"
+      },
+      {
+        "filename": "female_young_unspecific_01.mp4",
+        "personId": "f_y_1",
+        "gender": "female",
+        "ageGroup": "young",
+        "videoType": "unspecific",
+        "context": "bus"
+      },
+      {
+        "filename": "female_young_unspecific_04.mp4",
+        "personId": "f_y_4",
+        "gender": "female",
+        "ageGroup": "young",
+        "videoType": "unspecific",
+        "context": "bus"
+      },
+      {
+        "filename": "male_old_unspecific_04.mp4",
+        "personId": "m_o_4",
+        "gender": "male",
+        "ageGroup": "old",
+        "videoType": "unspecific",
+        "context": "bus"
+      },
+      {
+        "filename": "male_young_unspecific_03.mp4",
+        "personId": "m_y_3",
+        "gender": "male",
+        "ageGroup": "young",
+        "videoType": "unspecific",
+        "context": "bus"
+      },
+      {
+        "filename": "male_old_unspecific_02.mp4",
+        "personId": "m_o_2",
+        "gender": "male",
+        "ageGroup": "old",
+        "videoType": "unspecific",
+        "context": "bus"
+      },
+      {
+        "filename": "male_old_pain_03.mp4",
+        "personId": "m_o_3",
+        "gender": "male",
+        "ageGroup": "old",
+        "videoType": "pain-specific",
+        "context": "bus"
+      },
+      {
+        "filename": "female_young_unspecific_03.mp4",
+        "personId": "f_y_3",
+        "gender": "female",
+        "ageGroup": "young",
+        "videoType": "unspecific",
+        "context": "bus"
+      },
+      {
+        "filename": "male_young_pain_04.mp4",
+        "personId": "m_y_4",
+        "gender": "male",
+        "ageGroup": "young",
+        "videoType": "pain-specific",
+        "context": "bus"
+      },
+      {
+        "filename": "female_old_pain_01.mp4",
+        "personId": "f_o_1",
+        "gender": "female",
+        "ageGroup": "old",
+        "videoType": "pain-specific",
+        "context": "bus"
+      },
+      {
+        "filename": "female_old_unspecific_02.mp4",
+        "personId": "f_o_2",
+        "gender": "female",
+        "ageGroup": "old",
+        "videoType": "unspecific",
+        "context": "doctor"
+      },
+      {
+        "filename": "female_young_unspecific_05.mp4",
+        "personId": "f_y_5",
+        "gender": "female",
+        "ageGroup": "young",
+        "videoType": "unspecific",
+        "context": "doctor"
+      },
+      {
+        "filename": "female_young_pain_02.mp4",
+        "personId": "f_y_2",
+        "gender": "female",
+        "ageGroup": "young",
+        "videoType": "pain-specific",
+        "context": "doctor"
+      },
+      {
+        "filename": "male_young_unspecific_02.mp4",
+        "personId": "m_y_2",
+        "gender": "male",
+        "ageGroup": "young",
+        "videoType": "unspecific",
+        "context": "doctor"
+      },
+      {
+        "filename": "male_young_pain_01.mp4",
+        "personId": "m_y_1",
+        "gender": "male",
+        "ageGroup": "young",
+        "videoType": "pain-specific",
+        "context": "doctor"
+      },
+      {
+        "filename": "female_young_pain_04.mp4",
+        "personId": "f_y_4",
+        "gender": "female",
+        "ageGroup": "young",
+        "videoType": "pain-specific",
+        "context": "doctor"
+      },
+      {
+        "filename": "male_young_unspecific_05.mp4",
+        "personId": "m_y_5",
+        "gender": "male",
+        "ageGroup": "young",
+        "videoType": "unspecific",
+        "context": "doctor"
+      },
+      {
+        "filename": "male_old_unspecific_03.mp4",
+        "personId": "m_o_3",
+        "gender": "male",
+        "ageGroup": "old",
+        "videoType": "unspecific",
+        "context": "doctor"
+      },
+      {
+        "filename": "female_young_pain_03.mp4",
+        "personId": "f_y_3",
+        "gender": "female",
+        "ageGroup": "young",
+        "videoType": "pain-specific",
+        "context": "doctor"
+      },
+      {
+        "filename": "male_old_pain_01.mp4",
+        "personId": "m_o_1",
+        "gender": "male",
+        "ageGroup": "old",
+        "videoType": "pain-specific",
+        "context": "doctor"
+      },
+      {
+        "filename": "male_young_unspecific_04.mp4",
+        "personId": "m_y_4",
+        "gender": "male",
+        "ageGroup": "young",
+        "videoType": "unspecific",
+        "context": "doctor"
+      },
+      {
+        "filename": "female_old_pain_03.mp4",
+        "personId": "f_o_3",
+        "gender": "female",
+        "ageGroup": "old",
+        "videoType": "pain-specific",
+        "context": "doctor"
+      },
+      {
+        "filename": "female_old_unspecific_01.mp4",
+        "personId": "f_o_1",
+        "gender": "female",
+        "ageGroup": "old",
+        "videoType": "unspecific",
+        "context": "doctor"
+      },
+      {
+        "filename": "female_old_pain_04.mp4",
+        "personId": "f_o_4",
+        "gender": "female",
+        "ageGroup": "old",
+        "videoType": "pain-specific",
+        "context": "pension"
+      },
+      {
+        "filename": "female_young_unspecific_02.mp4",
+        "personId": "f_y_2",
+        "gender": "female",
+        "ageGroup": "young",
+        "videoType": "unspecific",
+        "context": "pension"
+      },
+      {
+        "filename": "female_young_pain_01.mp4",
+        "personId": "f_y_1",
+        "gender": "female",
+        "ageGroup": "young",
+        "videoType": "pain-specific",
+        "context": "pension"
+      },
+      {
+        "filename": "male_young_unspecific_01.mp4",
+        "personId": "m_y_1",
+        "gender": "male",
+        "ageGroup": "young",
+        "videoType": "unspecific",
+        "context": "pension"
+      },
+      {
+        "filename": "male_old_pain_04.mp4",
+        "personId": "m_o_4",
+        "gender": "male",
+        "ageGroup": "old",
+        "videoType": "pain-specific",
+        "context": "pension"
+      },
+      {
+        "filename": "male_young_pain_05.mp4",
+        "personId": "m_y_5",
+        "gender": "male",
+        "ageGroup": "young",
+        "videoType": "pain-specific",
+        "context": "pension"
+      },
+      {
+        "filename": "male_young_pain_03.mp4",
+        "personId": "m_y_3",
+        "gender": "male",
+        "ageGroup": "young",
+        "videoType": "pain-specific",
+        "context": "pension"
+      },
+      {
+        "filename": "male_old_pain_02.mp4",
+        "personId": "m_o_2",
+        "gender": "male",
+        "ageGroup": "old",
+        "videoType": "pain-specific",
+        "context": "pension"
+      },
+      {
+        "filename": "male_old_unspecific_01.mp4",
+        "personId": "m_o_1",
+        "gender": "male",
+        "ageGroup": "old",
+        "videoType": "unspecific",
+        "context": "pension"
+      },
+      {
+        "filename": "female_old_unspecific_03.mp4",
+        "personId": "f_o_3",
+        "gender": "female",
+        "ageGroup": "old",
+        "videoType": "unspecific",
+        "context": "pension"
+      }
+    ],
+    "distribution": {
+      "bus": {
+        "total": 13,
+        "painSpecific": 6,
+        "unspecific": 7,
+        "gender": {
+          "male": 6,
+          "female": 7
+        },
+        "ageGroup": {
+          "young": 7,
+          "old": 6
+        }
+      },
+      "doctor": {
+        "total": 13,
+        "painSpecific": 6,
+        "unspecific": 7,
+        "gender": {
+          "male": 6,
+          "female": 7
+        },
+        "ageGroup": {
+          "young": 8,
+          "old": 5
+        }
+      },
+      "pension": {
+        "total": 10,
+        "painSpecific": 6,
+        "unspecific": 4,
+        "gender": {
+          "male": 6,
+          "female": 4
+        },
+        "ageGroup": {
+          "young": 5,
+          "old": 5
+        }
+      }
+    },
+    "sameContextErrors": []
+  }
+]

@@ -11,14 +11,15 @@ const username = ref('')
 const participantNumber = ref('')
 const errorMessage = ref('')
 const loading = ref(false)
+const isDevelopment = ref(false)
 
 const globalPassword = 'klinPsych'
 
 async function handleLogin () {
   if (password.value === globalPassword) {
-
     supabaseStore.user.username = username.value
     supabaseStore.user.participantNumber = participantNumber.value
+    supabaseStore.isDevelopment = isDevelopment.value
     loading.value = true
     const response = await supabaseStore.loadProgress()
     loading.value = false
@@ -84,7 +85,16 @@ async function handleLogin () {
             required
           />
         </div>
-
+        <div class="form-group checkbox-group">
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              v-model="isDevelopment"
+              class="checkbox"
+            />
+            Entwicklungsmodus
+          </label>
+        </div>
 
         <div class="submit-group">
           <button
@@ -216,5 +226,24 @@ async function handleLogin () {
 
 .register-link:hover {
   color: #4338CA;
+}
+
+.checkbox-group {
+  margin-top: 8px;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.875rem;
+  color: #111827;
+}
+
+.checkbox {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  border: 1px solid #D1D5DB;
 }
 </style>
