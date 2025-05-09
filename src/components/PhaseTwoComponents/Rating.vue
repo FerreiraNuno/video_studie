@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { ref, defineProps, defineEmits, onMounted } from 'vue'
 import { useSupabaseStore } from '@/useSupabase.store'
+import RatingScale from '../shared/RatingScale.vue'
 
 const supabaseStore = useSupabaseStore()
-const painRating = ref(5)
-const credibilityRating = ref(5)
-const difficultyRating = ref(5)
+const painRating = ref<number | null>(null)
+const credibilityRating = ref<number | null>(null)
+const difficultyRating = ref<number | null>(null)
 const currentStep = ref(1)
 const countdown = ref(0)
 const buttonDisabled = ref(false)
@@ -29,6 +30,10 @@ function nextStep () {
 }
 
 async function submitRating () {
+  if (painRating.value === null || credibilityRating.value === null || difficultyRating.value === null) {
+    return
+  }
+
   emit('rating-submitted', {
     pain: painRating.value,
     credibility: credibilityRating.value,
@@ -58,47 +63,41 @@ onMounted(() => {
   <div class="rating-container">
     <template v-if="currentStep === 1">
       <h2>Schmerzintensität</h2>
-      <h4>(0-10: kein Schmerz, stärkster vorstellbarer Schmerz)</h4>
-      <input
-        type="range"
-        min="0"
-        max="10"
+      <RatingScale
+        label=""
+        left-label="kein Schmerz"
+        right-label="stärkster vorstellbarer Schmerz"
         v-model="painRating"
-        class="slider"
       />
-      <div class="rating-value">{{ painRating }}</div>
     </template>
 
     <template v-else-if="currentStep === 2">
       <h2>Glaubhaftigkeit der Schmerzen</h2>
-      <h4>(0-10: überhaupt nicht glaubhaft, äußerst glaubhaft)</h4>
-      <input
-        type="range"
-        min="0"
-        max="10"
+      <RatingScale
+        label=""
+        left-label="überhaupt nicht glaubhaft"
+        right-label="äußerst glaubhaft"
         v-model="credibilityRating"
-        class="slider"
       />
-      <div class="rating-value">{{ credibilityRating }}</div>
     </template>
 
     <template v-else-if="currentStep === 3">
       <h2>Schwierigkeit der Beurteilung</h2>
-      <h4>(0-10: überhaupt nicht schwierig, äußerst schwierig)</h4>
-      <input
-        type="range"
-        min="0"
-        max="10"
+      <RatingScale
+        label=""
+        left-label="überhaupt nicht schwierig"
+        right-label="äußerst schwierig"
         v-model="difficultyRating"
-        class="slider"
       />
-      <div class="rating-value">{{ difficultyRating }}</div>
     </template>
 
     <button
       @click="nextStep"
       class="next-button"
-      :disabled="buttonDisabled"
+      :disabled="buttonDisabled ||
+        (currentStep === 1 && painRating === null) ||
+        (currentStep === 2 && credibilityRating === null) ||
+        (currentStep === 3 && difficultyRating === null)"
     >
       Weiter <span v-if="buttonDisabled">({{ countdown }})</span>
     </button>
@@ -119,20 +118,6 @@ h2 {
   margin-bottom: 0;
 }
 
-h4 {
-  margin-top: 0;
-}
-
-.slider {
-  width: 25rem;
-}
-
-.rating-value {
-  text-align: center;
-  font-size: 1.5rem;
-  font-weight: bold;
-}
-
 .next-button {
   padding: 0.5rem 1rem;
   font-size: 1rem;
@@ -145,7 +130,7 @@ h4 {
   transition: background-color 0.2s;
 }
 
-.next-button:hover {
+.next-button:hover:not(:disabled) {
   background-color: #4338CA;
 }
 

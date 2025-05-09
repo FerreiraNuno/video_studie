@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import RatingScale from '../shared/RatingScale.vue'
 
 const props = defineProps<{
   photoIndex: number
@@ -16,14 +17,20 @@ const emit = defineEmits<{
   }): void
 }>()
 
-const trustworthiness = ref(5)
-const sympathy = ref(5)
-const aura = ref(5)
-const valence = ref(5)
-const attractiveness = ref(5)
-const stressLevel = ref(5)
+const trustworthiness = ref<number | null>(null)
+const sympathy = ref<number | null>(null)
+const aura = ref<number | null>(null)
+const valence = ref<number | null>(null)
+const attractiveness = ref<number | null>(null)
+const stressLevel = ref<number | null>(null)
 
 function submitRatings () {
+  if (trustworthiness.value === null || sympathy.value === null ||
+    aura.value === null || valence.value === null ||
+    attractiveness.value === null || stressLevel.value === null) {
+    return
+  }
+
   emit('rating-submitted', {
     trustworthiness: trustworthiness.value,
     sympathy: sympathy.value,
@@ -39,123 +46,69 @@ function submitRatings () {
   <div class="rating-container">
     <h2>Bitte bewerten Sie die Person auf folgenden Skalen:</h2>
 
-    <div class="rating-item">
-      <label>Vertrauenswürdigkeit:</label>
-      <input
-        type="range"
-        v-model="trustworthiness"
-        min="0"
-        max="10"
-        step="1"
-      >
-      <span>{{ trustworthiness }}</span>
-    </div>
+    <RatingScale
+      label="Vertrauenswürdigkeit"
+      left-label="überhaupt nicht vertrauenswürdig"
+      right-label="äußerst vertrauenswürdig"
+      v-model="trustworthiness"
+    />
 
-    <div class="rating-item">
-      <label>Sympathie:</label>
-      <input
-        type="range"
-        v-model="sympathy"
-        min="0"
-        max="10"
-        step="1"
-      >
-      <span>{{ sympathy }}</span>
-    </div>
+    <RatingScale
+      label="Sympathie"
+      left-label="sehr unsympathisch"
+      right-label="äußerst sympathisch"
+      v-model="sympathy"
+    />
 
-    <div class="rating-item">
-      <label>Ausstrahlung:</label>
-      <input
-        type="range"
-        v-model="aura"
-        min="0"
-        max="10"
-        step="1"
-      >
-      <span>{{ aura }}</span>
-    </div>
+    <RatingScale
+      label="Ausstrahlung"
+      left-label="sehr unangenehm"
+      right-label="äußerst angenehm"
+      v-model="aura"
+    />
 
-    <div class="rating-item">
-      <label>Valenz:</label>
-      <input
-        type="range"
-        v-model="valence"
-        min="0"
-        max="10"
-        step="1"
-      >
-      <span>{{ valence }}</span>
-    </div>
+    <RatingScale
+      label="Valenz"
+      left-label="sehr negativ"
+      right-label="äußerst positiv"
+      v-model="valence"
+    />
 
-    <div class="rating-item">
-      <label>Attraktivität:</label>
-      <input
-        type="range"
-        v-model="attractiveness"
-        min="0"
-        max="10"
-        step="1"
-      >
-      <span>{{ attractiveness }}</span>
-    </div>
+    <RatingScale
+      label="Attraktivität"
+      left-label="sehr unattraktiv"
+      right-label="äußerst attraktiv"
+      v-model="attractiveness"
+    />
 
-    <div class="rating-item">
-      <label>Stresslevel:</label>
-      <input
-        type="range"
-        v-model="stressLevel"
-        min="0"
-        max="10"
-        step="1"
-      >
-      <span>{{ stressLevel }}</span>
-    </div>
+    <RatingScale
+      label="Stresslevel"
+      left-label="sehr gestresst"
+      right-label="äußerst gelassen"
+      v-model="stressLevel"
+    />
 
-    <button @click="submitRatings">Weiter</button>
+    <button
+      @click="submitRatings"
+      :disabled="trustworthiness === null || sympathy === null ||
+        aura === null || valence === null ||
+        attractiveness === null || stressLevel === null"
+    >
+      Weiter
+    </button>
   </div>
 </template>
 
 <style scoped>
 .rating-container {
-  max-width: 600px;
+  max-width: 800px;
   margin: 0 auto;
   padding: 2rem;
 }
 
-.rating-item {
-  margin-bottom: 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-label {
-  min-width: 200px;
-  font-weight: bold;
-}
-
-input[type="range"] {
-  flex: 1;
-  height: 8px;
-  -webkit-appearance: none;
-  appearance: none;
-  background: #ddd;
-  border-radius: 4px;
-  outline: none;
-}
-
-input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 20px;
-  height: 20px;
-  background: #007bff;
-  border-radius: 50%;
-  cursor: pointer;
-}
-
-span {
-  min-width: 30px;
+h2 {
   text-align: center;
+  margin-bottom: 2rem;
 }
 
 button {
@@ -170,7 +123,12 @@ button {
   cursor: pointer;
 }
 
-button:hover {
+button:hover:not(:disabled) {
   background-color: #0056b3;
+}
+
+button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
 }
 </style>

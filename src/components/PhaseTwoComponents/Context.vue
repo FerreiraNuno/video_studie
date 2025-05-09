@@ -7,10 +7,12 @@ const images = {
     `${import.meta.env.BASE_URL}context/bus_inside.mp4`
   ],
   doctor: [
-    `${import.meta.env.BASE_URL}context/praxis.png`
+    `${import.meta.env.BASE_URL}context/praxis.png`,
+    `${import.meta.env.BASE_URL}context/praxis.mp4`
   ],
   pension: [
-    `${import.meta.env.BASE_URL}context/rentenstelle.png`
+    `${import.meta.env.BASE_URL}context/rentenstelle.png`,
+    `${import.meta.env.BASE_URL}context/rentenstelle.mp4`
   ]
 }
 

@@ -11,7 +11,7 @@ const username = ref('')
 const participantNumber = ref('')
 const errorMessage = ref('')
 const loading = ref(false)
-const isDevelopment = ref(false)
+const isDevelopment = ref(true)
 
 const globalPassword = 'klinPsych'
 

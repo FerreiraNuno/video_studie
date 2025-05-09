@@ -157,8 +157,8 @@ export function initializeVideoOrder () {
     })
 
     // Shuffle videos within each context
-    Object.values(contextGroups).forEach(contextVideos => {
-      shuffleArray(contextVideos)
+    Object.keys(contextGroups).forEach(context => {
+      contextGroups[context as keyof typeof contextGroups] = shuffleArray(contextGroups[context as keyof typeof contextGroups])
     })
   }
 
