@@ -248,8 +248,7 @@ const submitForm = async () => {
 
       <div>
         <label>Haben oder hatten Sie (z.B. als Pflegekraft, Physiotherapeut:in) in Ihrem beruflichen Umfeld Kontakt mit
-          Menschen, die Schmerzen haben (z.B. als
-          Pflegekraft, Physiotherapeut:in)?</label>
+          Menschen, die Schmerzen haben?</label>
         <br>
         <input
           type="radio"
@@ -281,7 +280,6 @@ form {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  max-width: 800px;
   margin: 0 auto;
   padding: 1rem;
   border: 1px solid #ccc;

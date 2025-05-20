@@ -61,6 +61,7 @@ const isVideo = (url: string) => {
 
 <style scoped>
 .container {
+  max-width: 1280px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -75,6 +76,7 @@ const isVideo = (url: string) => {
 .image-container {
   margin-right: 2rem;
   max-width: 45vw;
+  min-width: 30rem;
   height: 70vh;
   display: flex;
   align-items: center;

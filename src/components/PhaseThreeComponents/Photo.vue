@@ -17,7 +17,7 @@ const photoSource = ref(getPhotoSource(photo.value.filename))
 
 onMounted(() => {
   // Photo is shown for 2 seconds in development mode, 5 seconds in production
-  const duration = supabaseStore.isDevelopment ? 2000 : 5000
+  const duration = supabaseStore.isDevelopment ? 1000 : 5000
   setTimeout(() => {
     emit('photo-ended')
   }, duration)
@@ -38,7 +38,7 @@ onMounted(() => {
       v-if="supabaseStore.isDevelopment"
       class="dev-mode-notice"
     >
-      Foto gekürzt auf 2 Sekunden
+      Foto gekürzt auf 1 Sekunde
     </div>
   </div>
 </template>

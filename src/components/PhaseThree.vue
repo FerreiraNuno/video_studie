@@ -60,16 +60,17 @@ function finishPhaseThree () {
     <h2>Nun folgt der 3. Teil der Studie.</h2>
     <p>Sie sehen gleich eine Reihe von Fotos. Auf den Fotos sind die Personen abgebildet, die Sie eben auf den Videos
       gesehen haben.</p>
-    <p>Ihre Aufgabe ist es, die Personen auf den folgenden Skalen einzuschätzen. Wie Sie den Schieberegler mit Ihrer
-      Maus bewegen und so Ihre Einschätzung abgeben können, wissen Sie ja bereits.</p>
+    <p>Ihre Aufgabe ist es, die Personen auf den folgenden Skalen einzuschätzen.</p>
     <ul>
       <li>Vertrauenswürdigkeit (0-10: überhaupt nicht vertrauenswürdig - äußerst vertrauenswürdig)</li>
-      <li>Sympathie (0-10: sehr unsympathisch – äußerst unsympathisch)</li>
-      <li>Ausstrahlung (0-10: sehr unangenehm – äuerst angenehm)</li>
-      <li>Valenz (0-10: sehr negative – äußerst positiv)</li>
+      <li>Sympathie (0-10: sehr unsympathisch – äußerst sympathisch)</li>
+      <li>Ausstrahlung (0-10: sehr unangenehm – äußerst angenehm)</li>
+      <li>Valenz (0-10: sehr negativ – äußerst positiv)</li>
       <li>Attraktivität (0-10: sehr unattraktiv - äußerst attraktiv)</li>
       <li>Stresslevel (0-10: sehr gestresst vs. äußerst gelassen)</li>
     </ul>
+    <p>Wie Sie den Schieberegler mit Ihrer Maus bewegen und so Ihre Einschätzung abgeben können, wissen Sie ja bereits.
+    </p>
     <button
       @click="progressIndex++"
       class="next-button"

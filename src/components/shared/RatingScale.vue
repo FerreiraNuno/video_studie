@@ -22,7 +22,6 @@ watch(() => props.modelValue, (newValue) => {
 
 onMounted(() => {
   if (supabaseStore.isDevelopment && rating.value === null) {
-    rating.value = 5
     emit('update:modelValue', 5)
   }
 })
@@ -34,63 +33,85 @@ function updateRating (value: number) {
 </script>
 
 <template>
-  <div class="rating-scale">
-    <label class="rating-label">{{ label }}</label>
-    <div class="scale-container">
-      <div class="end-labels">
-        <span class="left-label">{{ leftLabel }}</span>
-        <span class="right-label">{{ rightLabel }}</span>
+  <div class="rating">
+    <span class="left-label rating-label">{{ leftLabel }}</span>
+    <div class="rating-scale">
+      <div class="scale-container">
+        <input
+          type="range"
+          :value="rating"
+          @input="updateRating(Number(($event.target as HTMLInputElement).value))"
+          @click="updateRating(Number(($event.target as HTMLInputElement).value))"
+          min="0"
+          max="10"
+          step="1"
+          class="slider"
+          :class="{ 'has-value': rating !== null }"
+        />
+        <div class="scale-numbers">
+          <span
+            v-for="n in 11"
+            :key="n - 1"
+          >{{ n - 1 }}</span>
+        </div>
       </div>
-      <input
-        type="range"
-        :value="rating"
-        @input="updateRating(Number(($event.target as HTMLInputElement).value))"
-        min="0"
-        max="10"
-        step="1"
-        class="slider"
-      />
-      <div class="scale-numbers">
+      <div class="current-value">
+        <span v-if="rating !== null">{{ rating }}</span>
         <span
-          v-for="n in 11"
-          :key="n - 1"
-        >{{ n - 1 }}</span>
+          v-else
+          class="placeholder"
+        >&nbsp;</span>
       </div>
     </div>
-    <div class="current-value">
-      <span v-if="rating !== null">{{ rating }}</span>
-      <span
-        v-else
-        class="placeholder"
-      >&nbsp;</span>
-    </div>
+    <span class="right-label rating-label">{{ rightLabel }}</span>
   </div>
 </template>
 
 <style scoped>
+.rating {
+  width: 100%;
+  max-width: 900px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  gap: 1rem;
+
+  @media screen and (max-width: 1280px) {
+    gap: 0.25rem;
+  }
+}
+
 .rating-scale {
-  width: 40rem;
-  max-width: 80vw;
+  width: 80%;
   margin-bottom: 2rem;
+
+  @media screen and (max-width: 1280px) {
+    width: 60%;
+  }
 }
 
 .rating-label {
+  width: 20rem;
   font-weight: bold;
-  margin-bottom: 0.5rem;
   display: block;
+
+  @media screen and (max-width: 1280px) {
+    width: 7rem;
+    font-size: 0.75rem;
+  }
+}
+
+.left-label {
+  text-align: right;
+}
+
+.right-label {
+  text-align: left;
 }
 
 .scale-container {
   width: 100%;
   margin: 0 auto;
-}
-
-.end-labels {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 0.5rem;
-  font-size: 0.9rem;
-  color: #666;
 }
 
 .scale-numbers {
@@ -118,6 +139,12 @@ function updateRating (value: number) {
   background: #007bff;
   border-radius: 50%;
   cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.slider.has-value::-webkit-slider-thumb {
+  opacity: 1;
 }
 
 .current-value {

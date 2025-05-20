@@ -15,8 +15,6 @@ const emit = defineEmits<{
 const videoElement = ref<HTMLVideoElement | null>(null)
 const audioElement = ref<HTMLAudioElement | null>(null)
 const currentVideo = getCurrentVideo(props.videoIndex)
-console.log('props.videoIndex', props.videoIndex)
-console.log('currentVideo', currentVideo)
 const videoSource = getVideoSource(currentVideo.filename)
 const audioSource = currentVideo.audioType ? getAudioSource(currentVideo.audioType) : null
 
@@ -24,11 +22,6 @@ const audioSource = currentVideo.audioType ? getAudioSource(currentVideo.audioTy
 const isAudioPlaying = ref(false)
 
 onMounted(() => {
-  console.log('Video.vue mounted')
-  console.log('isDevelopment', supabaseStore.isDevelopment)
-  console.log('filename video', currentVideo.filename)
-  console.log('audioType', currentVideo.audioType)
-
   if (videoElement.value) {
     if (supabaseStore.isDevelopment) {
       // In development mode, set the video duration to 1 second
@@ -75,7 +68,7 @@ onMounted(() => {
       autoplay
       playsinline
     >
-      Your browser does not support the video tag.
+      Ihr Browser unterstützt die Video Wiedergabe nicht.
     </video>
     <div
       v-else

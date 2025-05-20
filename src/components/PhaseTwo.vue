@@ -6,7 +6,7 @@ import Context from './PhaseTwoComponents/Context.vue'
 import { useProgressStore } from '../useProgress.store'
 import { computed, ref, onMounted } from 'vue'
 import { useSupabaseStore } from '@/useSupabase.store'
-import { initializeVideoOrder } from '@/utils/videoManager'
+import { initializeVideoOrder, getCurrentVideo } from '@/utils/videoManager'
 import context from '../text/context.json'
 
 const testVideo = `${import.meta.env.BASE_URL}videos/testvideo.mp4`
@@ -17,8 +17,10 @@ const supabaseStore = useSupabaseStore()
 
 const progressIndex = ref(0)
 const currentFilename = ref('')
+const currentAudioType = ref<'no_pain' | 'slight_pain' | 'strong_pain' | null>(null)
 const audioHeard = ref(false)
 const videoSeen = ref(false)
+const videoIndex = ref(0)  // Simple counter for videos
 
 // Initialize video order when component is mounted
 onMounted(() => {
@@ -30,71 +32,67 @@ const isInList = (index: number, list: number[]) => {
   return list.includes(index)
 }
 
-// Calculate video index based on progress index
-const videoIndex = computed(() => {
-  // Skip intro screens (0-2)
-  if (progressIndex.value <= 2) return 0
-
-  // Calculate video index for each context
-  const busVideos = [5, 7, 9, 11, 14, 16, 18, 20, 23, 25, 27, 29]
-  const doctorVideos = [33, 35, 37, 39, 42, 44, 46, 48, 51, 53, 55, 57]
-  const pensionVideos = [61, 63, 65, 67, 70, 72, 74, 76, 79, 81, 83, 85]
-
-  const allVideoIndices = [...busVideos, ...doctorVideos, ...pensionVideos]
-  const currentVideoIndex = allVideoIndices.indexOf(progressIndex.value)
-
-  return currentVideoIndex >= 0 ? currentVideoIndex : 0
-})
-
 const showIntro = computed(() => progressIndex.value === 0)
 const showAudio = computed(() => progressIndex.value === 1)
 const showTestVideo = computed(() => progressIndex.value === 2)
+const showStartMessage = computed(() => progressIndex.value === 3)
 
 // Bus context
-const showBusIntro = computed(() => progressIndex.value === 3)
-const showBusScenario = computed(() => progressIndex.value === 4)
-const showBusVideosFirstSet = computed(() => isInList(progressIndex.value, [5, 7, 9, 11]))
-const showBusRatingsFirstSet = computed(() => isInList(progressIndex.value, [6, 8, 10, 12]))
-const showBusReminderAfter4 = computed(() => progressIndex.value === 13)
-const showBusVideosSecondSet = computed(() => isInList(progressIndex.value, [14, 16, 18, 20]))
-const showBusRatingsSecondSet = computed(() => isInList(progressIndex.value, [15, 17, 19, 21]))
-const showBusReminderAfter8 = computed(() => progressIndex.value === 22)
-const showBusVideosThirdSet = computed(() => isInList(progressIndex.value, [23, 25, 27, 29]))
-const showBusRatingsThirdSet = computed(() => isInList(progressIndex.value, [24, 26, 28, 30]))
+const showBusIntro = computed(() => progressIndex.value === 4)
+const showBusScenario = computed(() => progressIndex.value === 5)
+const showBusVideosFirstSet = computed(() => isInList(progressIndex.value, [6, 8, 10, 12]))
+const showBusRatingsFirstSet = computed(() => isInList(progressIndex.value, [7, 9, 11, 13]))
+const showBusReminderAfter4 = computed(() => progressIndex.value === 14)
+const showBusVideosSecondSet = computed(() => isInList(progressIndex.value, [15, 17, 19, 21]))
+const showBusRatingsSecondSet = computed(() => isInList(progressIndex.value, [16, 18, 20, 22]))
+const showBusReminderAfter8 = computed(() => progressIndex.value === 23)
+const showBusVideosThirdSet = computed(() => isInList(progressIndex.value, [24, 26, 28, 30]))
+const showBusRatingsThirdSet = computed(() => isInList(progressIndex.value, [25, 27, 29, 31]))
 
 // Doctor context
-const showDoctorIntro = computed(() => progressIndex.value === 31)
-const showDoctorScenario = computed(() => progressIndex.value === 32)
-const showDoctorVideosFirstSet = computed(() => isInList(progressIndex.value, [33, 35, 37, 39]))
-const showDoctorRatingsFirstSet = computed(() => isInList(progressIndex.value, [34, 36, 38, 40]))
-const showDoctorReminderAfter4 = computed(() => progressIndex.value === 41)
-const showDoctorVideosSecondSet = computed(() => isInList(progressIndex.value, [42, 44, 46, 48]))
-const showDoctorRatingsSecondSet = computed(() => isInList(progressIndex.value, [43, 45, 47, 49]))
-const showDoctorReminderAfter8 = computed(() => progressIndex.value === 50)
-const showDoctorVideosThirdSet = computed(() => isInList(progressIndex.value, [51, 53, 55, 57]))
-const showDoctorRatingsThirdSet = computed(() => isInList(progressIndex.value, [52, 54, 56, 58]))
+const showDoctorIntro = computed(() => progressIndex.value === 32)
+const showDoctorScenario = computed(() => progressIndex.value === 33)
+const showDoctorVideosFirstSet = computed(() => isInList(progressIndex.value, [34, 36, 38, 40]))
+const showDoctorRatingsFirstSet = computed(() => isInList(progressIndex.value, [35, 37, 39, 41]))
+const showDoctorReminderAfter4 = computed(() => progressIndex.value === 42)
+const showDoctorVideosSecondSet = computed(() => isInList(progressIndex.value, [43, 45, 47, 49]))
+const showDoctorRatingsSecondSet = computed(() => isInList(progressIndex.value, [44, 46, 48, 50]))
+const showDoctorReminderAfter8 = computed(() => progressIndex.value === 51)
+const showDoctorVideosThirdSet = computed(() => isInList(progressIndex.value, [52, 54, 56, 58]))
+const showDoctorRatingsThirdSet = computed(() => isInList(progressIndex.value, [53, 55, 57, 59]))
 
 // Pension context
-const showPensionIntro = computed(() => progressIndex.value === 59)
-const showPensionScenario = computed(() => progressIndex.value === 60)
-const showPensionVideosFirstSet = computed(() => isInList(progressIndex.value, [61, 63, 65, 67]))
-const showPensionRatingsFirstSet = computed(() => isInList(progressIndex.value, [62, 64, 66, 68]))
-const showPensionReminderAfter4 = computed(() => progressIndex.value === 69)
-const showPensionVideosSecondSet = computed(() => isInList(progressIndex.value, [70, 72, 74, 76]))
-const showPensionRatingsSecondSet = computed(() => isInList(progressIndex.value, [71, 73, 75, 77]))
-const showPensionReminderAfter8 = computed(() => progressIndex.value === 78)
-const showPensionVideosThirdSet = computed(() => isInList(progressIndex.value, [79, 81, 83, 85]))
-const showPensionRatingsThirdSet = computed(() => isInList(progressIndex.value, [80, 82, 84, 86]))
+const showPensionIntro = computed(() => progressIndex.value === 60)
+const showPensionScenario = computed(() => progressIndex.value === 61)
+const showPensionVideosFirstSet = computed(() => isInList(progressIndex.value, [62, 64, 66, 68]))
+const showPensionRatingsFirstSet = computed(() => isInList(progressIndex.value, [63, 65, 67, 69]))
+const showPensionReminderAfter4 = computed(() => progressIndex.value === 70)
+const showPensionVideosSecondSet = computed(() => isInList(progressIndex.value, [71, 73, 75, 77]))
+const showPensionRatingsSecondSet = computed(() => isInList(progressIndex.value, [72, 74, 76, 78]))
+const showPensionReminderAfter8 = computed(() => progressIndex.value === 79)
+const showPensionVideosThirdSet = computed(() => isInList(progressIndex.value, [80, 82, 84, 86]))
+const showPensionRatingsThirdSet = computed(() => isInList(progressIndex.value, [81, 83, 85, 87]))
 
-const phase2Finished = computed(() => progressIndex.value >= 86)
+const phase2Finished = computed(() => progressIndex.value >= 87)
 
 function submitRating (ratings: { pain: number, credibility: number, difficulty: number }, filename: string) {
-  supabaseStore.saveRating(videoIndex.value, ratings, filename)
+  console.log('Submitting rating with audio type:', currentAudioType.value)
+  if (!currentAudioType.value) {
+    console.error('No audio type found for video')
+    return
+  }
+  supabaseStore.saveRating(videoIndex.value, ratings, filename, currentAudioType.value)
   finishSection()
 }
 
 function handleVideoEnded (filename: string) {
+  const currentVideo = getCurrentVideo(videoIndex.value)
+  console.log('Current video:', currentVideo)
+  console.log('Current video audio type:', currentVideo.audioType)
   currentFilename.value = filename
+  currentAudioType.value = currentVideo.audioType || null
+  console.log('Stored audio type:', currentAudioType.value)
+  videoIndex.value++  // Increment video index after each video
   progressIndex.value++
 }
 
@@ -135,6 +133,19 @@ function finishPhaseTwo () {
 
   <div
     class="instruction"
+    style="text-align: center;"
+    v-else-if="showStartMessage"
+  >
+    <h2>Prima, dass Sie bisher alles so gut gemeistert haben!</h2>
+    <p>Nun beginnt der 2. Teil der Studie.</p>
+    <button
+      @click="progressIndex++"
+      class="next-button"
+    >Weiter</button>
+  </div>
+
+  <div
+    class="instruction"
     v-else-if="showAudio"
   >
     <h2>Das hat ja sehr gut geklappt.</h2>
@@ -144,7 +155,12 @@ function finishPhaseTwo () {
       jeweils selbst ihre Schmerzen einschätzt.</p>
     <p>Bitte verbinden Sie nun einen Kopfhörer mit Ihrem PC und testen Sie dann, ob Sie den Ton der Audiodaten gut hören
       können!</p>
-    <audio controls>
+    <audio
+      controls
+      volume="1.0"
+      loop
+      autoplay
+    >
       <source
         src="/bugle_tune.ogg"
         type="audio/ogg"
@@ -172,12 +188,13 @@ function finishPhaseTwo () {
     v-else-if="showTestVideo"
   >
     <h2>Test Video</h2>
-    <p>Bitte überprüfen Sie, ob die Videos korrekt wiedergegeben werden.</p>
+    <p>Bitte überprüfen Sie, ob das Video gut wiedergegeben wird.</p>
     <video
       :src="testVideo"
-      controls
       autoplay
       loop
+      muted
+      playsinline
       class="test-video"
     ></video>
     <br>

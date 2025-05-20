@@ -167,12 +167,19 @@ export function initializeVideoOrder () {
     const audioTypes: ('no_pain' | 'slight_pain' | 'strong_pain')[] = ['no_pain', 'slight_pain', 'strong_pain']
     const videoTypes: ('pain-specific' | 'unspecific')[] = ['pain-specific', 'unspecific']
 
+    console.log('Starting audio file assignment...')
+
     // For each context
     Object.entries(contextGroups).forEach(([context, videos]) => {
+      console.log(`\nProcessing context: ${context}`)
+
       // For each video type
       videoTypes.forEach(videoType => {
+        console.log(`\nProcessing video type: ${videoType}`)
+
         // Get videos of this type
         const typeVideos = videos.filter(v => v.videoType === videoType)
+        console.log(`Found ${typeVideos.length} videos of type ${videoType}`)
 
         // Shuffle the videos to randomize audio assignment
         const shuffledVideos = shuffleArray([...typeVideos])
@@ -180,6 +187,7 @@ export function initializeVideoOrder () {
         // Get male and female videos
         const maleVideos = shuffledVideos.filter(v => v.gender === 'male')
         const femaleVideos = shuffledVideos.filter(v => v.gender === 'female')
+        console.log(`Male videos: ${maleVideos.length}, Female videos: ${femaleVideos.length}`)
 
         // Assign each audio type to one male and one female video
         audioTypes.forEach(audioType => {
@@ -187,16 +195,27 @@ export function initializeVideoOrder () {
           const maleVideo = maleVideos.find(v => !v.audioType)
           if (maleVideo) {
             maleVideo.audioType = audioType
+            console.log(`Assigned ${audioType} to male video: ${maleVideo.filename}`)
           }
 
           // Find an unassigned female video
           const femaleVideo = femaleVideos.find(v => !v.audioType)
           if (femaleVideo) {
             femaleVideo.audioType = audioType
+            console.log(`Assigned ${audioType} to female video: ${femaleVideo.filename}`)
           }
         })
       })
     })
+
+    // Verify all videos have audio types
+    const allVideos = Object.values(contextGroups).flat()
+    const videosWithoutAudio = allVideos.filter(v => !v.audioType)
+    if (videosWithoutAudio.length > 0) {
+      console.error('Found videos without audio types:', videosWithoutAudio.map(v => v.filename))
+    } else {
+      console.log('All videos have been assigned audio types')
+    }
   }
 
   // Keep redistributing until we get a valid age distribution
@@ -220,6 +239,11 @@ export function initializeVideoOrder () {
     ...contextGroups.doctor,
     ...contextGroups.pension
   ]
+
+  console.log('Final shuffled videos array:', shuffledVideos.value.map(v => ({
+    filename: v.filename,
+    audioType: v.audioType
+  })))
 
   // Log distribution for verification
   const contexts: (keyof typeof contextGroups)[] = ['bus', 'doctor', 'pension']
@@ -287,7 +311,11 @@ export function initializeVideoOrder () {
 
 // Function to get the current video
 export function getCurrentVideo (index: number): Video {
-  return shuffledVideos.value[index]
+  console.log('Getting video at index:', index)
+  console.log('Available videos:', shuffledVideos.value)
+  const video = shuffledVideos.value[index]
+  console.log('Returning video:', video)
+  return video
 }
 
 // Function to get the video source URL

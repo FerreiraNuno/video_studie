@@ -46,7 +46,7 @@ export const useSupabaseStore = defineStore('supabaseStore', () => {
     return { data, error }
   }
 
-  async function saveRating (videoIndex: number, ratings: { pain: number, credibility: number, difficulty: number }, filename: string) {
+  async function saveRating (videoIndex: number, ratings: { pain: number, credibility: number, difficulty: number }, filename: string, audioType: 'no_pain' | 'slight_pain' | 'strong_pain') {
     if (!isAuthenticated.value) {
       console.error('User is not authenticated')
       return { error: 'User is not authenticated' }
@@ -58,6 +58,16 @@ export const useSupabaseStore = defineStore('supabaseStore', () => {
       return { error: 'No participant number found' }
     }
 
+    console.log('Saving rating with data:', {
+      participant_number: participantNumber,
+      video_index: videoIndex,
+      pain_rating: ratings.pain,
+      credibility_rating: ratings.credibility,
+      difficulty_rating: ratings.difficulty,
+      video_filename: filename,
+      audio_type: audioType
+    })
+
     const { data, error } = await supabase.from('video_ratings').insert([
       {
         participant_number: participantNumber,
@@ -66,6 +76,7 @@ export const useSupabaseStore = defineStore('supabaseStore', () => {
         credibility_rating: ratings.credibility,
         difficulty_rating: ratings.difficulty,
         video_filename: filename,
+        audio_type: audioType,
       },
     ])
 
@@ -170,6 +181,30 @@ export const useSupabaseStore = defineStore('supabaseStore', () => {
     return data
   }
 
+  async function saveEndingQuestions (answers: {
+    isInformed: string
+    wantsDeletion: string
+    agreesSilence: string
+  }) {
+    const { data, error } = await supabase
+      .from('ending_questions')
+      .insert([
+        {
+          participant_number: user.value.participantNumber,
+          is_informed: answers.isInformed,
+          wants_deletion: answers.wantsDeletion,
+          agrees_silence: answers.agreesSilence
+        }
+      ])
+
+    if (error) {
+      console.error('Error saving ending questions:', error)
+      throw error
+    }
+
+    return data
+  }
+
   return {
     isAuthenticated,
     isDevelopment,
@@ -180,5 +215,6 @@ export const useSupabaseStore = defineStore('supabaseStore', () => {
     saveUserData,
     savePhotoRating,
     saveFinalRatings,
+    saveEndingQuestions,
   }
 })

@@ -1,6 +1,6 @@
 {
   "bus_intro": {
-    "cdm": "In öffentlichen Verkehrsmitteln ist es normal, dass man den eigenen Sitzplatz für bestimmte Personen aufgibt, damit diese sich setzen können und nicht stehen müssen. Das betrifft z.B. ältere Menschen, Schwangere oder aber auch Menschen, die Schmerzen haben."
+    "cdm": "In öffentlichen Verkehrsmitteln ist es normal, dass man den eigenen Sitzplatz für bestimmte Personen aufgibt, damit diese sich setzen können und nicht stehen müssen. \n\n Das betrifft z.B. ältere Menschen, Schwangere oder aber auch Menschen, die Schmerzen haben."
   },
   "bus_scenario": {
     "cdm": "Stellen Sie sich vor, Sie sind an verschiedenen Tagen im Bus auf dem Weg zur Uni. \n\n Sie selbst haben Glück und an jedem Tag einen Sitzplatz im Bus. An jedem dieser Tage steigt eine Person zu Ihnen in den Bus und bittet Sie, Ihren Sitzplatz für sie aufzugeben."
@@ -9,7 +9,7 @@
     "cdm": "Erinnern Sie sich: Sie sind an verschiedenen Tagen im Bus auf dem Weg zur Uni. \n\n Sie selbst haben Glück und an jedem Tag einen Sitzplatz im Bus. An jedem dieser Tage steigt eine Person zu Ihnen in den Bus und bittet Sie, Ihren Sitzplatz für sie aufzugeben."
   },
   "doctor_intro": {
-    "cdm": "Spezielle Schmerzmedikamente, die besonders wirksam sind, sind sehr teuer, wenn man sie selbst bezahlen muss. Ärzt:innen können Patient:innen dann Schmerzmedikamente verschreiben, wenn deren Schmerzen stark genug sind. Die Einschätzung der Schmerzen nehmen dabei sowohl die Ärzt:innen als auch die Patient:innen selbst vor."
+    "cdm": "Spezielle Schmerzmedikamente, die besonders wirksam sind, sind sehr teuer, wenn man sie selbst bezahlen muss. \n\n Ärzt:innen können Patient:innen dann Schmerzmedikamente verschreiben, wenn deren Schmerzen stark genug sind.\n\n Die Einschätzung der Schmerzen nehmen dabei sowohl die Ärzt:innen als auch die Patient:innen selbst vor."
   },
   "doctor_scenario": {
     "cdm": "Stellen Sie sich vor, Sie sind Ärzt:in und arbeiten an verschiedenen Tagen in einer Praxis. \n\n Die folgenden Patient:innen stellen sich in Ihrer Sprechstunde vor. Sie müssen entscheiden, ob Sie ihnen ein sehr teures Schmerzmittel verschreiben, das ihr Budget belasten wird."
@@ -24,6 +24,6 @@
     "cdm": "Stellen Sie sich vor, Sie sind Gutachter:in und arbeiten an verschiedenen Tagen bei der Rentenversicherung. \n\n Dort treffen Sie auf Menschen, die einen Rentenwunsch haben. Sie müssen für die folgenden Personen entscheiden, ob sie aufgrund von Schmerzen vorzeitig in Rente gehen können."
   },
   "pension_reminder": {
-    "cdm": "Erinnern Sie sich: Sie sind Gutachter:in und arbeiten an verschiedenen Tagen bei der Rentenversicherung. \n\n Dort treffen Sie auf Menschen, die einen Rentenwunsch haben. Sie müssen für die folgenden Personen entscheiden, ob sie, aufgrund von Schmerzen, vorzeitig in Rente gehen können."
+    "cdm": "Erinnern Sie sich: Sie sind Gutachter:in und arbeiten an verschiedenen Tagen bei der Rentenversicherung. \n\n Dort treffen Sie auf Menschen, die einen Rentenwunsch haben. Sie müssen für die folgenden Personen entscheiden, ob sie aufgrund von Schmerzen vorzeitig in Rente gehen können."
   }
 }
