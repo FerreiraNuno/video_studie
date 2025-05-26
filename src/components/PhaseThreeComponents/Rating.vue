@@ -107,7 +107,7 @@ h2 {
 
 button {
   display: block;
-  margin: 2rem auto 0;
+  margin: 2rem auto;
   padding: 0.75rem 2rem;
   background-color: #007bff;
   color: white;
@@ -115,6 +115,7 @@ button {
   border-radius: 4px;
   font-size: 1rem;
   cursor: pointer;
+
 }
 
 button:hover:not(:disabled) {

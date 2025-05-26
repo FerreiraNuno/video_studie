@@ -40,87 +40,85 @@ async function submitRatings () {
 
 <template>
   <div class="final-questions-container">
-    <h2>Vielen Dank für Ihre Unterstützung! Wir haben nun noch einige abschließende Fragen.</h2>
-
     <template v-if="currentStep === 1">
       <h3>Für wie wahrscheinlich halten Sie es, dass mindestens eine der Personen, die Sie auf den Videos gesehen haben,
         ihre Schmerzen...</h3>
+      <h3 class="sub-question">...übertrieben hat?</h3>
       <RatingScale
         label="Übertreibung"
         left-label="überhaupt nicht wahrscheinlich"
         right-label="äußerst wahrscheinlich"
         v-model="exaggerationRating"
       />
-      <h3 class="sub-question">...übertrieben hat?</h3>
     </template>
 
     <template v-else-if="currentStep === 2">
       <h3>Für wie wahrscheinlich halten Sie es, dass mindestens eine der Personen, die Sie auf den Videos gesehen haben,
         ihre Schmerzen...</h3>
+      <h3 class="sub-question">...vorgetäuscht hat?</h3>
       <RatingScale
         label="Vortäuschung"
         left-label="überhaupt nicht wahrscheinlich"
         right-label="äußerst wahrscheinlich"
         v-model="fakingRating"
       />
-      <h3 class="sub-question">...vorgetäuscht hat?</h3>
     </template>
 
     <template v-else-if="currentStep === 3">
       <h3>Für wie wahrscheinlich halten Sie es, dass mindestens eine der Personen, die Sie auf den Videos gesehen haben,
         ihre Schmerzen...</h3>
+      <h3 class="sub-question">...untertrieben hat?</h3>
       <RatingScale
         label="Untertriebung"
         left-label="überhaupt nicht wahrscheinlich"
         right-label="äußerst wahrscheinlich"
         v-model="understatingRating"
       />
-      <h3 class="sub-question">...untertrieben hat?</h3>
     </template>
 
     <template v-else-if="currentStep === 4">
       <h3>Für wie wahrscheinlich halten Sie es, dass mindestens eine der Personen, die Sie auf den Videos gesehen haben,
         ihre Schmerzen...</h3>
+      <h3 class="sub-question">...unterdrückt hat?</h3>
       <RatingScale
         label="Unterdrückung"
         left-label="überhaupt nicht wahrscheinlich"
         right-label="äußerst wahrscheinlich"
         v-model="suppressionRating"
       />
-      <h3 class="sub-question">...unterdrückt hat?</h3>
     </template>
 
     <template v-else-if="currentStep === 5">
       <h3>Wie gut konnten Sie sich in die Situation als...</h3>
+      <h3 class="sub-question">...Person im Bus hineinversetzen?</h3>
       <RatingScale
         label="Empathie Bus"
         left-label="überhaupt nicht"
         right-label="sehr gut"
         v-model="busEmpathyRating"
       />
-      <h3 class="sub-question">...Person im Bus hineinversetzen?</h3>
     </template>
 
     <template v-else-if="currentStep === 6">
       <h3>Wie gut konnten Sie sich in die Situation als...</h3>
+      <h3 class="sub-question">...Arzt/Ärztin hineinversetzen?</h3>
       <RatingScale
         label="Empathie Arzt"
         left-label="überhaupt nicht"
         right-label="sehr gut"
         v-model="doctorEmpathyRating"
       />
-      <h3 class="sub-question">...Person im Arzt's Büro hineinversetzen?</h3>
     </template>
 
     <template v-else-if="currentStep === 7">
       <h3>Wie gut konnten Sie sich in die Situation als...</h3>
+      <h3 class="sub-question">...Gutachter:in der Rentenversicherung hineinversetzen?</h3>
       <RatingScale
         label="Empathie Gutachter"
         left-label="überhaupt nicht"
         right-label="sehr gut"
         v-model="pensionEmpathyRating"
       />
-      <h3 class="sub-question">...Person im Gutachter's Büro hineinversetzen?</h3>
     </template>
 
     <template v-else-if="currentStep === 8">

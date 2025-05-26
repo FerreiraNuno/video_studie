@@ -33,6 +33,7 @@ function updateRating (value: number) {
 </script>
 
 <template>
+  <div class="main-label">{{ label }}</div>
   <div class="rating">
     <span class="left-label rating-label">{{ leftLabel }}</span>
     <div class="rating-scale">
@@ -68,6 +69,12 @@ function updateRating (value: number) {
 </template>
 
 <style scoped>
+.main-label {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
 .rating {
   width: 100%;
   max-width: 900px;

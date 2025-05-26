@@ -65,7 +65,7 @@ function finishPhaseThree () {
       <li>Vertrauenswürdigkeit (0-10: überhaupt nicht vertrauenswürdig - äußerst vertrauenswürdig)</li>
       <li>Sympathie (0-10: sehr unsympathisch – äußerst sympathisch)</li>
       <li>Ausstrahlung (0-10: sehr unangenehm – äußerst angenehm)</li>
-      <li>Valenz (0-10: sehr negativ – äußerst positiv)</li>
+      <li>Eindruck (0-10: sehr negativ – äußerst positiv)</li>
       <li>Attraktivität (0-10: sehr unattraktiv - äußerst attraktiv)</li>
       <li>Stresslevel (0-10: sehr gestresst vs. äußerst gelassen)</li>
     </ul>

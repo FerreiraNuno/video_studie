@@ -3,6 +3,7 @@ import { supabase } from './lib/supabaseClient'
 import { ref } from "vue"
 import { useProgressStore } from './useProgress.store'
 
+export type StudyGroup = 'CDM' | 'SCT' | 'KG'
 
 export const useSupabaseStore = defineStore('supabaseStore', () => {
   // auth
@@ -10,18 +11,20 @@ export const useSupabaseStore = defineStore('supabaseStore', () => {
   const isDevelopment = ref(false)
   const user = ref({
     username: '',
-    participantNumber: ''
+    participantNumber: '',
+    group: '' as StudyGroup
   })
 
 
   async function saveProgress (phase: number) {
-    const { participantNumber, username } = user.value
+    const { participantNumber, username, group } = user.value
 
     const { error } = await supabase.from('progress').upsert(
       {
         phase: phase,
         participant_number: participantNumber,
         username: username,
+        study_group: group,
       },
       { onConflict: 'participant_number' } // Match rows based on the unique constraint
     )
@@ -38,7 +41,7 @@ export const useSupabaseStore = defineStore('supabaseStore', () => {
 
     const { data, error } = await supabase
       .from('progress')
-      .select('phase')
+      .select('phase, study_group')
       .eq('participant_number', participantNumber)
       .eq('username', username)
       .single()
@@ -46,13 +49,13 @@ export const useSupabaseStore = defineStore('supabaseStore', () => {
     return { data, error }
   }
 
-  async function saveRating (videoIndex: number, ratings: { pain: number, credibility: number, difficulty: number }, filename: string, audioType: 'no_pain' | 'slight_pain' | 'strong_pain') {
+  async function saveRating (videoIndex: number, ratings: { pain: number, credibility: number, difficulty: number, action?: number }, filename: string, audioType: 'no_pain' | 'slight_pain' | 'strong_pain') {
     if (!isAuthenticated.value) {
       console.error('User is not authenticated')
       return { error: 'User is not authenticated' }
     }
 
-    const { participantNumber } = user.value
+    const { participantNumber, group } = user.value
     if (!participantNumber) {
       console.error('No participant number found')
       return { error: 'No participant number found' }
@@ -64,8 +67,10 @@ export const useSupabaseStore = defineStore('supabaseStore', () => {
       pain_rating: ratings.pain,
       credibility_rating: ratings.credibility,
       difficulty_rating: ratings.difficulty,
+      action_rating: ratings.action,
       video_filename: filename,
-      audio_type: audioType
+      audio_type: audioType,
+      study_group: group
     })
 
     const { data, error } = await supabase.from('video_ratings').insert([
@@ -75,8 +80,10 @@ export const useSupabaseStore = defineStore('supabaseStore', () => {
         pain_rating: ratings.pain,
         credibility_rating: ratings.credibility,
         difficulty_rating: ratings.difficulty,
+        action_rating: ratings.action,
         video_filename: filename,
         audio_type: audioType,
+        study_group: group,
       },
     ])
 
@@ -90,11 +97,12 @@ export const useSupabaseStore = defineStore('supabaseStore', () => {
   }
 
   async function saveUserData (formData: any) {
-    const { participantNumber } = user.value
+    const { participantNumber, group } = user.value
 
     const { error } = await supabase.from('form_data').insert([
       {
         participant_number: participantNumber,
+        study_group: group,
         gender: formData.gender,
         age: formData.age,
         education: formData.education,

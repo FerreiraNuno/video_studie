@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useProgressStore } from '../useProgress.store'
-import { useSupabaseStore } from '@/useSupabase.store'
+import { useSupabaseStore, type StudyGroup } from '@/useSupabase.store'
 
 const progressStore = useProgressStore()
 const supabaseStore = useSupabaseStore()
@@ -9,6 +9,7 @@ const supabaseStore = useSupabaseStore()
 const password = ref('')
 const username = ref('')
 const participantNumber = ref('')
+const selectedGroup = ref<StudyGroup>('KG')
 const errorMessage = ref('')
 const loading = ref(false)
 const isDevelopment = ref(true)
@@ -19,6 +20,7 @@ async function handleLogin () {
   if (password.value === globalPassword) {
     supabaseStore.user.username = username.value
     supabaseStore.user.participantNumber = participantNumber.value
+    supabaseStore.user.group = selectedGroup.value
     supabaseStore.isDevelopment = isDevelopment.value
     loading.value = true
     const response = await supabaseStore.loadProgress()
@@ -71,6 +73,22 @@ async function handleLogin () {
             type="text"
             required
           />
+        </div>
+        <div class="form-group">
+          <label
+            class="label"
+            for="group"
+          >Studiengruppe:</label>
+          <select
+            class="input"
+            id="group"
+            v-model="selectedGroup"
+            required
+          >
+            <option value="CDM">CDM</option>
+            <option value="SCT">SCT</option>
+            <option value="KG">KG</option>
+          </select>
         </div>
         <div class="form-group">
           <label
@@ -245,5 +263,14 @@ async function handleLogin () {
   height: 16px;
   border-radius: 4px;
   border: 1px solid #D1D5DB;
+}
+
+select.input {
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.7rem center;
+  background-size: 1em;
+  padding-right: 2.5rem;
 }
 </style>

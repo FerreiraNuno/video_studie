@@ -22,6 +22,9 @@ const audioHeard = ref(false)
 const videoSeen = ref(false)
 const videoIndex = ref(0)  // Simple counter for videos
 
+// Get the current group from the store
+const currentGroup = computed(() => supabaseStore.user.group)
+
 // Initialize video order when component is mounted
 onMounted(() => {
   initializeVideoOrder()
@@ -75,6 +78,18 @@ const showPensionRatingsThirdSet = computed(() => isInList(progressIndex.value, 
 
 const phase2Finished = computed(() => progressIndex.value >= 87)
 
+function getCurrentContext (): 'bus' | 'doctor' | 'pension' {
+  if (showBusVideosFirstSet.value || showBusVideosSecondSet.value || showBusVideosThirdSet.value ||
+    showBusRatingsFirstSet.value || showBusRatingsSecondSet.value || showBusRatingsThirdSet.value) {
+    return 'bus'
+  } else if (showDoctorVideosFirstSet.value || showDoctorVideosSecondSet.value || showDoctorVideosThirdSet.value ||
+    showDoctorRatingsFirstSet.value || showDoctorRatingsSecondSet.value || showDoctorRatingsThirdSet.value) {
+    return 'doctor'
+  } else {
+    return 'pension'
+  }
+}
+
 function submitRating (ratings: { pain: number, credibility: number, difficulty: number }, filename: string) {
   console.log('Submitting rating with audio type:', currentAudioType.value)
   if (!currentAudioType.value) {
@@ -127,6 +142,7 @@ function finishPhaseTwo () {
     <Rating
       :videoIndex="0"
       :filename="''"
+      context="none"
       @rating-submitted="progressIndex++"
     />
   </div>
@@ -156,10 +172,10 @@ function finishPhaseTwo () {
     <p>Bitte verbinden Sie nun einen Kopfhörer mit Ihrem PC und testen Sie dann, ob Sie den Ton der Audiodaten gut hören
       können!</p>
     <audio
-      controls
       volume="1.0"
       loop
       autoplay
+      preload="auto"
     >
       <source
         src="/bugle_tune.ogg"
@@ -193,7 +209,7 @@ function finishPhaseTwo () {
       :src="testVideo"
       autoplay
       loop
-      muted
+      :muted="true"
       playsinline
       class="test-video"
     ></video>
@@ -216,99 +232,111 @@ function finishPhaseTwo () {
   <!-- Bus Context -->
   <Context
     v-else-if="showBusIntro"
-    :text="context.bus_intro.cdm"
+    :text="context.bus_intro[currentGroup]"
     :imageNumber="0"
     context="bus"
+    :group="currentGroup"
     @next="progressIndex++"
   />
 
   <Context
     v-else-if="showBusScenario"
-    :text="context.bus_scenario.cdm"
+    :text="context.bus_scenario[currentGroup]"
     :imageNumber="1"
     context="bus"
+    :group="currentGroup"
     @next="progressIndex++"
   />
 
   <Context
     v-else-if="showBusReminderAfter4"
-    :text="context.bus_reminder.cdm"
+    :text="context.bus_reminder[currentGroup]"
     :imageNumber="1"
     context="bus"
+    :group="currentGroup"
     @next="progressIndex++"
   />
 
   <Context
     v-else-if="showBusReminderAfter8"
-    :text="context.bus_reminder.cdm"
+    :text="context.bus_reminder[currentGroup]"
     :imageNumber="1"
     context="bus"
+    :group="currentGroup"
     @next="progressIndex++"
   />
 
   <!-- Doctor Context -->
   <Context
     v-else-if="showDoctorIntro"
-    :text="context.doctor_intro.cdm"
+    :text="context.doctor_intro[currentGroup]"
     :imageNumber="0"
     context="doctor"
+    :group="currentGroup"
     @next="progressIndex++"
   />
 
   <Context
     v-else-if="showDoctorScenario"
-    :text="context.doctor_scenario.cdm"
+    :text="context.doctor_scenario[currentGroup]"
     :imageNumber="1"
     context="doctor"
+    :group="currentGroup"
     @next="progressIndex++"
   />
 
   <Context
     v-else-if="showDoctorReminderAfter4"
-    :text="context.doctor_reminder.cdm"
+    :text="context.doctor_reminder[currentGroup]"
     :imageNumber="1"
     context="doctor"
+    :group="currentGroup"
     @next="progressIndex++"
   />
 
   <Context
     v-else-if="showDoctorReminderAfter8"
-    :text="context.doctor_reminder.cdm"
+    :text="context.doctor_reminder[currentGroup]"
     :imageNumber="1"
     context="doctor"
+    :group="currentGroup"
     @next="progressIndex++"
   />
 
   <!-- Pension Context -->
   <Context
     v-else-if="showPensionIntro"
-    :text="context.pension_intro.cdm"
+    :text="context.pension_intro[currentGroup]"
     :imageNumber="0"
     context="pension"
+    :group="currentGroup"
     @next="progressIndex++"
   />
 
   <Context
     v-else-if="showPensionScenario"
-    :text="context.pension_scenario.cdm"
+    :text="context.pension_scenario[currentGroup]"
     :imageNumber="1"
     context="pension"
+    :group="currentGroup"
     @next="progressIndex++"
   />
 
   <Context
     v-else-if="showPensionReminderAfter4"
-    :text="context.pension_reminder.cdm"
+    :text="context.pension_reminder[currentGroup]"
     :imageNumber="1"
     context="pension"
+    :group="currentGroup"
     @next="progressIndex++"
   />
 
   <Context
     v-else-if="showPensionReminderAfter8"
-    :text="context.pension_reminder.cdm"
+    :text="context.pension_reminder[currentGroup]"
     :imageNumber="1"
     context="pension"
+    :group="currentGroup"
     @next="progressIndex++"
   />
 
@@ -326,6 +354,7 @@ function finishPhaseTwo () {
       showPensionRatingsFirstSet || showPensionRatingsSecondSet || showPensionRatingsThirdSet"
     :videoIndex="videoIndex"
     :filename="currentFilename"
+    :context="getCurrentContext()"
     @rating-submitted="submitRating"
   />
   <Loading v-else />

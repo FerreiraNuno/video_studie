@@ -1,21 +1,6 @@
 <script setup lang="ts">
 import { defineProps } from 'vue'
 
-const images = {
-  bus: [
-    `${import.meta.env.BASE_URL}context/bus_outside.png`,
-    `${import.meta.env.BASE_URL}context/bus_inside.mp4`
-  ],
-  doctor: [
-    `${import.meta.env.BASE_URL}context/praxis.png`,
-    `${import.meta.env.BASE_URL}context/praxis.mp4`
-  ],
-  pension: [
-    `${import.meta.env.BASE_URL}context/rentenstelle.png`,
-    `${import.meta.env.BASE_URL}context/rentenstelle.mp4`
-  ]
-}
-
 const emit = defineEmits<{
   (e: 'next'): void
 }>()
@@ -24,7 +9,29 @@ const props = defineProps<{
   imageNumber: number
   text: string
   context: 'bus' | 'doctor' | 'pension'
+  group?: 'CDM' | 'SCT' | 'KG'
 }>()
+
+const images = {
+  bus: [
+    `${import.meta.env.BASE_URL}context/bus.png`,
+    `${import.meta.env.BASE_URL}context/bus.mp4`
+  ],
+  doctor: [
+    `${import.meta.env.BASE_URL}context/praxis.png`,
+    `${import.meta.env.BASE_URL}context/${props.context === 'doctor' ?
+      props.group === 'SCT' ? 'it_firma.mp4' :
+        props.group === 'KG' ? 'arbeit.mp4' :
+          'praxis.mp4' : 'praxis.mp4'}`
+  ],
+  pension: [
+    `${import.meta.env.BASE_URL}context/rentenversicherung.png`,
+    `${import.meta.env.BASE_URL}context/${props.context === 'pension' ?
+      props.group === 'SCT' ? 'putzkraft.mp4' :
+        props.group === 'KG' ? 'renten_weg.mp4' :
+          'rentenversicherung.mp4' : 'rentenversicherung.mp4'}`
+  ]
+}
 
 const isVideo = (url: string) => {
   return url.toLowerCase().endsWith('.mp4') || url.toLowerCase().endsWith('.webm')

@@ -23,12 +23,20 @@ const isAudioPlaying = ref(false)
 
 onMounted(() => {
   if (videoElement.value) {
+    // Ensure video is muted
+    videoElement.value.muted = true
+
     if (supabaseStore.isDevelopment) {
       // In development mode, set the video duration to 1 second
       videoElement.value.addEventListener('loadedmetadata', () => {
         videoElement.value!.currentTime = videoElement.value!.duration - 1
       })
     }
+
+    // Ensure video stays muted
+    videoElement.value.addEventListener('play', () => {
+      videoElement.value!.muted = true
+    })
 
     videoElement.value.addEventListener('ended', () => {
       if (audioSource && audioElement.value) {
@@ -67,6 +75,7 @@ onMounted(() => {
       :src="videoSource"
       autoplay
       playsinline
+      :muted="true"
     >
       Ihr Browser unterstützt die Video Wiedergabe nicht.
     </video>
