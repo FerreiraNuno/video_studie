@@ -37,14 +37,15 @@ export const useSupabaseStore = defineStore('supabaseStore', () => {
   }
 
   async function loadProgress () {
-    const { participantNumber, username } = user.value
+    const { participantNumber, username, group } = user.value
 
     const { data, error } = await supabase
       .from('progress')
       .select('phase, study_group')
       .eq('participant_number', participantNumber)
       .eq('username', username)
-      .single()
+      .eq('study_group', group)
+      .maybeSingle()
 
     return { data, error }
   }

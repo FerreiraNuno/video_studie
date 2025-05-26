@@ -14,8 +14,8 @@ const props = defineProps<{
 
 const images = {
   bus: [
-    `${import.meta.env.BASE_URL}context/bus.png`,
-    `${import.meta.env.BASE_URL}context/bus.mp4`
+    `${import.meta.env.BASE_URL}context/bus_outside.png`,
+    `${import.meta.env.BASE_URL}context/bus_inside.mp4`
   ],
   doctor: [
     `${import.meta.env.BASE_URL}context/praxis.png`,
