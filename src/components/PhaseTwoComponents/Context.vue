@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { defineProps } from 'vue'
+import { defineProps, ref, onMounted, computed } from 'vue'
+import { useSupabaseStore } from '@/useSupabase.store'
 
+const supabaseStore = useSupabaseStore()
 const emit = defineEmits<{
   (e: 'next'): void
 }>()
@@ -11,6 +13,11 @@ const props = defineProps<{
   context: 'bus' | 'doctor' | 'pension'
   group?: 'CDM' | 'SCT' | 'KG'
 }>()
+
+const audioRef = ref<HTMLAudioElement | null>(null)
+const isAudioComplete = ref(false)
+
+const audioSrc = computed(() => `${import.meta.env.BASE_URL}${props.text}`)
 
 const images = {
   bus: [
@@ -36,6 +43,21 @@ const images = {
 const isVideo = (url: string) => {
   return url.toLowerCase().endsWith('.mp4') || url.toLowerCase().endsWith('.webm')
 }
+
+const playAudio = () => {
+  if (audioRef.value) {
+    audioRef.value.play()
+  }
+}
+
+onMounted(() => {
+  playAudio()
+  if (audioRef.value) {
+    audioRef.value.addEventListener('ended', () => {
+      isAudioComplete.value = true
+    })
+  }
+})
 </script>
 
 <template>
@@ -57,12 +79,25 @@ const isVideo = (url: string) => {
           playsinline
         ></video>
       </div>
-      <p class="text">{{ props.text }}</p>
+      <audio
+        ref="audioRef"
+        :src="audioSrc"
+        preload="auto"
+      ></audio>
     </div>
-    <button
-      @click="emit('next')"
-      class="next-button"
-    >Weiter</button>
+    <div class="button-container">
+      <button
+        @click="emit('next')"
+        class="next-button"
+        :disabled="!isAudioComplete && !supabaseStore.isDevelopment"
+      >Weiter</button>
+      <p
+        v-if="supabaseStore.isDevelopment"
+        class="dev-mode-text"
+      >
+        Im Entwicklungsmodus kann die Audiowiedergabe mit 'Weiter' übersprungen werden
+      </p>
+    </div>
   </div>
 </template>
 
@@ -97,9 +132,21 @@ const isVideo = (url: string) => {
   width: auto;
 }
 
-.text {
-  flex: 1;
-  font-size: 1.5rem;
-  white-space: pre-line;
+.button-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dev-mode-text {
+  color: #92400e;
+  font-size: 0.875rem;
+  text-align: center;
+}
+
+.next-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 </style>

@@ -1,47 +1,47 @@
 {
   "bus_intro": {
-    "CDM": "In öffentlichen Verkehrsmitteln ist es normal, dass man den eigenen Sitzplatz für bestimmte Personen aufgibt, damit diese sich setzen können und nicht stehen müssen. \n\n Das betrifft z.B. ältere Menschen, Schwangere oder aber auch Menschen, die Schmerzen haben.",
-    "SCT": "In öffentlichen Verkehrsmitteln ist es normal, dass man den eigenen Sitzplatz für bestimmte Personen aufgibt, damit diese sich setzen können und nicht stehen müssen. \n\n Das betrifft z.B. ältere Menschen, Schwangere oder aber auch Menschen, die Schmerzen haben.",
-    "KG": "Öffentliche Verkehrsmittel sind eine umweltfreundliche und kostengünstige Möglichkeit, sich fortzubewegen. \n\n Sie ermöglichen vielen Menschen eine meist zuverlässige und bequeme Alternative zum eigenen Auto."
+    "CDM": "context_instructions/Kontext I Alltag CDM, SCT.mp3",
+    "SCT": "context_instructions/Kontext I Alltag CDM, SCT.mp3",
+    "KG": "context_instructions/Kontext I Alltag KG.mp3"
   },
   "bus_scenario": {
-    "CDM": "Stellen Sie sich vor, Sie sind an verschiedenen Tagen im Bus auf dem Weg zur Uni. \n\n Sie selbst haben Glück und an jedem Tag einen Sitzplatz im Bus. An jedem dieser Tage steigt eine Person zu Ihnen in den Bus und bittet Sie, Ihren Sitzplatz für sie aufzugeben, weil sie Schmerzen hat.",
-    "SCT": "Stellen Sie sich vor, Sie sind an verschiedenen Tagen im Bus auf dem Weg zur Uni. \n\n Sie selbst müssen jedes Mal stehen, da Sie keinen Sitzplatz mehr bekommen haben. Sie beobachten an jedem dieser Tage, wie eine Person in den Bus einsteigt und jeweils eine andere Person, die sitzt, bittet, wegen Schmerzen den Sitzplatz für sie aufzugeben.",
-    "KG": "Stellen Sie sich vor, Sie sind an verschiedenen Tagen im Bus auf dem Weg zur Uni. \n\n An jeder Haltestelle steigen einige Personen ein und andere dafür aus. Sie sehen, wie die folgenden Personen in den Bus einsteigen und hören, was sie sagen."
+    "CDM": "context_instructions/Kontext I Alltag CDM vor Video 1.mp3",
+    "SCT": "context_instructions/Kontext I Alltag SCT vor Video 1.mp3",
+    "KG": "context_instructions/Kontext I Alltag KG vor Video 1.mp3"
   },
   "bus_reminder": {
-    "CDM": "Erinnern Sie sich: Sie sind an verschiedenen Tagen im Bus auf dem Weg zur Uni. \n\n Sie selbst haben Glück und an jedem Tag einen Sitzplatz im Bus. An jedem dieser Tage auf dem Weg zur Uni steigt eine Person zu Ihnen in den Bus und bittet Sie, Ihren Sitzplatz für sie aufzugeben, weil sie Schmerzen hat.",
-    "SCT": "Erinnern Sie sich: Sie sind an verschiedenen Tagen im Bus auf dem Weg zur Uni. \n\n Sie selbst müssen jedes Mal stehen, da Sie keinen Sitzplatz mehr bekommen haben. Sie beobachten an jedem dieser Tage auf dem Weg zur Uni, wie eine Person in den Bus einsteigt und jeweils eine andere Person, die sitzt, bittet, wegen Schmerzen den Sitzplatz für sie aufzugeben.",
-    "KG": "Erinnern Sie sich: Sie sind an verschiedenen Tagen im Bus auf dem Weg zur Uni. \n\n An jeder Haltestelle steigen einige Personen ein und andere dafür aus. Sie beobachten, wie die folgenden Personen in den Bus einsteigen und hören, was sie sagen."
+    "CDM": "context_instructions/Kontext I Alltag CDM nach Video 4 und 8.mp3",
+    "SCT": "context_instructions/Kontext I Alltag SCT nach Video 4 und 8.mp3",
+    "KG": "context_instructions/Kontext I Alltag KG nach Video 4 und 8.mp3"
   },
   "doctor_intro": {
-    "CDM": "Spezielle Schmerzmedikamente, die besonders wirksam sind, sind sehr teuer, wenn man sie selbst bezahlen muss. \n\n Ärzt:innen können Patient:innen dann Schmerzmedikamente verschreiben, wenn deren Schmerzen stark genug sind. Die Einschätzung der Schmerzen nehmen dabei sowohl die Ärzt:innen als auch die Patient:innen selbst vor.",
-    "SCT": "Spezielle Schmerzmedikamente, die besonders wirksam sind, sind sehr teuer, wenn man sie selbst bezahlen muss. \n\n Ärzt:innen können Patient:innen dann Schmerzmedikamente verschreiben, wenn deren Schmerzen stark genug sind. Die Einschätzung der Schmerzen nehmen dabei sowohl die Ärzt:innen als auch die Patient:innen selbst vor.",
-    "KG": "In Arztpraxen werden Menschen mit vielen unterschiedlichen Beschwerden behandelt. \n\n Die Behandlung in Arztpraxen dient der Vorsorge, Diagnose, Therapie und Nachsorge von Erkrankungen. Im Unterschied zu Krankenhäusern und Kliniken erfolgt die Behandlung in Arztpraxen ambulant."
+    "CDM": "context_instructions/Kontext II Arztpraxis CDM SCT.mp3",
+    "SCT": "context_instructions/Kontext II Arztpraxis CDM SCT.mp3",
+    "KG": "context_instructions/Kontext II Arztpraxis KG.mp3"
   },
   "doctor_scenario": {
-    "CDM": "Stellen Sie sich vor, Sie sind Ärzt:in und arbeiten an verschiedenen Tagen in einer Praxis. \n\n Die folgenden Patient:innen stellen sich auf Grund von Schmerzen in Ihrer Sprechstunde vor. Sie müssen entscheiden, ob Sie ihnen ein sehr teures Schmerzmittel verschreiben, das ihr Budget belasten wird.",
-    "SCT": "Stellen Sie sich vor, Sie arbeiten bei einem Unternehmen, das IT-Support für Arztpraxen anbietet. \n\n Sie haben an verschiedenen Tagen Aufträge in Arztpraxen. Sie sind dabei einen Drucker im Empfangsbereich einer Praxis zu warten. Dabei beobachten Sie, wie folgende Personen in die Arztpraxis kommen, um sich behandeln zu lassen.",
-    "KG": "Stellen Sie sich vor, das Gebäude einer Arztpraxis liegt auf Ihrem täglichen Weg zur Arbeit. \n\n Auf Ihrem Weg entlang des Gebäudes treffen Sie an verschiedenen Tagen auf die folgenden Personen."
+    "CDM": "context_instructions/Kontext II Arztpraxis CDM vor Video 1.mp3",
+    "SCT": "context_instructions/Kontext II Arztpraxis SCT vor Video 1.mp3",
+    "KG": "context_instructions/Kontext II Arztpraxis KG vor Video 1.mp3"
   },
   "doctor_reminder": {
-    "CDM": "Erinnern Sie sich: Sie sind Ärzt:in und arbeiten an verschiedenen Tagen in einer Praxis. \n\n Die folgenden Patient:innen stellen sich auf Grund von Schmerzen in Ihrer Sprechstunde vor. Sie müssen entscheiden, ob Sie ihnen ein sehr teures Schmerzmittel verschreiben, das ihr Budget belasten wird.",
-    "SCT": "Erinnern Sie sich: Sie arbeiten bei einem Unternehmen, das IT-Support für Arztpraxen anbietet. \n\n Sie haben an verschiedenen Tagen Aufträge in Arztpraxen. Sie sind dabei einen Drucker im Empfangsbereich einer Praxis zu warten. Dabei beobachten Sie, wie folgende Personen in die Arztpraxis kommen, um sich behandeln zu lassen.",
-    "KG": "Erinnern Sie sich: das Gebäude einer Arztpraxis liegt auf Ihrem täglichen Weg zur Arbeit. \n\n Auf Ihrem Weg entlang des Gebäudes treffen Sie an verschiedenen Tagen auf die folgenden Personen."
+    "CDM": "context_instructions/Kontext II Arztpraxis CDM vor Video 13 und 17 .mp3",
+    "SCT": "context_instructions/Kontext II Arztpraxis SCT vor Video 13 und 17.mp3",
+    "KG": "context_instructions/Kontext II Arztpraxis KG vor Video 13 und 17.mp3"
   },
   "pension_intro": {
-    "CDM": "Viele Menschen wünschen sich früher in Rente gehen zu können. \n\n Die Chancen, früher in Rente gehen zu können, sind für Menschen hoch, die stark genug durch Schmerzen beeinträchtigt sind. \n\n Die Entscheidung darüber, ob jemand früher in Rente gehen kann, treffen Gutachter:innen. \n\n Die Einschätzung der Schmerzen nehmen dabei sowohl die Gutachter:innen als auch die Personen mit Rentenwunsch selbst vor.",
-    "SCT": "Viele Menschen wünschen sich früher in Rente gehen zu können. \n\n Die Chancen, früher in Rente gehen zu können, sind für Menschen hoch, die stark genug durch Schmerzen beeinträchtigt sind. \n\n Die Entscheidung darüber, ob jemand früher in Rente gehen kann, treffen Gutachter:innen. \n\n Die Einschätzung der Schmerzen nehmen dabei sowohl die Gutachter:innen als auch die Personen mit Rentenwunsch selbst vor.",
-    "KG": "Die Rentenversicherung ist ein wichtiger Bestandteil der sozialen Sicherungssysteme vieler Länder. \n\n Sie dient der finanziellen Absicherung von Menschen im Alter, wenn sie nicht mehr in der Lage sind, einer Erwerbstätigkeit nachzugehen und für Hinterbliebene nach dem Tod eines Versicherten. In Deutschland ist die Rentenversicherung als Teil des Sozialversicherungssystems gesetzlich geregelt."
+    "CDM": "context_instructions/Kontext III Rentenversicherung CDM SCT.mp3",
+    "SCT": "context_instructions/Kontext III Rentenversicherung CDM SCT.mp3",
+    "KG": "context_instructions/Kontext III Rentenversicherung KG.mp3"
   },
   "pension_scenario": {
-    "CDM": "Stellen Sie sich vor, Sie sind Gutachter:in und arbeiten an verschiedenen Tagen bei der Rentenversicherung. \n\n Dort treffen Sie auf Menschen, die auf Grund von Schmerzen einen Rentenwunsch haben. Sie müssen für die folgenden Personen entscheiden, ob sie, aufgrund von Schmerzen, vorzeitig in Rente gehen können.",
-    "SCT": "Stellen Sie sich vor, Sie arbeiten als Reinigungskraft und werden an verschiedenen Tagen bei der Rentenversicherung eingesetzt. \n\n Sie putzen den Wartebereich. Dort sitzen Personen, die auf einen Termin bei Rentenberater:innen warten. Sie beobachten beim Putzen die folgenden Personen.",
-    "KG": "Stellen Sie sich vor, das Gebäude der örtlichen Niederlassung der Rentenversicherung liegt auf Ihrem Weg zum Sport, den Sie mehrmals pro Woche gehen. \n\n Auf Ihrem Weg entlang des Gebäudes treffen Sie an verschiedenen Tagen auf die folgenden Personen."
+    "CDM": "context_instructions/Kontext III Rentenversicherung CDM vor Video 25.mp3",
+    "SCT": "context_instructions/Kontext III Rentenversicherung SCT vor Video 25.mp3",
+    "KG": "context_instructions/Kontext III Rentenversicherung KG vor Video 25.mp3"
   },
   "pension_reminder": {
-    "CDM": "Erinnern Sie sich: Sie sind Gutachter:in und arbeiten an verschiedenen Tagen bei der Rentenversicherung. \n\n Dort treffen Sie auf Menschen, die auf Grund von Schmerzen einen Rentenwunsch haben. Sie müssen für die folgenden Personen entscheiden, ob sie, aufgrund von Schmerzen, vorzeitig in Rente gehen können.",
-    "SCT": "Erinnern Sie sich: Sie arbeiten als Reinigungskraft und werden an verschiedenen Tagen bei der Rentenversicherung eingesetzt. \n\n Sie putzen den Wartebereich. Dort sitzen Personen, die auf einen Termin bei Rentenberater:innen warten. Sie beobachten beim Putzen die folgenden Personen.",
-    "KG": "Erinnern Sie sich: Das Gebäude der örtlichen Niederlassung der Rentenversicherung liegt auf Ihrem Weg zum Sport, den Sie mehrmals pro Woche gehen. \n\n Auf Ihrem Weg entlang des Gebäudes treffen Sie an verschiedenen Tagen auf die folgenden Personen."
+    "CDM": "context_instructions/Kontext III Rentenversicherung CDM vor Video 29 und 33.mp3",
+    "SCT": "context_instructions/Kontext III Rentenversicherung SCT vor Video 29 und 33.mp3",
+    "KG": "context_instructions/Kontext III Rentenversicherung KG vor Video 29 und 33.mp3"
   }
 }

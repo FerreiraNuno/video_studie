@@ -134,7 +134,7 @@ function finishPhaseTwo () {
       Personen auf den folgenden Skalen einzuschätzen:</p>
     <ul>
       <li>Schmerzintensität (0-10: kein Schmerz, stärkster vorstellbarer Schmerz)</li>
-      <li>Glaubhaftigkeit des Vorhandenseins oder Nichtvohandenseins der Schmerzen (0-10: überhaupt nicht glaubhaft,
+      <li>Glaubhaftigkeit der berichteten und gezeigten Schmerzen (0-10: überhaupt nicht glaubhaft,
         äußerst glaubhaft)</li>
       <li>Schwierigkeit der Beurteilung (0-10: überhaupt nicht schwierig, äußerst schwierig)</li>
     </ul>
@@ -153,7 +153,7 @@ function finishPhaseTwo () {
     v-else-if="showStartMessage"
   >
     <h2>Prima, dass Sie bisher alles so gut gemeistert haben!</h2>
-    <p>Nun beginnt der 2. Teil der Studie.</p>
+    <p>Dann kann es jetzt mit der Beurteilung der Videos losgehen.</p>
     <button
       @click="progressIndex++"
       class="next-button"
@@ -165,12 +165,15 @@ function finishPhaseTwo () {
     v-else-if="showAudio"
   >
     <h2>Das hat ja sehr gut geklappt.</h2>
-    <p>Damit Sie den Ablauf schon einmal kennenlernen, zeigen wir Ihnen nun gleich ein Video.</p>
-    <p>Zuerst müssen wir noch testen, ob der Ton über Ihren Kopfhörer gut zu hören ist. Über Ihren Kopfhörer bekommen
-      Sie direkt nach dem Video zusätzliche Informationen. Diese beziehen sich darauf, wie die Person aus dem Video
-      jeweils selbst ihre Schmerzen einschätzt.</p>
-    <p>Bitte verbinden Sie nun einen Kopfhörer mit Ihrem PC und testen Sie dann, ob Sie den Ton der Audiodaten gut hören
-      können!</p>
+    <p>Sie werden gleich eine Reihe von Videos sehen und direkt nach jedem Video in einer
+      Audiodatei gesagt bekommen, wie die Person im Video ihre Schmerzen selbst
+      einschätzt.</p>
+    <p>Damit Sie gleich gut starten können, möchten wir vorher noch testen, ob Ton und
+      Videowiedergabe funktionieren.</p>
+    <p>Bitte verbinden Sie nun einen Kopfhörer mit Ihrem PC und testen Sie dann, ob Sie
+      den Ton der Audiodatei gut hören können! Wenn Sie den Ton gut hören können,
+      bestätigen Sie dies und gehen zur nächsten Seite weiter. Falls nicht, setzen Sie sich
+      bitte mit der Studienleitung in Verbindung!</p>
     <audio
       volume="1.0"
       loop
@@ -178,7 +181,7 @@ function finishPhaseTwo () {
       preload="auto"
     >
       <source
-        src="/bugle_tune.ogg"
+        src="/bugle_tune.mp3"
         type="audio/ogg"
       >
       Your browser does not support the audio element.
@@ -203,7 +206,6 @@ function finishPhaseTwo () {
     class="instruction"
     v-else-if="showTestVideo"
   >
-    <h2>Test Video</h2>
     <p>Bitte überprüfen Sie, ob das Video gut wiedergegeben wird.</p>
     <video
       :src="testVideo"
