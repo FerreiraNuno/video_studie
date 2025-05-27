@@ -32,11 +32,11 @@ const images = {
           'praxis.mp4' : 'praxis.mp4'}`
   ],
   pension: [
-    `${import.meta.env.BASE_URL}context/rentenversicherung.png`,
+    `${import.meta.env.BASE_URL}context/rentenstelle.png`,
     `${import.meta.env.BASE_URL}context/${props.context === 'pension' ?
       props.group === 'SCT' ? 'putzkraft.mp4' :
         props.group === 'KG' ? 'renten_weg.mp4' :
-          'rentenversicherung.mp4' : 'rentenversicherung.mp4'}`
+          'rentenstelle.mp4' : 'rentenstelle.mp4'}`
   ]
 }
 
