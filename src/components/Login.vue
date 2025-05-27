@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useProgressStore } from '../useProgress.store'
 import { useSupabaseStore, type StudyGroup } from '@/useSupabase.store'
 
@@ -9,14 +9,36 @@ const supabaseStore = useSupabaseStore()
 const password = ref('')
 const username = ref('')
 const participantNumber = ref('')
-const selectedGroup = ref<StudyGroup>('KG')
 const errorMessage = ref('')
 const loading = ref(false)
 const isDevelopment = ref(true)
 
 const globalPassword = 'klinPsych'
 
+const selectedGroup = computed<StudyGroup | null>(() => {
+  if (!participantNumber.value || participantNumber.value.length !== 3) {
+    return null
+  }
+
+  const firstDigit = participantNumber.value[0]
+  switch (firstDigit) {
+    case '1':
+      return 'CDM'
+    case '2':
+      return 'SCT'
+    case '3':
+      return 'KG'
+    default:
+      return null
+  }
+})
+
 async function handleLogin () {
+  if (!selectedGroup.value) {
+    errorMessage.value = "Bitte geben Sie eine gültige 3-stellige Probandennummer ein"
+    return
+  }
+
   if (password.value === globalPassword) {
     supabaseStore.user.username = username.value
     supabaseStore.user.participantNumber = participantNumber.value
@@ -65,30 +87,16 @@ async function handleLogin () {
           <label
             class="label"
             for="participantNumber"
-          >Probandennummer:</label>
+          >Probandennummer (3-stellig):</label>
           <input
             class="input"
             id="participantNumber"
             v-model="participantNumber"
             type="text"
+            pattern="[1-3][0-9]{2}"
+            maxlength="3"
             required
           />
-        </div>
-        <div class="form-group">
-          <label
-            class="label"
-            for="group"
-          >Studiengruppe:</label>
-          <select
-            class="input"
-            id="group"
-            v-model="selectedGroup"
-            required
-          >
-            <option value="CDM">CDM</option>
-            <option value="SCT">SCT</option>
-            <option value="KG">KG</option>
-          </select>
         </div>
         <div class="form-group">
           <label
@@ -272,5 +280,11 @@ select.input {
   background-position: right 0.7rem center;
   background-size: 1em;
   padding-right: 2.5rem;
+}
+
+.help-text {
+  margin-top: 4px;
+  font-size: 0.75rem;
+  color: #6B7280;
 }
 </style>

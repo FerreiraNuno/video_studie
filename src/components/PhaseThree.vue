@@ -10,8 +10,8 @@ import { initializePhotoOrder, getCurrentPhoto } from '@/utils/photoManager'
 const progressStore = useProgressStore()
 const supabaseStore = useSupabaseStore()
 
-const progressIndex = ref(0)
-const photoIndex = ref(0)
+const progressIndex = ref(64)
+const photoIndex = ref(32)
 
 // Initialize photo order when component is mounted
 onMounted(() => {

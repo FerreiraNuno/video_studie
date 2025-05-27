@@ -145,7 +145,7 @@ export const useSupabaseStore = defineStore('supabaseStore', () => {
       .from('photo_ratings')
       .insert({
         participant_number: user.value.participantNumber,
-        photo_index: photoIndex,
+        photo_index: photoIndex + 1,
         trustworthiness: ratings.trustworthiness,
         sympathy: ratings.sympathy,
         aura: ratings.aura,
@@ -163,6 +163,8 @@ export const useSupabaseStore = defineStore('supabaseStore', () => {
   async function saveFinalRatings (ratings: {
     exaggeration: number
     faking: number
+    understating: number
+    suppression: number
     bus_empathy: number
     doctor_empathy: number
     pension_empathy: number
@@ -175,6 +177,8 @@ export const useSupabaseStore = defineStore('supabaseStore', () => {
           participant_number: user.value.participantNumber,
           exaggeration: ratings.exaggeration,
           faking: ratings.faking,
+          understating: ratings.understating,
+          suppression: ratings.suppression,
           bus_empathy: ratings.bus_empathy,
           doctor_empathy: ratings.doctor_empathy,
           pension_empathy: ratings.pension_empathy,

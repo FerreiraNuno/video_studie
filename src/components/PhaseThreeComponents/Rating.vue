@@ -47,42 +47,42 @@ function submitRatings () {
     <h2>Bitte bewerten Sie die Person auf folgenden Skalen:</h2>
 
     <RatingScale
-      label="Vertrauenswürdigkeit"
+      label=""
       left-label="überhaupt nicht vertrauenswürdig"
       right-label="äußerst vertrauenswürdig"
       v-model="trustworthiness"
     />
 
     <RatingScale
-      label="Sympathie"
+      label=""
       left-label="sehr unsympathisch"
       right-label="äußerst sympathisch"
       v-model="sympathy"
     />
 
     <RatingScale
-      label="Ausstrahlung"
+      label=""
       left-label="sehr unangenehm"
       right-label="äußerst angenehm"
       v-model="aura"
     />
 
     <RatingScale
-      label="Valenz"
+      label=""
       left-label="sehr negativ"
       right-label="äußerst positiv"
       v-model="valence"
     />
 
     <RatingScale
-      label="Attraktivität"
+      label=""
       left-label="sehr unattraktiv"
       right-label="äußerst attraktiv"
       v-model="attractiveness"
     />
 
     <RatingScale
-      label="Stresslevel"
+      label=""
       left-label="sehr gestresst"
       right-label="äußerst gelassen"
       v-model="stressLevel"

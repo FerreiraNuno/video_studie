@@ -33,7 +33,10 @@ function updateRating (value: number) {
 </script>
 
 <template>
-  <div class="main-label">{{ label }}</div>
+  <div
+    v-if="label !== ''"
+    class="main-label"
+  >{{ label }}</div>
   <div class="rating">
     <span class="left-label rating-label">{{ leftLabel }}</span>
     <div class="rating-scale">
@@ -127,6 +130,7 @@ function updateRating (value: number) {
   margin-top: 0.5rem;
   font-size: 0.8rem;
   color: #666;
+  margin-left: 0.5rem;
 }
 
 .slider {

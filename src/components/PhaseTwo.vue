@@ -133,10 +133,10 @@ function finishPhaseTwo () {
     <p>Sie sehen gleich eine Reihe von Videos mit verschiedenen Personen. Ihre Aufgabe ist es, die Schmerzen der
       Personen auf den folgenden Skalen einzuschätzen:</p>
     <ul>
-      <li>Schmerzintensität (0-10: kein Schmerz, stärkster vorstellbarer Schmerz)</li>
-      <li>Glaubhaftigkeit der berichteten und gezeigten Schmerzen (0-10: überhaupt nicht glaubhaft,
-        äußerst glaubhaft)</li>
-      <li>Schwierigkeit der Beurteilung (0-10: überhaupt nicht schwierig, äußerst schwierig)</li>
+      <li>Schmerzintensität (0: kein Schmerz, 10: stärkster vorstellbarer Schmerz)</li>
+      <li>Glaubhaftigkeit der berichteten und gezeigten Schmerzen (0: überhaupt nicht glaubhaft,
+        10: äußerst glaubhaft)</li>
+      <li>Schwierigkeit der Beurteilung (0: überhaupt nicht schwierig, 10: äußerst schwierig)</li>
     </ul>
     <p>Bitte probieren Sie für jede Skala einmal aus, wie der Schieberegler sich mit Ihrer Maus bewegen lässt.</p>
     <Rating
