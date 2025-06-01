@@ -18,8 +18,38 @@ const currentVideo = getCurrentVideo(props.videoIndex)
 const videoSource = getVideoSource(currentVideo.filename)
 const audioSource = currentVideo.audioType ? getAudioSource(currentVideo.audioType) : null
 
-// Track if we're in audio playback phase
-const isAudioPlaying = ref(false)
+// Track if both media elements have finished
+const videoEnded = ref(false)
+const audioEnded = ref(false)
+
+// Track retry attempts
+const videoRetryCount = ref(0)
+const audioRetryCount = ref(0)
+const MAX_RETRIES = 3
+
+const handleVideoError = () => {
+  if (videoRetryCount.value < MAX_RETRIES && videoElement.value) {
+    videoRetryCount.value++
+    console.log(`Retrying video load (attempt ${videoRetryCount.value})`)
+    setTimeout(() => {
+      videoElement.value?.load()
+    }, 2000)
+  } else {
+    console.error('Video failed to load after maximum retries')
+  }
+}
+
+const handleAudioError = () => {
+  if (audioRetryCount.value < MAX_RETRIES && audioElement.value) {
+    audioRetryCount.value++
+    console.log(`Retrying audio load (attempt ${audioRetryCount.value})`)
+    setTimeout(() => {
+      audioElement.value?.load()
+    }, 2000)
+  } else {
+    console.error('Audio failed to load after maximum retries')
+  }
+}
 
 onMounted(() => {
   if (videoElement.value) {
@@ -27,9 +57,9 @@ onMounted(() => {
     videoElement.value.muted = true
 
     if (supabaseStore.isDevelopment) {
-      // In development mode, set the video duration to 1 second
+      // In development mode, set the video duration to 3 second
       videoElement.value.addEventListener('loadedmetadata', () => {
-        videoElement.value!.currentTime = videoElement.value!.duration - 1
+        videoElement.value!.currentTime = videoElement.value!.duration - 3
       })
     }
 
@@ -38,25 +68,24 @@ onMounted(() => {
       videoElement.value!.muted = true
     })
 
-    videoElement.value.addEventListener('ended', () => {
-      if (audioSource && audioElement.value) {
-        isAudioPlaying.value = true
-        if (supabaseStore.isDevelopment) {
-          // In development mode, set the audio duration to 6 seconds
-          audioElement.value.currentTime = audioElement.value.duration - 3
-        }
-        audioElement.value.play()
-      } else {
-        emit('video-ended', currentVideo.filename)
-      }
-    })
+    // Add error handling
+    videoElement.value.addEventListener('error', handleVideoError)
   }
 
   if (audioElement.value) {
+    if (supabaseStore.isDevelopment) {
+      // In development mode, set the audio duration to 3 seconds
+      audioElement.value.addEventListener('loadedmetadata', () => {
+        audioElement.value!.currentTime = audioElement.value!.duration - 3
+      })
+    }
     audioElement.value.addEventListener('ended', () => {
-      isAudioPlaying.value = false
+      audioEnded.value = true
       emit('video-ended', currentVideo.filename)
     })
+
+    // Add error handling
+    audioElement.value.addEventListener('error', handleAudioError)
   }
 })
 </script>
@@ -76,32 +105,27 @@ onMounted(() => {
       <div>{{ currentVideo.filename.slice(0, -4) }}</div>
     </div>
     <video
-      v-if="!isAudioPlaying"
       ref="videoElement"
       :src="videoSource"
       autoplay
+      loop
       playsinline
       :muted="true"
     >
       Ihr Browser unterstützt die Video Wiedergabe nicht.
     </video>
-    <div
-      v-else
-      class="blank-screen"
-    >
-      <!-- Blank screen during audio playback -->
-    </div>
     <audio
       v-if="audioSource"
       ref="audioElement"
       :src="audioSource"
+      autoplay
       preload="auto"
     />
     <div
       v-if="supabaseStore.isDevelopment"
       class="dev-mode-notice"
     >
-      {{ isAudioPlaying ? 'Audio gekürzt auf 3 Sekunden' : 'Video gekürzt auf 1 Sekunde' }}
+      {{ 'Video gekürzt auf 3 Sekunden' }}
     </div>
   </div>
 </template>
