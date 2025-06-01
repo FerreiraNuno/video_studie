@@ -26,20 +26,11 @@ onMounted(() => {
 
 <template>
   <div class="photo-container">
-    <div class="dev-mode-notice">
-      <div>Foto {{ props.photoIndex + 1 }}</div>
-    </div>
     <img
       :src="photoSource"
       :alt="photo.filename"
       class="photo"
     >
-    <div
-      v-if="supabaseStore.isDevelopment"
-      class="dev-mode-notice"
-    >
-      Foto gekürzt auf 1 Sekunde
-    </div>
   </div>
 </template>
 
