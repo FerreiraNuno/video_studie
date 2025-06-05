@@ -108,7 +108,6 @@ onMounted(() => {
       ref="videoElement"
       :src="videoSource"
       autoplay
-      loop
       playsinline
       :muted="true"
     >

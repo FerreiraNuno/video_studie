@@ -68,9 +68,24 @@ const allVideos: Video[] = [
 
 // Create a shuffled list of videos for each context
 const shuffledVideos = ref<Video[]>([])
+const contextOrder = ref<('bus' | 'doctor' | 'pension')[]>([])
+
+// Function to randomize context order
+function randomizeContextOrder () {
+  const contexts: ('bus' | 'doctor' | 'pension')[] = ['bus', 'doctor', 'pension']
+  const shuffled = [...contexts]
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+  }
+  contextOrder.value = shuffled
+}
 
 // Function to initialize the video order
 export function initializeVideoOrder () {
+  // Randomize context order first
+  randomizeContextOrder()
+
   // Create a copy of all videos
   const videos = [...allVideos]
 
@@ -233,13 +248,14 @@ export function initializeVideoOrder () {
   // Assign audio files after we have a valid distribution
   assignAudioFiles()
 
-  // Combine all videos in the order: bus, doctor, pension
+  // Combine all videos in the order specified by contextOrder
   shuffledVideos.value = [
-    ...contextGroups.bus,
-    ...contextGroups.doctor,
-    ...contextGroups.pension
+    ...contextGroups[contextOrder.value[0]],
+    ...contextGroups[contextOrder.value[1]],
+    ...contextGroups[contextOrder.value[2]]
   ]
 
+  console.log('Context order:', contextOrder.value)
   console.log('Final shuffled videos array:', shuffledVideos.value.map(v => ({
     filename: v.filename,
     audioType: v.audioType

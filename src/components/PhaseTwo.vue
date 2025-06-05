@@ -40,55 +40,116 @@ const showAudio = computed(() => progressIndex.value === 1)
 const showTestVideo = computed(() => progressIndex.value === 2)
 const showStartMessage = computed(() => progressIndex.value === 3)
 
-// Bus context
-const showBusIntro = computed(() => progressIndex.value === 4)
-const showBusScenario = computed(() => progressIndex.value === 5)
-const showBusVideosFirstSet = computed(() => isInList(progressIndex.value, [6, 8, 10, 12]))
-const showBusRatingsFirstSet = computed(() => isInList(progressIndex.value, [7, 9, 11, 13]))
-const showBusReminderAfter4 = computed(() => progressIndex.value === 14)
-const showBusVideosSecondSet = computed(() => isInList(progressIndex.value, [15, 17, 19, 21]))
-const showBusRatingsSecondSet = computed(() => isInList(progressIndex.value, [16, 18, 20, 22]))
-const showBusReminderAfter8 = computed(() => progressIndex.value === 23)
-const showBusVideosThirdSet = computed(() => isInList(progressIndex.value, [24, 26, 28, 30]))
-const showBusRatingsThirdSet = computed(() => isInList(progressIndex.value, [25, 27, 29, 31]))
+// Context sections (each context has 28 steps: intro, scenario, 12 videos, 12 ratings, 2 reminders)
+const contextSections = [
+  { start: 4, end: 31 },    // First context
+  { start: 32, end: 59 },   // Second context
+  { start: 60, end: 87 }    // Third context
+]
 
-// Doctor context
-const showDoctorIntro = computed(() => progressIndex.value === 32)
-const showDoctorScenario = computed(() => progressIndex.value === 33)
-const showDoctorVideosFirstSet = computed(() => isInList(progressIndex.value, [34, 36, 38, 40]))
-const showDoctorRatingsFirstSet = computed(() => isInList(progressIndex.value, [35, 37, 39, 41]))
-const showDoctorReminderAfter4 = computed(() => progressIndex.value === 42)
-const showDoctorVideosSecondSet = computed(() => isInList(progressIndex.value, [43, 45, 47, 49]))
-const showDoctorRatingsSecondSet = computed(() => isInList(progressIndex.value, [44, 46, 48, 50]))
-const showDoctorReminderAfter8 = computed(() => progressIndex.value === 51)
-const showDoctorVideosThirdSet = computed(() => isInList(progressIndex.value, [52, 54, 56, 58]))
-const showDoctorRatingsThirdSet = computed(() => isInList(progressIndex.value, [53, 55, 57, 59]))
+// Helper function to get current context section
+function getCurrentContextSection () {
+  for (let i = 0; i < contextSections.length; i++) {
+    const section = contextSections[i]
+    if (progressIndex.value >= section.start && progressIndex.value <= section.end) {
+      return i
+    }
+  }
+  return -1
+}
 
-// Pension context
-const showPensionIntro = computed(() => progressIndex.value === 60)
-const showPensionScenario = computed(() => progressIndex.value === 61)
-const showPensionVideosFirstSet = computed(() => isInList(progressIndex.value, [62, 64, 66, 68]))
-const showPensionRatingsFirstSet = computed(() => isInList(progressIndex.value, [63, 65, 67, 69]))
-const showPensionReminderAfter4 = computed(() => progressIndex.value === 70)
-const showPensionVideosSecondSet = computed(() => isInList(progressIndex.value, [71, 73, 75, 77]))
-const showPensionRatingsSecondSet = computed(() => isInList(progressIndex.value, [72, 74, 76, 78]))
-const showPensionReminderAfter8 = computed(() => progressIndex.value === 79)
-const showPensionVideosThirdSet = computed(() => isInList(progressIndex.value, [80, 82, 84, 86]))
-const showPensionRatingsThirdSet = computed(() => isInList(progressIndex.value, [81, 83, 85, 87]))
+// Helper function to get current context
+function getCurrentContext (): 'bus' | 'doctor' | 'pension' {
+  const section = getCurrentContextSection()
+  if (section === -1) return 'bus' // Default fallback
+
+  // Get the context order from videoManager
+  const contextOrder = ['bus', 'doctor', 'pension'] as const
+  return contextOrder[section]
+}
+
+// Computed properties for each context section
+const showContextIntro = computed(() => {
+  const section = getCurrentContextSection()
+  return section !== -1 && progressIndex.value === contextSections[section].start
+})
+
+const showContextScenario = computed(() => {
+  const section = getCurrentContextSection()
+  return section !== -1 && progressIndex.value === contextSections[section].start + 1
+})
+
+const showContextVideosFirstSet = computed(() => {
+  const section = getCurrentContextSection()
+  return section !== -1 && isInList(progressIndex.value, [
+    contextSections[section].start + 2,
+    contextSections[section].start + 4,
+    contextSections[section].start + 6,
+    contextSections[section].start + 8
+  ])
+})
+
+const showContextRatingsFirstSet = computed(() => {
+  const section = getCurrentContextSection()
+  return section !== -1 && isInList(progressIndex.value, [
+    contextSections[section].start + 3,
+    contextSections[section].start + 5,
+    contextSections[section].start + 7,
+    contextSections[section].start + 9
+  ])
+})
+
+const showContextReminderAfter4 = computed(() => {
+  const section = getCurrentContextSection()
+  return section !== -1 && progressIndex.value === contextSections[section].start + 10
+})
+
+const showContextVideosSecondSet = computed(() => {
+  const section = getCurrentContextSection()
+  return section !== -1 && isInList(progressIndex.value, [
+    contextSections[section].start + 11,
+    contextSections[section].start + 13,
+    contextSections[section].start + 15,
+    contextSections[section].start + 17
+  ])
+})
+
+const showContextRatingsSecondSet = computed(() => {
+  const section = getCurrentContextSection()
+  return section !== -1 && isInList(progressIndex.value, [
+    contextSections[section].start + 12,
+    contextSections[section].start + 14,
+    contextSections[section].start + 16,
+    contextSections[section].start + 18
+  ])
+})
+
+const showContextReminderAfter8 = computed(() => {
+  const section = getCurrentContextSection()
+  return section !== -1 && progressIndex.value === contextSections[section].start + 19
+})
+
+const showContextVideosThirdSet = computed(() => {
+  const section = getCurrentContextSection()
+  return section !== -1 && isInList(progressIndex.value, [
+    contextSections[section].start + 20,
+    contextSections[section].start + 22,
+    contextSections[section].start + 24,
+    contextSections[section].start + 26
+  ])
+})
+
+const showContextRatingsThirdSet = computed(() => {
+  const section = getCurrentContextSection()
+  return section !== -1 && isInList(progressIndex.value, [
+    contextSections[section].start + 21,
+    contextSections[section].start + 23,
+    contextSections[section].start + 25,
+    contextSections[section].start + 27
+  ])
+})
 
 const phase2Finished = computed(() => progressIndex.value >= 87)
-
-function getCurrentContext (): 'bus' | 'doctor' | 'pension' {
-  if (showBusVideosFirstSet.value || showBusVideosSecondSet.value || showBusVideosThirdSet.value ||
-    showBusRatingsFirstSet.value || showBusRatingsSecondSet.value || showBusRatingsThirdSet.value) {
-    return 'bus'
-  } else if (showDoctorVideosFirstSet.value || showDoctorVideosSecondSet.value || showDoctorVideosThirdSet.value ||
-    showDoctorRatingsFirstSet.value || showDoctorRatingsSecondSet.value || showDoctorRatingsThirdSet.value) {
-    return 'doctor'
-  } else {
-    return 'pension'
-  }
-}
 
 function submitRating (ratings: { pain: number, credibility: number, difficulty: number }, filename: string) {
   console.log('Submitting rating with audio type:', currentAudioType.value)
@@ -231,129 +292,51 @@ function finishPhaseTwo () {
     >Weiter</button>
   </div>
 
-  <!-- Bus Context -->
+  <!-- Context sections -->
   <Context
-    v-else-if="showBusIntro"
-    :text="context.bus_intro[currentGroup]"
+    v-else-if="showContextIntro"
+    :text="context[`${getCurrentContext()}_intro`][currentGroup]"
     :imageNumber="0"
-    context="bus"
+    :context="getCurrentContext()"
     :group="currentGroup"
     @next="progressIndex++"
   />
 
   <Context
-    v-else-if="showBusScenario"
-    :text="context.bus_scenario[currentGroup]"
+    v-else-if="showContextScenario"
+    :text="context[`${getCurrentContext()}_scenario`][currentGroup]"
     :imageNumber="1"
-    context="bus"
+    :context="getCurrentContext()"
     :group="currentGroup"
     @next="progressIndex++"
   />
 
   <Context
-    v-else-if="showBusReminderAfter4"
-    :text="context.bus_reminder[currentGroup]"
+    v-else-if="showContextReminderAfter4"
+    :text="context[`${getCurrentContext()}_reminder`][currentGroup]"
     :imageNumber="1"
-    context="bus"
+    :context="getCurrentContext()"
     :group="currentGroup"
     @next="progressIndex++"
   />
 
   <Context
-    v-else-if="showBusReminderAfter8"
-    :text="context.bus_reminder[currentGroup]"
+    v-else-if="showContextReminderAfter8"
+    :text="context[`${getCurrentContext()}_reminder`][currentGroup]"
     :imageNumber="1"
-    context="bus"
-    :group="currentGroup"
-    @next="progressIndex++"
-  />
-
-  <!-- Doctor Context -->
-  <Context
-    v-else-if="showDoctorIntro"
-    :text="context.doctor_intro[currentGroup]"
-    :imageNumber="0"
-    context="doctor"
-    :group="currentGroup"
-    @next="progressIndex++"
-  />
-
-  <Context
-    v-else-if="showDoctorScenario"
-    :text="context.doctor_scenario[currentGroup]"
-    :imageNumber="1"
-    context="doctor"
-    :group="currentGroup"
-    @next="progressIndex++"
-  />
-
-  <Context
-    v-else-if="showDoctorReminderAfter4"
-    :text="context.doctor_reminder[currentGroup]"
-    :imageNumber="1"
-    context="doctor"
-    :group="currentGroup"
-    @next="progressIndex++"
-  />
-
-  <Context
-    v-else-if="showDoctorReminderAfter8"
-    :text="context.doctor_reminder[currentGroup]"
-    :imageNumber="1"
-    context="doctor"
-    :group="currentGroup"
-    @next="progressIndex++"
-  />
-
-  <!-- Pension Context -->
-  <Context
-    v-else-if="showPensionIntro"
-    :text="context.pension_intro[currentGroup]"
-    :imageNumber="0"
-    context="pension"
-    :group="currentGroup"
-    @next="progressIndex++"
-  />
-
-  <Context
-    v-else-if="showPensionScenario"
-    :text="context.pension_scenario[currentGroup]"
-    :imageNumber="1"
-    context="pension"
-    :group="currentGroup"
-    @next="progressIndex++"
-  />
-
-  <Context
-    v-else-if="showPensionReminderAfter4"
-    :text="context.pension_reminder[currentGroup]"
-    :imageNumber="1"
-    context="pension"
-    :group="currentGroup"
-    @next="progressIndex++"
-  />
-
-  <Context
-    v-else-if="showPensionReminderAfter8"
-    :text="context.pension_reminder[currentGroup]"
-    :imageNumber="1"
-    context="pension"
+    :context="getCurrentContext()"
     :group="currentGroup"
     @next="progressIndex++"
   />
 
   <!-- Videos and Ratings -->
   <Video
-    v-else-if="showBusVideosFirstSet || showBusVideosSecondSet || showBusVideosThirdSet ||
-      showDoctorVideosFirstSet || showDoctorVideosSecondSet || showDoctorVideosThirdSet ||
-      showPensionVideosFirstSet || showPensionVideosSecondSet || showPensionVideosThirdSet"
+    v-else-if="showContextVideosFirstSet || showContextVideosSecondSet || showContextVideosThirdSet"
     :videoIndex="videoIndex"
     @video-ended="handleVideoEnded"
   />
   <Rating
-    v-else-if="showBusRatingsFirstSet || showBusRatingsSecondSet || showBusRatingsThirdSet ||
-      showDoctorRatingsFirstSet || showDoctorRatingsSecondSet || showDoctorRatingsThirdSet ||
-      showPensionRatingsFirstSet || showPensionRatingsSecondSet || showPensionRatingsThirdSet"
+    v-else-if="showContextRatingsFirstSet || showContextRatingsSecondSet || showContextRatingsThirdSet"
     :videoIndex="videoIndex"
     :filename="currentFilename"
     :context="getCurrentContext()"

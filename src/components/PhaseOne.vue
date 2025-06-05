@@ -6,6 +6,8 @@ import { useSupabaseStore } from '../useSupabase.store'
 const progressStore = useProgressStore()
 const supabaseStore = useSupabaseStore()
 
+const wantsVPHours = ref(false)
+const sonaId = ref('')
 const hasConsented = ref(false)
 const gender = ref('')
 const age = ref('')
@@ -25,6 +27,10 @@ const errorMessage = ref('')
 const validateForm = () => {
   if (!hasConsented.value) {
     errorMessage.value = 'Bitte stimmen Sie der Teilnahme zu.'
+    return false
+  }
+  if (wantsVPHours.value && (!sonaId.value || sonaId.value.length !== 4)) {
+    errorMessage.value = 'Bitte geben Sie Ihre vierstellige SONA ID ein.'
     return false
   }
   if (!gender.value || !age.value || !education.value || !ethnicity.value || !currentActivity.value) {
@@ -52,6 +58,8 @@ const submitForm = async () => {
   }
 
   const formData = {
+    wantsVPHours: wantsVPHours.value,
+    sonaId: sonaId.value,
     gender: gender.value,
     age: age.value,
     education: education.value,
@@ -133,6 +141,30 @@ const submitForm = async () => {
     </div>
 
     <div v-if="hasConsented">
+      <div>
+        <label>Ich möchte für die Teilnahme an der Studie 3 VP Stunden erhalten.</label>
+        <br>
+        <input
+          type="radio"
+          v-model="wantsVPHours"
+          :value="true"
+        /> Ja
+        <input
+          type="radio"
+          v-model="wantsVPHours"
+          :value="false"
+        /> Nein
+        <br>
+        <input
+          v-if="wantsVPHours"
+          type="text"
+          placeholder="SONA ID (4-stellig)"
+          v-model="sonaId"
+          maxlength="4"
+          pattern="[0-9]{4}"
+        />
+      </div>
+
       <div>
         <label>Welchem Geschlecht fühlen Sie sich zugehörig?</label>
         <br>
