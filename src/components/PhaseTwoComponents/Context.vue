@@ -57,6 +57,11 @@ onMounted(() => {
       isAudioComplete.value = true
     })
   }
+
+  // Fallback timer to ensure button becomes clickable after 38 seconds
+  setTimeout(() => {
+    isAudioComplete.value = true
+  }, 38000)
 })
 </script>
 

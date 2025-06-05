@@ -340,6 +340,26 @@ export function getVideoSource (filename: string): string {
 }
 
 // Function to get the audio source URL
-export function getAudioSource (audioType: 'no_pain' | 'slight_pain' | 'strong_pain'): string {
-  return `${import.meta.env.BASE_URL}audio/audio_${audioType}.mp3`
+export function getAudioSource (audioType: 'no_pain' | 'slight_pain' | 'strong_pain', studyGroup: string): string {
+  // For CDM group
+  if (studyGroup === 'CDM') {
+    switch (audioType) {
+      case 'no_pain':
+        return `${import.meta.env.BASE_URL}audio/cdm_sct_kg_no_pain.mp3`
+      case 'slight_pain':
+        return `${import.meta.env.BASE_URL}audio/cdm_slight_pain.mp3`
+      case 'strong_pain':
+        return `${import.meta.env.BASE_URL}audio/cdm_strong_pain.mp3`
+    }
+  }
+
+  // For SCT and KG groups
+  switch (audioType) {
+    case 'no_pain':
+      return `${import.meta.env.BASE_URL}audio/cdm_sct_kg_no_pain.mp3`
+    case 'slight_pain':
+      return `${import.meta.env.BASE_URL}audio/sct_kg_stlight_pain.mp3`
+    case 'strong_pain':
+      return `${import.meta.env.BASE_URL}audio/sct_kg_strong_pain.mp3`
+  }
 } 

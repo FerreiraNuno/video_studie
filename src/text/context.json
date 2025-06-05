@@ -1,47 +1,47 @@
 {
   "bus_intro": {
-    "CDM": "context_instructions/Kontext I Alltag CDM, SCT.mp3",
-    "SCT": "context_instructions/Kontext I Alltag CDM, SCT.mp3",
-    "KG": "context_instructions/Kontext I Alltag KG.mp3"
+    "CDM": "new_context_instructions/Bus CDM SCT Instruktion Foto.mp3",
+    "SCT": "new_context_instructions/Bus CDM SCT Instruktion Foto.mp3",
+    "KG": "new_context_instructions/Bus KG Instruktion Foto.mp3"
   },
   "bus_scenario": {
-    "CDM": "context_instructions/Kontext I Alltag CDM vor Video 1.mp3",
-    "SCT": "context_instructions/Kontext I Alltag SCT vor Video 1.mp3",
-    "KG": "context_instructions/Kontext I Alltag KG vor Video 1.mp3"
+    "CDM": "new_context_instructions/Bus CDM vor Video 1.mp3",
+    "SCT": "new_context_instructions/Bus SCT vor Video 1.mp3",
+    "KG": "new_context_instructions/Bus KG vor Video 1.mp3"
   },
   "bus_reminder": {
-    "CDM": "context_instructions/Kontext I Alltag CDM nach Video 4 und 8.mp3",
-    "SCT": "context_instructions/Kontext I Alltag SCT nach Video 4 und 8.mp3",
-    "KG": "context_instructions/Kontext I Alltag KG nach Video 4 und 8.mp3"
+    "CDM": "new_context_instructions/Bus CDM nach Video 4 und 8.mp3",
+    "SCT": "new_context_instructions/Bus SCT nach Video 4 und 8.mp3",
+    "KG": "new_context_instructions/Bus KG nach Video 4 und 8.mp3"
   },
   "doctor_intro": {
-    "CDM": "context_instructions/Kontext II Arztpraxis CDM SCT.mp3",
-    "SCT": "context_instructions/Kontext II Arztpraxis CDM SCT.mp3",
-    "KG": "context_instructions/Kontext II Arztpraxis KG.mp3"
+    "CDM": "new_context_instructions/Arzt CDM SCT Instruktion Foto.mp3",
+    "SCT": "new_context_instructions/Arzt CDM SCT Instruktion Foto.mp3",
+    "KG": "new_context_instructions/Arzt KG Instruktion Foto.mp3"
   },
   "doctor_scenario": {
-    "CDM": "context_instructions/Kontext II Arztpraxis CDM vor Video 1.mp3",
-    "SCT": "context_instructions/Kontext II Arztpraxis SCT vor Video 1.mp3",
-    "KG": "context_instructions/Kontext II Arztpraxis KG vor Video 1.mp3"
+    "CDM": "new_context_instructions/Arzt CDM vor Video 1.mp3",
+    "SCT": "new_context_instructions/Arzt SCT vor Video 1.mp3",
+    "KG": "new_context_instructions/Arzt KG vor Video 1.mp3"
   },
   "doctor_reminder": {
-    "CDM": "context_instructions/Kontext II Arztpraxis CDM vor Video 13 und 17 .mp3",
-    "SCT": "context_instructions/Kontext II Arztpraxis SCT vor Video 13 und 17.mp3",
-    "KG": "context_instructions/Kontext II Arztpraxis KG vor Video 13 und 17.mp3"
+    "CDM": "new_context_instructions/Arzt CDM nach Video 4 und 8.mp3",
+    "SCT": "new_context_instructions/Arzt SCT nach Video 4 und 8.mp3",
+    "KG": "new_context_instructions/Arzt KG nach Video 4 und 8.mp3"
   },
   "pension_intro": {
-    "CDM": "context_instructions/Kontext III Rentenversicherung CDM SCT.mp3",
-    "SCT": "context_instructions/Kontext III Rentenversicherung CDM SCT.mp3",
-    "KG": "context_instructions/Kontext III Rentenversicherung KG.mp3"
+    "CDM": "new_context_instructions/Gutachter CDM SCT Instruktion Foto.mp3",
+    "SCT": "new_context_instructions/Gutachter CDM SCT Instruktion Foto.mp3",
+    "KG": "new_context_instructions/Gutachter KG Instruktion Foto.mp3"
   },
   "pension_scenario": {
-    "CDM": "context_instructions/Kontext III Rentenversicherung CDM vor Video 25.mp3",
-    "SCT": "context_instructions/Kontext III Rentenversicherung SCT vor Video 25.mp3",
-    "KG": "context_instructions/Kontext III Rentenversicherung KG vor Video 25.mp3"
+    "CDM": "new_context_instructions/Gutachter CDM vor Video 1.mp3",
+    "SCT": "new_context_instructions/Gutachter SCT vor Video 1.mp3",
+    "KG": "new_context_instructions/Gutachter KG vor Video 1.mp3"
   },
   "pension_reminder": {
-    "CDM": "context_instructions/Kontext III Rentenversicherung CDM vor Video 29 und 33.mp3",
-    "SCT": "context_instructions/Kontext III Rentenversicherung SCT vor Video 29 und 33.mp3",
-    "KG": "context_instructions/Kontext III Rentenversicherung KG vor Video 29 und 33.mp3"
+    "CDM": "new_context_instructions/Gutachter CDM nach Video 4 und 8.mp3",
+    "SCT": "new_context_instructions/Gutachter SCT nach Video 4 und 8.mp3",
+    "KG": "new_context_instructions/Gutachter KG nach Video 4 und 8.mp3"
   }
 }

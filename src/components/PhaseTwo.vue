@@ -333,6 +333,7 @@ function finishPhaseTwo () {
   <Video
     v-else-if="showContextVideosFirstSet || showContextVideosSecondSet || showContextVideosThirdSet"
     :videoIndex="videoIndex"
+    :studyGroup="currentGroup"
     @video-ended="handleVideoEnded"
   />
   <Rating

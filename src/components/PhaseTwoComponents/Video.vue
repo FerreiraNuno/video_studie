@@ -6,6 +6,7 @@ import { useSupabaseStore } from '@/useSupabase.store'
 const supabaseStore = useSupabaseStore()
 const props = defineProps<{
   videoIndex: number
+  studyGroup: string
 }>()
 
 const emit = defineEmits<{
@@ -14,13 +15,14 @@ const emit = defineEmits<{
 
 const videoElement = ref<HTMLVideoElement | null>(null)
 const audioElement = ref<HTMLAudioElement | null>(null)
+
 const currentVideo = getCurrentVideo(props.videoIndex)
 const videoSource = getVideoSource(currentVideo.filename)
-const audioSource = currentVideo.audioType ? getAudioSource(currentVideo.audioType) : null
+const audioSource = currentVideo.audioType ? getAudioSource(currentVideo.audioType, supabaseStore.user.group) : null
 
-// Track if both media elements have finished
+// Track if video and instruction audio have finished
 const videoEnded = ref(false)
-const audioEnded = ref(false)
+
 
 // Track retry attempts
 const videoRetryCount = ref(0)
@@ -55,32 +57,39 @@ const handleAudioError = () => {
 }
 
 const startFallbackTimer = () => {
-  // Clear any existing timer
+  // Fallback timer as a safety mechanism only
   if (fallbackTimer) {
     clearTimeout(fallbackTimer)
   }
 
-  // Set new timer
   fallbackTimer = window.setTimeout(() => {
-    if (!audioEnded.value) {
-      console.log('Fallback timer triggered - audio did not end naturally')
-      audioEnded.value = true
+    if (!videoEnded.value) {
+      console.log('Fallback timer triggered - video did not end naturally')
+      videoEnded.value = true
       emit('video-ended', currentVideo.filename)
     }
-  }, 7000)
+  }, 8000)
+}
+
+
+const startVideo = () => {
+  if (videoElement.value) {
+    console.log('Starting video playback')
+    videoElement.value.play()
+    console.log('Video duration:', videoElement.value.duration)
+  }
+  if (audioElement.value) {
+    console.log('Starting audio playback')
+    audioElement.value.play()
+    console.log('Audio duration:', audioElement.value.duration)
+  }
+  startFallbackTimer()
 }
 
 onMounted(() => {
   if (videoElement.value) {
-    // Ensure video is muted
+    // Ensure video is mute
     videoElement.value.muted = true
-
-    if (supabaseStore.isDevelopment) {
-      // In development mode, set the video duration to 3 second
-      videoElement.value.addEventListener('loadedmetadata', () => {
-        videoElement.value!.currentTime = videoElement.value!.duration - 3
-      })
-    }
 
     // Ensure video stays muted
     videoElement.value.addEventListener('play', () => {
@@ -88,27 +97,31 @@ onMounted(() => {
     })
 
     // Add error handling
-    videoElement.value.addEventListener('error', handleVideoError)
+    videoElement.value.addEventListener('error', (e) => {
+      console.error('Video error:', e)
+      console.error('Video error details:', videoElement.value?.error)
+      handleVideoError()
+    })
+
+    // Add ended event listener - this is the primary trigger
+    videoElement.value.addEventListener('ended', () => {
+      console.log('Video ended naturally')
+      if (fallbackTimer) {
+        clearTimeout(fallbackTimer)
+      }
+      videoEnded.value = true
+      emit('video-ended', currentVideo.filename)
+    })
   }
 
   if (audioElement.value) {
-    if (supabaseStore.isDevelopment) {
-      // In development mode, set the audio duration to 3 seconds
-      audioElement.value.addEventListener('loadedmetadata', () => {
-        audioElement.value!.currentTime = audioElement.value!.duration - 3
-      })
-    }
-    audioElement.value.addEventListener('ended', () => {
-      audioEnded.value = true
-      emit('video-ended', currentVideo.filename)
+    audioElement.value.addEventListener('loadedmetadata', () => {
+      console.log('Audio duration:', audioElement.value?.duration)
     })
-
     // Add error handling
-    audioElement.value.addEventListener('error', handleAudioError)
-
-    // Start the fallback timer when audio starts playing
-    audioElement.value.addEventListener('play', () => {
-      startFallbackTimer()
+    audioElement.value.addEventListener('error', (e) => {
+      console.error('Audio error:', e)
+      handleAudioError()
     })
   }
 })
@@ -116,22 +129,9 @@ onMounted(() => {
 
 <template>
   <div class="video-container">
-    <div
-      class="dev-mode-notice"
-      v-if="supabaseStore.isDevelopment"
-    >
-      <div>Video {{ props.videoIndex + 1 }}</div>
-    </div>
-    <div
-      v-if="supabaseStore.isDevelopment"
-      class="dev-mode-notice"
-    >
-      <div>{{ currentVideo.filename.slice(0, -4) }}</div>
-    </div>
     <video
       ref="videoElement"
       :src="videoSource"
-      autoplay
       playsinline
       :muted="true"
     >
@@ -141,15 +141,7 @@ onMounted(() => {
       v-if="audioSource"
       ref="audioElement"
       :src="audioSource"
-      autoplay
-      preload="auto"
     />
-    <div
-      v-if="supabaseStore.isDevelopment"
-      class="dev-mode-notice"
-    >
-      {{ 'Video gekürzt auf 3 Sekunden' }}
-    </div>
   </div>
 </template>
 
@@ -175,6 +167,7 @@ video {
   height: 500px;
   width: 100%;
   max-width: 100%;
+  background-color: black;
 }
 
 .dev-mode-notice {
