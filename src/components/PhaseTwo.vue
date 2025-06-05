@@ -6,7 +6,7 @@ import Context from './PhaseTwoComponents/Context.vue'
 import { useProgressStore } from '../useProgress.store'
 import { computed, ref, onMounted } from 'vue'
 import { useSupabaseStore } from '@/useSupabase.store'
-import { initializeVideoOrder, getCurrentVideo } from '@/utils/videoManager'
+import { initializeVideoOrder, getCurrentVideo, contextOrder } from '@/utils/videoManager'
 import context from '../text/context.json'
 
 const testVideo = `${import.meta.env.BASE_URL}videos/testvideo.mp4`
@@ -64,8 +64,7 @@ function getCurrentContext (): 'bus' | 'doctor' | 'pension' {
   if (section === -1) return 'bus' // Default fallback
 
   // Get the context order from videoManager
-  const contextOrder = ['bus', 'doctor', 'pension'] as const
-  return contextOrder[section]
+  return contextOrder.value[section]
 }
 
 // Computed properties for each context section

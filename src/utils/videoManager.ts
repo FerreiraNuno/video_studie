@@ -68,7 +68,7 @@ const allVideos: Video[] = [
 
 // Create a shuffled list of videos for each context
 const shuffledVideos = ref<Video[]>([])
-const contextOrder = ref<('bus' | 'doctor' | 'pension')[]>([])
+export const contextOrder = ref<('bus' | 'doctor' | 'pension')[]>([])
 
 // Function to randomize context order
 function randomizeContextOrder () {

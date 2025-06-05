@@ -6,7 +6,6 @@ import { useSupabaseStore } from '@/useSupabase.store'
 const supabaseStore = useSupabaseStore()
 const props = defineProps<{
   videoIndex: number
-  studyGroup: string
 }>()
 
 const emit = defineEmits<{
@@ -15,14 +14,13 @@ const emit = defineEmits<{
 
 const videoElement = ref<HTMLVideoElement | null>(null)
 const audioElement = ref<HTMLAudioElement | null>(null)
-
 const currentVideo = getCurrentVideo(props.videoIndex)
 const videoSource = getVideoSource(currentVideo.filename)
 const audioSource = currentVideo.audioType ? getAudioSource(currentVideo.audioType, supabaseStore.user.group) : null
 
-// Track if video and instruction audio have finished
+// Track if both media elements have finished
 const videoEnded = ref(false)
-
+const audioEnded = ref(false)
 
 // Track retry attempts
 const videoRetryCount = ref(0)
@@ -57,38 +55,24 @@ const handleAudioError = () => {
 }
 
 const startFallbackTimer = () => {
-  // Fallback timer as a safety mechanism only
+  // Clear any existing timer
   if (fallbackTimer) {
     clearTimeout(fallbackTimer)
   }
 
+  // Set new timer
   fallbackTimer = window.setTimeout(() => {
-    if (!videoEnded.value) {
-      console.log('Fallback timer triggered - video did not end naturally')
-      videoEnded.value = true
+    if (!audioEnded.value) {
+      console.log('Fallback timer triggered - audio did not end naturally')
+      audioEnded.value = true
       emit('video-ended', currentVideo.filename)
     }
-  }, 8000)
-}
-
-
-const startVideo = () => {
-  if (videoElement.value) {
-    console.log('Starting video playback')
-    videoElement.value.play()
-    console.log('Video duration:', videoElement.value.duration)
-  }
-  if (audioElement.value) {
-    console.log('Starting audio playback')
-    audioElement.value.play()
-    console.log('Audio duration:', audioElement.value.duration)
-  }
-  startFallbackTimer()
+  }, 7000)
 }
 
 onMounted(() => {
   if (videoElement.value) {
-    // Ensure video is mute
+    // Ensure video is muted
     videoElement.value.muted = true
 
     // Ensure video stays muted
@@ -97,31 +81,21 @@ onMounted(() => {
     })
 
     // Add error handling
-    videoElement.value.addEventListener('error', (e) => {
-      console.error('Video error:', e)
-      console.error('Video error details:', videoElement.value?.error)
-      handleVideoError()
-    })
-
-    // Add ended event listener - this is the primary trigger
-    videoElement.value.addEventListener('ended', () => {
-      console.log('Video ended naturally')
-      if (fallbackTimer) {
-        clearTimeout(fallbackTimer)
-      }
-      videoEnded.value = true
-      emit('video-ended', currentVideo.filename)
-    })
+    videoElement.value.addEventListener('error', handleVideoError)
   }
 
   if (audioElement.value) {
-    audioElement.value.addEventListener('loadedmetadata', () => {
-      console.log('Audio duration:', audioElement.value?.duration)
+    audioElement.value.addEventListener('ended', () => {
+      audioEnded.value = true
+      emit('video-ended', currentVideo.filename)
     })
+
     // Add error handling
-    audioElement.value.addEventListener('error', (e) => {
-      console.error('Audio error:', e)
-      handleAudioError()
+    audioElement.value.addEventListener('error', handleAudioError)
+
+    // Start the fallback timer when audio starts playing
+    audioElement.value.addEventListener('play', () => {
+      startFallbackTimer()
     })
   }
 })
@@ -129,9 +103,22 @@ onMounted(() => {
 
 <template>
   <div class="video-container">
+    <div
+      class="dev-mode-notice"
+      v-if="supabaseStore.isDevelopment"
+    >
+      <div>Video {{ props.videoIndex + 1 }}</div>
+    </div>
+    <div
+      v-if="supabaseStore.isDevelopment"
+      class="dev-mode-notice"
+    >
+      <div>{{ currentVideo.filename.slice(0, -4) }}</div>
+    </div>
     <video
       ref="videoElement"
       :src="videoSource"
+      autoplay
       playsinline
       :muted="true"
     >
@@ -141,6 +128,8 @@ onMounted(() => {
       v-if="audioSource"
       ref="audioElement"
       :src="audioSource"
+      autoplay
+      preload="auto"
     />
   </div>
 </template>
@@ -167,7 +156,6 @@ video {
   height: 500px;
   width: 100%;
   max-width: 100%;
-  background-color: black;
 }
 
 .dev-mode-notice {
