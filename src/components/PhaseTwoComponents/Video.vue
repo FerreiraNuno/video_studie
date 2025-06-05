@@ -27,6 +27,9 @@ const videoRetryCount = ref(0)
 const audioRetryCount = ref(0)
 const MAX_RETRIES = 3
 
+// Timer for fallback
+let fallbackTimer: number | null = null
+
 const handleVideoError = () => {
   if (videoRetryCount.value < MAX_RETRIES && videoElement.value) {
     videoRetryCount.value++
@@ -49,6 +52,22 @@ const handleAudioError = () => {
   } else {
     console.error('Audio failed to load after maximum retries')
   }
+}
+
+const startFallbackTimer = () => {
+  // Clear any existing timer
+  if (fallbackTimer) {
+    clearTimeout(fallbackTimer)
+  }
+
+  // Set new timer
+  fallbackTimer = window.setTimeout(() => {
+    if (!audioEnded.value) {
+      console.log('Fallback timer triggered - audio did not end naturally')
+      audioEnded.value = true
+      emit('video-ended', currentVideo.filename)
+    }
+  }, 7000)
 }
 
 onMounted(() => {
@@ -86,6 +105,11 @@ onMounted(() => {
 
     // Add error handling
     audioElement.value.addEventListener('error', handleAudioError)
+
+    // Start the fallback timer when audio starts playing
+    audioElement.value.addEventListener('play', () => {
+      startFallbackTimer()
+    })
   }
 })
 </script>
