@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import Rating from './PhaseTwoComponents/Rating.vue'
 import Video from './PhaseTwoComponents/Video.vue'
+import InstructionAudio from './PhaseTwoComponents/InstructionAudio.vue'
 import Loading from './PhaseTwoComponents/Loading.vue'
 import Context from './PhaseTwoComponents/Context.vue'
 import { useProgressStore } from '../useProgress.store'
@@ -21,6 +22,7 @@ const currentAudioType = ref<'no_pain' | 'slight_pain' | 'strong_pain' | null>(n
 const audioHeard = ref(false)
 const videoSeen = ref(false)
 const videoIndex = ref(0)  // Simple counter for videos
+const audioCompleted = ref(false)  // New state to track audio completion
 
 // Get the current group from the store
 const currentGroup = computed(() => supabaseStore.user.group)
@@ -160,13 +162,15 @@ function submitRating (ratings: { pain: number, credibility: number, difficulty:
   finishSection()
 }
 
-function handleVideoEnded (filename: string) {
-  const currentVideo = getCurrentVideo(videoIndex.value)
-  console.log('Current video:', currentVideo)
-  console.log('Current video audio type:', currentVideo.audioType)
+function handleAudioEnded (filename: string) {
+  audioCompleted.value = true
   currentFilename.value = filename
+  const currentVideo = getCurrentVideo(videoIndex.value)
   currentAudioType.value = currentVideo.audioType || null
-  console.log('Stored audio type:', currentAudioType.value)
+}
+
+function handleVideoEnded (filename: string) {
+  audioCompleted.value = false  // Reset for next round
   videoIndex.value++  // Increment video index after each video
   progressIndex.value++
 }
@@ -329,8 +333,14 @@ function finishPhaseTwo () {
   />
 
   <!-- Videos and Ratings -->
+  <InstructionAudio
+    v-else-if="(showContextVideosFirstSet || showContextVideosSecondSet || showContextVideosThirdSet) && !audioCompleted"
+    :videoIndex="videoIndex"
+    :context="getCurrentContext()"
+    @audio-ended="handleAudioEnded"
+  />
   <Video
-    v-else-if="showContextVideosFirstSet || showContextVideosSecondSet || showContextVideosThirdSet"
+    v-else-if="(showContextVideosFirstSet || showContextVideosSecondSet || showContextVideosThirdSet) && audioCompleted"
     :videoIndex="videoIndex"
     :studyGroup="currentGroup"
     @video-ended="handleVideoEnded"
