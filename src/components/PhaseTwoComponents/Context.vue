@@ -21,18 +21,18 @@ const audioSrc = computed(() => `${import.meta.env.BASE_URL}${props.text}`)
 
 const images = {
   bus: [
-    `${import.meta.env.BASE_URL}context/bus_outside.png`,
+    `${import.meta.env.BASE_URL}context/bus_outside.jpg`,
     `${import.meta.env.BASE_URL}context/bus_inside.mp4`
   ],
   doctor: [
-    `${import.meta.env.BASE_URL}context/praxis.png`,
+    `${import.meta.env.BASE_URL}context/praxis.jpg`,
     `${import.meta.env.BASE_URL}context/${props.context === 'doctor' ?
       props.group === 'SCT' ? 'it_firma.mp4' :
         props.group === 'KG' ? 'arbeit.mp4' :
           'praxis.mp4' : 'praxis.mp4'}`
   ],
   pension: [
-    `${import.meta.env.BASE_URL}context/rentenstelle.png`,
+    `${import.meta.env.BASE_URL}context/rentenstelle.jpg`,
     `${import.meta.env.BASE_URL}context/${props.context === 'pension' ?
       props.group === 'SCT' ? 'putzkraft.mp4' :
         props.group === 'KG' ? 'renten_weg.mp4' :

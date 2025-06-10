@@ -21,6 +21,7 @@ const audioSource = currentVideo.audioType ? getAudioSource(currentVideo.audioTy
 // Track if both media elements have finished
 const videoEnded = ref(false)
 const audioEnded = ref(false)
+const isLoading = ref(true)
 
 // Track retry attempts
 const videoRetryCount = ref(0)
@@ -39,6 +40,7 @@ const handleVideoError = () => {
     }, 2000)
   } else {
     console.error('Video failed to load after maximum retries')
+    emit('video-ended', currentVideo.filename)
   }
 }
 
@@ -51,6 +53,7 @@ const handleAudioError = () => {
     }, 2000)
   } else {
     console.error('Audio failed to load after maximum retries')
+    emit('video-ended', currentVideo.filename)
   }
 }
 
@@ -78,6 +81,11 @@ onMounted(() => {
     // Ensure video stays muted
     videoElement.value.addEventListener('play', () => {
       videoElement.value!.muted = true
+      isLoading.value = false
+      // Start audio when video starts playing
+      if (audioElement.value) {
+        audioElement.value.play()
+      }
     })
 
     // Add error handling
@@ -115,20 +123,25 @@ onMounted(() => {
     >
       <div>{{ currentVideo.filename.slice(0, -4) }}</div>
     </div>
-    <video
-      ref="videoElement"
-      :src="videoSource"
-      autoplay
-      playsinline
-      :muted="true"
-    >
-      Ihr Browser unterstützt die Video Wiedergabe nicht.
-    </video>
+    <div class="video-wrapper">
+      <div
+        v-if="isLoading"
+        class="loading-spinner"
+      ></div>
+      <video
+        ref="videoElement"
+        :src="videoSource"
+        autoplay
+        playsinline
+        :muted="true"
+      >
+        Ihr Browser unterstützt die Video Wiedergabe nicht.
+      </video>
+    </div>
     <audio
       v-if="audioSource"
       ref="audioElement"
       :src="audioSource"
-      autoplay
       preload="auto"
     />
   </div>
@@ -140,6 +153,36 @@ onMounted(() => {
   flex-direction: column;
   align-items: center;
   gap: 1rem;
+}
+
+.video-wrapper {
+  position: relative;
+  width: 100%;
+  height: 500px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.loading-spinner {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  z-index: 1;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 h2 {
