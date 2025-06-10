@@ -37,6 +37,10 @@ const validateForm = () => {
     errorMessage.value = 'Bitte füllen Sie alle Pflichtfelder aus.'
     return false
   }
+  if ((currentActivity.value === 'studierende' || currentActivity.value === 'berufstätig') && !currentActivityDetail.value) {
+    errorMessage.value = 'Bitte geben Sie Ihre Tätigkeit/Studienfach an.'
+    return false
+  }
   if (chronicPain.value && !painLocation.value) {
     errorMessage.value = 'Bitte geben Sie den Ort der Schmerzen an.'
     return false

@@ -134,7 +134,7 @@ async function submitRatings () {
         </template>
 
         <template v-else>
-          <h3 class="sub-question">...Arzt/Ärztin hineinversetzen?</h3>
+          <h3 class="sub-question">...Ärzt:in hineinversetzen?</h3>
           <RatingScale
             label=""
             left-label="überhaupt nicht"

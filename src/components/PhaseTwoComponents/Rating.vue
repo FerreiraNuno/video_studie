@@ -77,7 +77,7 @@ const actionQuestion = computed(() => {
 
     <template v-else-if="currentStep === 2">
       <RatingScale
-        label="Wie glaubwürdig werden die Schmerzen berichtet und gezeigt?"
+        label="Wie glaubhaft werden die Schmerzen berichtet und gezeigt?"
         left-label="0: überhaupt nicht glaubhaft"
         right-label="10: äußerst glaubhaft"
         v-model="credibilityRating"

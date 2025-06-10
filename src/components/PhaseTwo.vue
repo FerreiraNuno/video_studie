@@ -229,9 +229,8 @@ function finishPhaseTwo () {
     v-else-if="showAudio"
   >
     <h2>Das hat ja sehr gut geklappt.</h2>
-    <p>Sie werden gleich eine Reihe von Videos sehen und direkt nach jedem Video in einer
-      Audiodatei gesagt bekommen, wie die Person im Video ihre Schmerzen selbst
-      einschätzt.</p>
+    <p>Sie werden gleich eine Reihe von Videos sehen und jeweils in einer Audiodatei dazu gesagt bekommen, was die
+      Person im Video über ihre Schmerzen berichtet.</p>
     <p>Damit Sie gleich gut starten können, möchten wir vorher noch testen, ob Ton und
       Videowiedergabe funktionieren.</p>
     <p>Bitte verbinden Sie nun einen Kopfhörer mit Ihrem PC und testen Sie dann, ob Sie
