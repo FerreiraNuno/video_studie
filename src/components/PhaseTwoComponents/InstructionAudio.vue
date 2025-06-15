@@ -31,7 +31,7 @@ const handleAudioError = () => {
     console.log(`Retrying audio load (attempt ${audioRetryCount.value})`)
     setTimeout(() => {
       audioElement.value?.load()
-    }, 2000)
+    }, 3000)
   } else {
     console.log('Audio source:', audioSource)
     console.error('Audio failed to load after maximum retries')
