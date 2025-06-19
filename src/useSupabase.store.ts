@@ -8,22 +8,19 @@ export type StudyGroup = 'CDM' | 'SCT' | 'KG'
 export const useSupabaseStore = defineStore('supabaseStore', () => {
   // auth
   const isAuthenticated = ref(false)
-  const isDevelopment = ref(false)
   const user = ref({
-    username: '',
     participantNumber: '',
     group: '' as StudyGroup
   })
 
 
   async function saveProgress (phase: number) {
-    const { participantNumber, username, group } = user.value
+    const { participantNumber, group } = user.value
 
     const { error } = await supabase.from('progress').upsert(
       {
         phase: phase,
         participant_number: participantNumber,
-        username: username,
         study_group: group,
       },
       { onConflict: 'participant_number' } // Match rows based on the unique constraint
@@ -37,13 +34,12 @@ export const useSupabaseStore = defineStore('supabaseStore', () => {
   }
 
   async function loadProgress () {
-    const { participantNumber, username, group } = user.value
+    const { participantNumber, group } = user.value
 
     const { data, error } = await supabase
       .from('progress')
       .select('phase, study_group')
       .eq('participant_number', participantNumber)
-      .eq('username', username)
       .eq('study_group', group)
       .maybeSingle()
 
@@ -97,8 +93,10 @@ export const useSupabaseStore = defineStore('supabaseStore', () => {
     }
   }
 
-  async function saveUserData (formData: any) {
+  async function saveUserData (formData: any, contextOrder?: string) {
     const { participantNumber, group } = user.value
+
+    console.log('Saving form data with context order:', contextOrder)
 
     const { error } = await supabase.from('form_data').insert([
       {
@@ -116,6 +114,7 @@ export const useSupabaseStore = defineStore('supabaseStore', () => {
         private_pain_relation: formData.privatePainRelation,
         professional_pain_experience: formData.professionalPainExperience,
         professional_pain_activity: formData.professionalPainActivity,
+        context_order: contextOrder,
       },
     ])
 
@@ -220,7 +219,6 @@ export const useSupabaseStore = defineStore('supabaseStore', () => {
 
   return {
     isAuthenticated,
-    isDevelopment,
     user,
     saveProgress,
     loadProgress,

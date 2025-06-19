@@ -16,8 +16,8 @@ const photo = ref(getCurrentPhoto(props.photoIndex))
 const photoSource = ref(getPhotoSource(photo.value.filename))
 
 onMounted(() => {
-  // Photo is shown for 2 seconds in development mode, 5 seconds in production
-  const duration = supabaseStore.isDevelopment ? 1000 : 3000
+  // Photo is shown for 3 seconds
+  const duration = 3000
   setTimeout(() => {
     emit('photo-ended')
   }, duration)

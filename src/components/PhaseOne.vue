@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { useProgressStore } from '../useProgress.store'
 import { useSupabaseStore } from '../useSupabase.store'
+import { contextOrder, initializeVideoOrder } from '@/utils/videoManager'
 
 const progressStore = useProgressStore()
 const supabaseStore = useSupabaseStore()
@@ -61,6 +62,9 @@ const submitForm = async () => {
     return
   }
 
+  // Initialize video order to populate contextOrder
+  initializeVideoOrder()
+
   const formData = {
     wantsVPHours: wantsVPHours.value,
     sonaId: sonaId.value,
@@ -78,7 +82,11 @@ const submitForm = async () => {
     professionalPainActivity: professionalPainActivity.value,
   }
 
-  const response = await supabaseStore.saveUserData(formData)
+  // Convert context order array to comma-separated string
+  const contextOrderString = contextOrder.value.join(',')
+  console.log('Context order being saved:', contextOrderString)
+
+  const response = await supabaseStore.saveUserData(formData, contextOrderString)
   if (response?.code) {
     errorMessage.value = `Fehler beim Absenden des Formulars: ${response.message}`
   } else {

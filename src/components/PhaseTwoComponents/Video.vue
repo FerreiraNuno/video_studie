@@ -111,18 +111,6 @@ onMounted(() => {
 
 <template>
   <div class="video-container">
-    <div
-      class="dev-mode-notice"
-      v-if="supabaseStore.isDevelopment"
-    >
-      <div>Video {{ props.videoIndex + 1 }}</div>
-    </div>
-    <div
-      v-if="supabaseStore.isDevelopment"
-      class="dev-mode-notice"
-    >
-      <div>{{ currentVideo.filename.slice(0, -4) }}</div>
-    </div>
     <div class="video-wrapper">
       <div
         v-if="isLoading"

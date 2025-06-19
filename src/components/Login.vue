@@ -7,11 +7,9 @@ const progressStore = useProgressStore()
 const supabaseStore = useSupabaseStore()
 
 const password = ref('')
-const username = ref('')
 const participantNumber = ref('')
 const errorMessage = ref('')
 const loading = ref(false)
-const isDevelopment = ref(true)
 
 const globalPassword = 'klinPsych'
 
@@ -40,10 +38,8 @@ async function handleLogin () {
   }
 
   if (password.value === globalPassword) {
-    supabaseStore.user.username = username.value
     supabaseStore.user.participantNumber = participantNumber.value
     supabaseStore.user.group = selectedGroup.value
-    supabaseStore.isDevelopment = isDevelopment.value
     loading.value = true
     const response = await supabaseStore.loadProgress()
     loading.value = false
@@ -73,19 +69,6 @@ async function handleLogin () {
         <div class="form-group">
           <label
             class="label"
-            for="username"
-          >Vor und Nachname:</label>
-          <input
-            class="input"
-            id="username"
-            v-model="username"
-            type="text"
-            required
-          />
-        </div>
-        <div class="form-group">
-          <label
-            class="label"
             for="participantNumber"
           >Probandennummer (3-stellig):</label>
           <input
@@ -110,16 +93,6 @@ async function handleLogin () {
             type="password"
             required
           />
-        </div>
-        <div class="form-group checkbox-group">
-          <label class="checkbox-label">
-            <input
-              type="checkbox"
-              v-model="isDevelopment"
-              class="checkbox"
-            />
-            Entwicklungsmodus
-          </label>
         </div>
 
         <div class="submit-group">

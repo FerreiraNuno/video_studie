@@ -94,14 +94,8 @@ onMounted(() => {
       <button
         @click="emit('next')"
         class="next-button"
-        :disabled="!isAudioComplete && !supabaseStore.isDevelopment"
+        :disabled="!isAudioComplete"
       >Weiter</button>
-      <p
-        v-if="supabaseStore.isDevelopment"
-        class="dev-mode-text"
-      >
-        Im Entwicklungsmodus kann die Audiowiedergabe mit 'Weiter' übersprungen werden
-      </p>
     </div>
   </div>
 </template>

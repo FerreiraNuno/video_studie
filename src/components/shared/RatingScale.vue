@@ -20,12 +20,6 @@ watch(() => props.modelValue, (newValue) => {
   rating.value = newValue
 })
 
-onMounted(() => {
-  if (supabaseStore.isDevelopment && rating.value === null) {
-    emit('update:modelValue', 5)
-  }
-})
-
 function updateRating (value: number) {
   rating.value = value
   emit('update:modelValue', value)
