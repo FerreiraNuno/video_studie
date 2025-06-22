@@ -44,6 +44,8 @@ jobs:
           VITE_API_BACKEND_KEY: ${{ secrets.VITE_API_BACKEND_KEY }}
       - name: Create _redirects file
         run: echo "/* /index.html 200" > dist/_redirects
+      - name: Create CNAME file
+        run: echo "schmerzbeurteilung-jlu.de" > dist/CNAME
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
