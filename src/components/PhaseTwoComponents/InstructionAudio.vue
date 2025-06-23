@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, defineProps, defineEmits } from 'vue'
+import { ref, onMounted, onUnmounted, defineProps, defineEmits } from 'vue'
 import { getCurrentVideo, getVideoSource, getAudioSource } from '@/utils/videoManager'
 import { useSupabaseStore } from '@/useSupabase.store'
 
@@ -13,7 +13,7 @@ const emit = defineEmits<{
   (e: 'audio-ended', filename: string): void
 }>()
 
-const audioElement = ref<HTMLAudioElement | null>(null)
+const audioRef = ref<HTMLAudioElement | null>(null)
 const audioSource = `${import.meta.env.BASE_URL}video_instructions/${props.context}_${supabaseStore.user.group}.mp3`
 const audioEnded = ref(false)
 
@@ -23,20 +23,6 @@ const MAX_RETRIES = 3
 
 // Timer for fallback
 let fallbackTimer: number | null = null
-
-
-const handleAudioError = () => {
-  if (audioRetryCount.value < MAX_RETRIES && audioElement.value) {
-    audioRetryCount.value++
-    console.log(`Retrying audio load (attempt ${audioRetryCount.value})`)
-    setTimeout(() => {
-      audioElement.value?.load()
-    }, 3000)
-  } else {
-    console.log('Audio source:', audioSource)
-    console.error('Audio failed to load after maximum retries')
-  }
-}
 
 const startFallbackTimer = () => {
   // Clear any existing timer
@@ -54,26 +40,37 @@ const startFallbackTimer = () => {
   }, 14500)
 }
 
+const playAudio = () => {
+  if (audioRef.value) {
+    audioRef.value.play()
+  }
+}
+
 onMounted(() => {
-  if (audioElement.value) {
-    audioElement.value.addEventListener('ended', () => {
+  if (audioRef.value) {
+    audioRef.value.addEventListener('ended', () => {
       audioEnded.value = true
       emit('audio-ended', 'bus_cdm')
     })
-
-    // Add error handling
-    audioElement.value.addEventListener('error', handleAudioError)
   }
+  playAudio()
   startFallbackTimer()
+})
+
+onUnmounted(() => {
+  // Clean up the fallback timer
+  if (fallbackTimer) {
+    clearTimeout(fallbackTimer)
+    fallbackTimer = null
+  }
 })
 </script>
 
 <template>
   <audio
     v-if="audioSource"
-    ref="audioElement"
+    ref="audioRef"
     :src="audioSource"
-    autoplay
     preload="auto"
   />
 </template>
