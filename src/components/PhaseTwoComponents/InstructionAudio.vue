@@ -35,7 +35,8 @@ const startFallbackTimer = () => {
     if (!audioEnded.value) {
       console.log('Fallback timer triggered - audio did not end naturally')
       audioEnded.value = true
-      emit('audio-ended', 'bus_cdm')
+      const currentVideo = getCurrentVideo(props.videoIndex)
+      emit('audio-ended', currentVideo.filename)
     }
   }, 14500)
 }
@@ -50,7 +51,8 @@ onMounted(() => {
   if (audioRef.value) {
     audioRef.value.addEventListener('ended', () => {
       audioEnded.value = true
-      emit('audio-ended', 'bus_cdm')
+      const currentVideo = getCurrentVideo(props.videoIndex)
+      emit('audio-ended', currentVideo.filename)
     })
   }
   playAudio()

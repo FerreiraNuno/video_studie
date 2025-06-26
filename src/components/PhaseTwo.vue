@@ -153,7 +153,7 @@ const showContextRatingsThirdSet = computed(() => {
 const phase2Finished = computed(() => progressIndex.value >= 87)
 
 function submitRating (ratings: { pain: number, credibility: number, difficulty: number }, filename: string) {
-  console.log('Submitting rating with audio type:', currentAudioType.value)
+  console.log('Submitting rating with filename:', filename)
   if (!currentAudioType.value) {
     console.error('No audio type found for video')
     return

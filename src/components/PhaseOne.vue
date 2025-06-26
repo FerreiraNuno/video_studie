@@ -30,8 +30,8 @@ const validateForm = () => {
     errorMessage.value = 'Bitte stimmen Sie der Teilnahme zu.'
     return false
   }
-  if (wantsVPHours.value && (!sonaId.value || sonaId.value.length !== 4)) {
-    errorMessage.value = 'Bitte geben Sie Ihre vierstellige SONA ID ein.'
+  if (wantsVPHours.value && (!sonaId.value)) {
+    errorMessage.value = 'Bitte geben Sie Ihre SONA ID ein.'
     return false
   }
   if (!gender.value || !age.value || !education.value || !ethnicity.value || !currentActivity.value) {
@@ -170,10 +170,9 @@ const submitForm = async () => {
         <input
           v-if="wantsVPHours"
           type="text"
-          placeholder="SONA ID (4-stellig)"
+          placeholder="SONA ID"
           v-model="sonaId"
-          maxlength="4"
-          pattern="[0-9]{4}"
+          maxlength="5"
         />
       </div>
 
