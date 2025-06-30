@@ -227,7 +227,7 @@ export function initializeVideoOrder () {
     const allVideos = Object.values(contextGroups).flat()
     const videosWithoutAudio = allVideos.filter(v => !v.audioType)
     if (videosWithoutAudio.length > 0) {
-      console.error('Found videos without audio types:', videosWithoutAudio.map(v => v.filename))
+      console.error('Found videos without audio types:', videosWithoutAudio.map(v => v.filename.replace(/\.[^/.]+$/, '')))
     } else {
       console.log('All videos have been assigned audio types')
     }
@@ -257,7 +257,7 @@ export function initializeVideoOrder () {
 
   console.log('Context order:', contextOrder.value)
   console.log('Final shuffled videos array:', shuffledVideos.value.map(v => ({
-    filename: v.filename,
+    filename: v.filename.replace(/\.[^/.]+$/, ''),
     audioType: v.audioType
   })))
 
@@ -265,7 +265,7 @@ export function initializeVideoOrder () {
   const contexts: (keyof typeof contextGroups)[] = ['bus', 'doctor', 'pension']
   for (const context of contexts) {
     contextGroups[context].forEach((video: Video) => {
-      console.log(`${context.charAt(0).toUpperCase() + context.slice(1)} video: ${video.personId}---${video.videoType}---${video.audioType || 'no audio'}`)
+      console.log(`${context.charAt(0).toUpperCase() + context.slice(1)} video: ${video.personId}---${video.videoType}---${video.audioType || 'no audio'}---${video.filename.replace(/\.[^/.]+$/, '')}`)
     })
     console.log("--------------------------------")
   }

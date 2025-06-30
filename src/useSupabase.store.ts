@@ -65,7 +65,7 @@ export const useSupabaseStore = defineStore('supabaseStore', () => {
       credibility_rating: ratings.credibility,
       difficulty_rating: ratings.difficulty,
       action_rating: ratings.action,
-      video_filename: filename,
+      video_filename: filename.replace(/\.[^/.]+$/, ''),
       audio_type: audioType,
       study_group: group
     })
@@ -78,7 +78,7 @@ export const useSupabaseStore = defineStore('supabaseStore', () => {
         credibility_rating: ratings.credibility,
         difficulty_rating: ratings.difficulty,
         action_rating: ratings.action,
-        video_filename: filename,
+        video_filename: filename.replace(/\.[^/.]+$/, ''),
         audio_type: audioType,
         study_group: group,
       },
@@ -151,7 +151,7 @@ export const useSupabaseStore = defineStore('supabaseStore', () => {
         valence: ratings.valence,
         attractiveness: ratings.attractiveness,
         stress_level: ratings.stressLevel,
-        photo_filename: filename,
+        photo_filename: filename.replace(/\.[^/.]+$/, ''),
       })
 
     if (error) {

@@ -47,7 +47,7 @@ async function submitRating () {
     ...(isCDM.value && actionRating.value !== null ? { action: actionRating.value } : {})
   }
 
-  emit('rating-submitted', ratings, props.filename, props.videoIndex)
+  emit('rating-submitted', ratings, props.filename.replace(/\.[^/.]+$/, ''), props.videoIndex)
 }
 
 const actionQuestion = computed(() => {
