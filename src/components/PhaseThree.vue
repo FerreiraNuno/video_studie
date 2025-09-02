@@ -30,6 +30,7 @@ function submitRating (ratings: {
   valence: number
   attractiveness: number
   stressLevel: number
+  pity: number
 }) {
   const photo = getCurrentPhoto(photoIndex.value)
   supabaseStore.savePhotoRating(photoIndex.value, ratings, photo.filename)
@@ -68,6 +69,7 @@ function finishPhaseThree () {
       <li>Eindruck (0-10: sehr negativ – äußerst positiv)</li>
       <li>Attraktivität (0-10: sehr unattraktiv - äußerst attraktiv)</li>
       <li>Stresslevel (0-10: sehr gestresst vs. äußerst gelassen)</li>
+      <li>Mitleid (0-10: sehr niedrig vs. äußerst hoch)</li>
     </ul>
     <p>Wie Sie den Schieberegler mit Ihrer Maus bewegen und so Ihre Einschätzung abgeben können, wissen Sie ja bereits.
     </p>
