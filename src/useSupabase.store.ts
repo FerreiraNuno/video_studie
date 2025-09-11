@@ -135,7 +135,7 @@ export const useSupabaseStore = defineStore('supabaseStore', () => {
       valence: number
       attractiveness: number
       stressLevel: number
-      pity: number
+      empathy: number
     },
     filename: string
   ) {
@@ -152,7 +152,7 @@ export const useSupabaseStore = defineStore('supabaseStore', () => {
         valence: ratings.valence,
         attractiveness: ratings.attractiveness,
         stress_level: ratings.stressLevel,
-        pity: ratings.pity,
+        empathy: ratings.empathy,
         photo_filename: filename.replace(/\.[^/.]+$/, ''),
       })
 

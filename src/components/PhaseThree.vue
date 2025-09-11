@@ -30,7 +30,7 @@ function submitRating (ratings: {
   valence: number
   attractiveness: number
   stressLevel: number
-  pity: number
+  empathy: number
 }) {
   const photo = getCurrentPhoto(photoIndex.value)
   supabaseStore.savePhotoRating(photoIndex.value, ratings, photo.filename)

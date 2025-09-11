@@ -14,7 +14,7 @@ const emit = defineEmits<{
     valence: number
     attractiveness: number
     stressLevel: number
-    pity: number
+    empathy: number
   }): void
 }>()
 
@@ -24,12 +24,12 @@ const aura = ref<number | null>(null)
 const valence = ref<number | null>(null)
 const attractiveness = ref<number | null>(null)
 const stressLevel = ref<number | null>(null)
-const pity = ref<number | null>(null)
+const empathy = ref<number | null>(null)
 
 function submitRatings () {
   if (trustworthiness.value === null || sympathy.value === null ||
     aura.value === null || valence.value === null ||
-    attractiveness.value === null || stressLevel.value === null || pity.value === null) {
+    attractiveness.value === null || stressLevel.value === null || empathy.value === null) {
     return
   }
 
@@ -40,7 +40,7 @@ function submitRatings () {
     valence: valence.value,
     attractiveness: attractiveness.value,
     stressLevel: stressLevel.value,
-    pity: pity.value
+    empathy: empathy.value
   })
 }
 </script>
@@ -95,14 +95,14 @@ function submitRatings () {
       label=""
       left-label="überhaupt kein Mitleid"
       right-label="äußerst viel Mitleid"
-      v-model="pity"
+      v-model="empathy"
     />
 
     <button
       @click="submitRatings"
       :disabled="trustworthiness === null || sympathy === null ||
         aura === null || valence === null ||
-        attractiveness === null || stressLevel === null || pity === null"
+        attractiveness === null || stressLevel === null || empathy === null"
     >
       Weiter
     </button>
