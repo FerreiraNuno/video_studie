@@ -119,33 +119,21 @@ const submitForm = async () => {
         <p>Die im Rahmen dieser Studie erhobenen Daten werden vertraulich behandelt und pseudonymisiert, d.h. unter
           Verwendung eines Codes gespeichert und weiterverarbeitet.</p>
         <p>Sollten Sie Fragen haben, wenden Sie sich gerne an die Studienmitarbeiter*innen per Mail unter <a
-            href="mailto:schmerzbeurteilung@psychol.uni-giessen.de"
-          >schmerzbeurteilung@psychol.uni-giessen.de</a></p>
+            href="mailto:schmerzbeurteilung@psychol.uni-giessen.de">schmerzbeurteilung@psychol.uni-giessen.de</a></p>
         <p>Unter folgendem Link stehen Ihnen weitere Informationen zum Datenschutz zum Download bereit:<br>
-          <a
-            href="https://jlubox.uni-giessen.de/getlink/fiSU6dtWTSUowv4zKftHBMVM/Probandeninfo%20VOR%20Experiment.pdf"
-            target="_blank"
-          >Datenschutzinformationen</a>
+          <a href="https://next.hessenbox.de/index.php/s/HWB9tw4qnb3TsKn" target="_blank">Datenschutzinformationen</a>
         </p>
       </div>
       <div class="consent-options">
         <p>Sind Sie mit der Teilnahme an der Studie einverstanden?</p>
         <div class="radio-group">
           <label>
-            <input
-              type="radio"
-              v-model="hasConsented"
-              :value="true"
-            >
+            <input type="radio" v-model="hasConsented" :value="true">
             Ja, ich bin einverstanden und bestätige, dass ich zwischen 18 und 64 Jahre alt bin und nicht Psychologie
             studiere bzw. keinen Studienabschluss in Psychologie habe.
           </label>
           <label>
-            <input
-              type="radio"
-              v-model="hasConsented"
-              :value="false"
-            >
+            <input type="radio" v-model="hasConsented" :value="false">
             Nein, ich bin nicht einverstanden.
           </label>
         </div>
@@ -156,24 +144,10 @@ const submitForm = async () => {
       <div>
         <label>Ich möchte für die Teilnahme an der Studie 3 VP Stunden erhalten.</label>
         <br>
-        <input
-          type="radio"
-          v-model="wantsVPHours"
-          :value="true"
-        /> Ja
-        <input
-          type="radio"
-          v-model="wantsVPHours"
-          :value="false"
-        /> Nein
+        <input type="radio" v-model="wantsVPHours" :value="true" /> Ja
+        <input type="radio" v-model="wantsVPHours" :value="false" /> Nein
         <br>
-        <input
-          v-if="wantsVPHours"
-          type="text"
-          placeholder="SONA ID"
-          v-model="sonaId"
-          maxlength="5"
-        />
+        <input v-if="wantsVPHours" type="text" placeholder="SONA ID" v-model="sonaId" maxlength="5" />
       </div>
 
       <div>
@@ -189,10 +163,7 @@ const submitForm = async () => {
       <div>
         <label>Wie alt sind Sie (in Jahren)?</label>
         <br>
-        <input
-          type="number"
-          v-model="age"
-        />
+        <input type="number" v-model="age" />
       </div>
 
       <div>
@@ -213,10 +184,7 @@ const submitForm = async () => {
       <div>
         <label>Welcher Ethnizität fühlen Sie sich zugehörig?</label>
         <br>
-        <input
-          type="text"
-          v-model="ethnicity"
-        />
+        <input type="text" v-model="ethnicity" />
       </div>
 
       <div>
@@ -228,40 +196,19 @@ const submitForm = async () => {
           <option value="studierende">Studierende:r</option>
           <option value="berufstätig">Berufstätig</option>
         </select>
-        <input
-          v-if="currentActivity === 'studierende'"
-          type="text"
-          placeholder="Studienfach"
-          v-model="currentActivityDetail"
-        />
-        <input
-          v-if="currentActivity === 'berufstätig'"
-          type="text"
-          placeholder="Tätigkeit"
-          v-model="currentActivityDetail"
-        />
+        <input v-if="currentActivity === 'studierende'" type="text" placeholder="Studienfach"
+          v-model="currentActivityDetail" />
+        <input v-if="currentActivity === 'berufstätig'" type="text" placeholder="Tätigkeit"
+          v-model="currentActivityDetail" />
       </div>
 
       <div>
         <label>Leiden Sie unter Schmerzen, die seit sechs Monaten oder länger bestehen?</label>
         <br>
-        <input
-          type="radio"
-          v-model="chronicPain"
-          :value="true"
-        /> Ja
-        <input
-          type="radio"
-          v-model="chronicPain"
-          :value="false"
-        /> Nein
+        <input type="radio" v-model="chronicPain" :value="true" /> Ja
+        <input type="radio" v-model="chronicPain" :value="false" /> Nein
         <br>
-        <input
-          v-if="chronicPain"
-          type="text"
-          placeholder="Ort der Schmerzen"
-          v-model="painLocation"
-        />
+        <input v-if="chronicPain" type="text" placeholder="Ort der Schmerzen" v-model="painLocation" />
       </div>
 
       <div>
@@ -270,46 +217,22 @@ const submitForm = async () => {
           sechs
           Monaten oder länger andauern?</label>
         <br>
-        <input
-          type="radio"
-          v-model="privatePainExperience"
-          :value="true"
-        /> Ja
-        <input
-          type="radio"
-          v-model="privatePainExperience"
-          :value="false"
-        /> Nein
+        <input type="radio" v-model="privatePainExperience" :value="true" /> Ja
+        <input type="radio" v-model="privatePainExperience" :value="false" /> Nein
         <br>
-        <input
-          v-if="privatePainExperience"
-          type="text"
-          placeholder="Beziehung zur Person"
-          v-model="privatePainRelation"
-        />
+        <input v-if="privatePainExperience" type="text" placeholder="Beziehung zur Person"
+          v-model="privatePainRelation" />
       </div>
 
       <div>
         <label>Haben oder hatten Sie (z.B. als Pflegekraft, Physiotherapeut:in) in Ihrem beruflichen Umfeld Kontakt mit
           Menschen, die Schmerzen haben?</label>
         <br>
-        <input
-          type="radio"
-          v-model="professionalPainExperience"
-          :value="true"
-        /> Ja
-        <input
-          type="radio"
-          v-model="professionalPainExperience"
-          :value="false"
-        /> Nein
+        <input type="radio" v-model="professionalPainExperience" :value="true" /> Ja
+        <input type="radio" v-model="professionalPainExperience" :value="false" /> Nein
         <br>
-        <input
-          v-if="professionalPainExperience"
-          type="text"
-          placeholder="Tätigkeit"
-          v-model="professionalPainActivity"
-        />
+        <input v-if="professionalPainExperience" type="text" placeholder="Tätigkeit"
+          v-model="professionalPainActivity" />
       </div>
 
       <button type="submit">Weiter</button>

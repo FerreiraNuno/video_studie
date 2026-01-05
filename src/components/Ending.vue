@@ -41,19 +41,12 @@ const showQuestions = ref(false)
         <br>
         Unter folgendem Link stehen Ihnen weitere Informationen zu Studienzwecken bereit:
         <br>
-        <a
-          href="https://jlubox.uni-giessen.de/getlink/fiS3QAddMLM47z8ZAAKvgRCF/Probandeninfo%20NACH%20Experiment.pdf"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          https://jlubox.uni-giessen.de/getlink/fiS3QAddMLM47z8ZAAKvgRCF/Probandeninfo%20NACH%20Experiment.pdf
+        <a href="https://next.hessenbox.de/index.php/s/n2FqnTyNT9g48LN" target="_blank" rel="noopener noreferrer">
+          https://next.hessenbox.de/index.php/s/n2FqnTyNT9g48LN
         </a>
       </p>
 
-      <button
-        class="continue-button"
-        @click="showQuestions = true"
-      >
+      <button class="continue-button" @click="showQuestions = true">
         Weiter
       </button>
     </template>
