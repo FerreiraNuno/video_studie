@@ -3,17 +3,19 @@
 #   keep-alive  – one REST read per day. Free-plan projects are paused after
 #                 7 days without API activity, which would break the study's
 #                 login page until someone restores the project by hand.
-#   backup      – exports all study tables (scripts/export-supabase.mjs),
-#                 encrypts the archive with the BACKUP_PASSPHRASE secret and
-#                 keeps it as a workflow artifact for 90 days. The repository
-#                 is public, so artifacts must never contain plain participant
-#                 data.
+#   backup      – exports all study tables (scripts/export-supabase.mjs)
+#                 with the service_role key (RLS makes the data tables
+#                 write-only for the anon key), encrypts the archive with the
+#                 BACKUP_PASSPHRASE secret and keeps it as a workflow artifact
+#                 for 90 days. The repository is public, so artifacts must
+#                 never contain plain participant data.
 #
 # Restore a downloaded artifact:
 #   openssl enc -d -aes-256-cbc -pbkdf2 -in supabase-backup-<date>.tar.gz.enc -pass pass:<passphrase> | tar xz
 #
 # Required repository secrets: VITE_API_BACKEND_URL, VITE_API_BACKEND_KEY
-# (already used by deploy.yml) and BACKUP_PASSPHRASE.
+# (already used by deploy.yml), SUPABASE_SERVICE_KEY (legacy service_role key,
+# only ever used here) and BACKUP_PASSPHRASE.
 name: Supabase daily
 
 on:
@@ -49,7 +51,7 @@ jobs:
       - name: Export all study tables
         env:
           SUPABASE_URL: ${{ secrets.VITE_API_BACKEND_URL }}
-          SUPABASE_KEY: ${{ secrets.VITE_API_BACKEND_KEY }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
         run: node scripts/export-supabase.mjs export
       - name: Encrypt archive
         env:

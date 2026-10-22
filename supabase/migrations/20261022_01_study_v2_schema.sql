@@ -13,8 +13,8 @@
 --      the app's upserts rely on).
 --   4. Deploy the app (src/lib/supabaseClient.ts points at `study_v2`).
 --
--- RLS is intentionally disabled, exactly like the `public` tables: the app
--- writes with the anon key and there is no login besides the shared password.
+-- RLS is enabled by 20261022_04_row_level_security.sql (write-only for the
+-- anon key); run that file after this one.
 -- =============================================================================
 
 create schema if not exists study_v2;

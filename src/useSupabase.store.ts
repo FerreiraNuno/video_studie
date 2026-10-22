@@ -1,6 +1,7 @@
 import { defineStore } from "pinia"
 import { supabase } from './lib/supabaseClient'
-import { createPersister, type Row, type Writer } from './lib/persist'
+import { createPersister, type Row } from './lib/persist'
+import { createSupabaseWriter } from './lib/supabaseWriter'
 import { ref } from "vue"
 import type { Trial, TrialPlan } from './utils/trialPlan'
 
@@ -8,17 +9,15 @@ export type StudyGroup = 'CDM' | 'SCT' | 'KG'
 
 /**
  * Every write goes through the persister (see src/lib/persist.ts): write-ahead
- * outbox in localStorage, retries, and idempotent upserts on the row's natural
+ * outbox in localStorage, retries, and idempotent writes on the row's natural
  * key. Study data is therefore never lost to a single failed request, and a
- * retry can never duplicate a row. The unique indexes behind the `onConflict`
- * keys are created by supabase/migrations/20261022_03_*.sql.
+ * retry can never duplicate a row. The unique indexes behind the keys are
+ * created by supabase/migrations/20261022_03_*.sql; which tables are upserted
+ * and which are insert-only is explained in src/lib/supabaseWriter.ts.
  */
-const supabaseWriter: Writer = async (table, row, onConflict) => {
-  const { error } = await supabase.from(table).upsert(row, { onConflict })
-  return { error: error ? { message: error.message, code: error.code } : null }
-}
+const UPSERT_TABLES = ['progress', 'trial_plans']
 
-export const persister = createPersister({ writer: supabaseWriter })
+export const persister = createPersister({ writer: createSupabaseWriter(supabase, UPSERT_TABLES) })
 
 export const useSupabaseStore = defineStore('supabaseStore', () => {
   // auth

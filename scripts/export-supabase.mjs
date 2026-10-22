@@ -2,14 +2,13 @@
 /**
  * Exports every study table from Supabase as JSON files.
  *
- *   SUPABASE_URL=https://xxx.supabase.co SUPABASE_KEY=<anon key> \
+ *   SUPABASE_URL=https://xxx.supabase.co SUPABASE_KEY=<service_role key> \
  *     node scripts/export-supabase.mjs <output directory>
  *
- * Locally the values from .env.local can be reused:
- *   set -a; . ./.env.local; set +a
- *   SUPABASE_URL=$VITE_API_BACKEND_URL SUPABASE_KEY=$VITE_API_BACKEND_KEY node scripts/export-supabase.mjs backups/$(date +%F)
- *
- * The anon key is enough because RLS is disabled on the study tables (see CLAUDE.md).
+ * The service_role key is required: RLS makes the data tables write-only for
+ * the anon key (supabase/migrations/20261022_04_row_level_security.sql). Find
+ * it in the dashboard under API Keys → "Legacy anon, service_role API keys".
+ * Never put it into .env.local under a VITE_ name – Vite would bundle it.
  * Output: <dir>/<schema>/<table>.json (array of rows) plus <dir>/manifest.json with row counts.
  * Rows are fetched in pages of 1000 ordered by the table's key, so tables of any size are complete.
  * Exits non-zero on the first error so a CI job fails loudly instead of uploading a partial backup.
