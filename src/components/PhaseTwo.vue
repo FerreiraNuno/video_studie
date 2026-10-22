@@ -32,12 +32,15 @@ const currentGroup = computed(() => supabaseStore.user.group)
 // Make sure the participant's trial plan is available:
 // 1. still in memory from phase 1 (normal flow), else
 // 2. the plan saved in Supabase (resume after reload), else
-// 3. generate a new one and save it (should only happen for participants
-//    without a saved plan).
+// 3. generate a new one and save it – ONLY when the database confirmed that
+//    no plan exists (legacy participants). A failed read must never fall
+//    through to this branch: the upsert would replace the saved plan and the
+//    ratings already stored under it would no longer match.
 onMounted(async () => {
   try {
     if (!isVideoOrderInitialized()) {
-      const { plan } = await supabaseStore.loadTrialPlan()
+      const { plan, error: loadError } = await supabaseStore.loadTrialPlan()
+      if (loadError) throw loadError
       if (plan) {
         setTrialPlan(plan)
       } else {
