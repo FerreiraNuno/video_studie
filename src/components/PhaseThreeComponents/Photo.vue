@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from 'vue'
-import { getCurrentPhoto, getPhotoSource, allPhotoFilenames } from '@/utils/photoManager'
+import { getPhotoSource, allPhotoFilenames } from '@/utils/photoManager'
+import { useStimuliStore } from '@/useStimuli.store'
 
 const props = defineProps<{
   photoIndex: number
@@ -10,7 +11,8 @@ const emit = defineEmits<{
   (e: 'photo-ended'): void
 }>()
 
-const photo = ref(getCurrentPhoto(props.photoIndex))
+const stimuliStore = useStimuliStore()
+const photo = ref(stimuliStore.photo(props.photoIndex))
 const photoSource = ref(getPhotoSource(photo.value.filename))
 
 // The photo is shown for 3 seconds, counted from the moment the image is
@@ -43,7 +45,7 @@ function onError () {
 onMounted(() => {
   armTimer(LOAD_CAP_MS)
   // Fetch the following photo while this one is shown and rated.
-  const next = allPhotoFilenames.length > props.photoIndex + 1 ? getCurrentPhoto(props.photoIndex + 1) : null
+  const next = allPhotoFilenames.length > props.photoIndex + 1 ? stimuliStore.photo(props.photoIndex + 1) : null
   if (next) new Image().src = getPhotoSource(next.filename)
 })
 onUnmounted(() => {

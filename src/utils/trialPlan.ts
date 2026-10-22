@@ -33,7 +33,7 @@ export const TRIALS_PER_COMBINATION = 2
 export const TRIALS_PER_CONTEXT = AUDIO_TYPES.length * VIDEO_TYPES.length * TRIALS_PER_COMBINATION // 12
 export const TOTAL_TRIALS = TRIALS_PER_CONTEXT * CONTEXTS.length // 36
 
-export interface CatalogVideo {
+export type CatalogVideo = {
   filename: string
   personId: string
   gender: Gender
@@ -41,14 +41,14 @@ export interface CatalogVideo {
   videoType: VideoType
 }
 
-export interface Trial extends CatalogVideo {
+export type Trial = CatalogVideo & {
   context: Context
   audioType: AudioType
   /** 1-based position in the whole phase (1..36); matches `video_index` in the ratings table */
   position: number
 }
 
-export interface TrialPlan {
+export type TrialPlan = {
   contextOrder: Context[]
   trials: Trial[]
 }

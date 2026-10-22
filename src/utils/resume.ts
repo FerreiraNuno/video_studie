@@ -10,7 +10,7 @@ import { PHASE2_LAST_STEP, isPhaseTwoRatingStep, phaseTwoVideoIndex } from './ph
  * no longer see – they re-watch the video / re-see the photo first.
  */
 
-export interface StudyPosition {
+export type StudyPosition = {
   /** phase the position belongs to; positions of another phase are ignored */
   phase: number
   progressIndex: number

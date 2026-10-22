@@ -10,7 +10,7 @@ import {
   TRIALS_PER_COMBINATION,
   type TrialPlan
 } from '../trialPlan'
-import { allVideos, initializeVideoOrder, ensureVideoOrder, setTrialPlan, getCurrentVideo, contextOrder } from '../videoManager'
+import { allVideos } from '../videoManager'
 
 /** Independent re-implementation of the requirement, so the test does not rely on validateTrialPlan. */
 function countPerCombination (plan: TrialPlan) {
@@ -122,28 +122,5 @@ describe('validateTrialPlan', () => {
     expect(validateTrialPlan(short, allVideos).some(v => v.includes('expected 36'))).toBe(true)
     const badOrder: TrialPlan = { ...plan, contextOrder: ['bus', 'bus', 'doctor'] }
     expect(validateTrialPlan(badOrder, allVideos).some(v => v.includes('permutation'))).toBe(true)
-  })
-})
-
-describe('videoManager session state (regression for the double-initialization bug)', () => {
-  it('stays balanced when initializeVideoOrder is called repeatedly', () => {
-    for (let i = 0; i < 50; i++) {
-      const plan = initializeVideoOrder()
-      expect(validateTrialPlan(plan, allVideos)).toEqual([])
-      for (let idx = 0; idx < 36; idx++) expect(getCurrentVideo(idx)).toBe(plan.trials[idx])
-      expect(contextOrder.value).toEqual(plan.contextOrder)
-    }
-  })
-
-  it('ensureVideoOrder keeps the existing plan; setTrialPlan restores and validates a saved plan', () => {
-    const plan = initializeVideoOrder()
-    expect(ensureVideoOrder()).toBe(plan)
-    const saved = JSON.parse(JSON.stringify(plan)) as TrialPlan
-    expect(setTrialPlan(saved)).toBe(saved)
-    expect(getCurrentVideo(0).personId).toBe(plan.trials[0].personId)
-    const corrupt = JSON.parse(JSON.stringify(plan)) as TrialPlan
-    corrupt.trials[0].audioType = corrupt.trials[1].audioType === 'no_pain' ? 'slight_pain' : 'no_pain'
-    corrupt.trials[1].audioType = corrupt.trials[0].audioType
-    expect(() => setTrialPlan(corrupt)).toThrow(TrialPlanError)
   })
 })

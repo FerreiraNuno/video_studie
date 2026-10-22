@@ -13,22 +13,25 @@
 import { createPinia, setActivePinia, type Pinia } from 'pinia'
 import { useSupabaseStore, type StudyGroup } from '@/useSupabase.store'
 import { useProgressStore } from '@/useProgress.store'
+import { useStimuliStore } from '@/useStimuli.store'
 
 /** Fresh pinia with a logged-in participant; returns the stores. */
 export function loginTestParticipant (participantNumber = '101', group: StudyGroup = 'CDM', phase?: number): {
   pinia: Pinia
   supabaseStore: ReturnType<typeof useSupabaseStore>
   progressStore: ReturnType<typeof useProgressStore>
+  stimuliStore: ReturnType<typeof useStimuliStore>
 } {
   const pinia = createPinia()
   setActivePinia(pinia)
   const supabaseStore = useSupabaseStore()
   const progressStore = useProgressStore()
+  const stimuliStore = useStimuliStore()
   supabaseStore.user.participantNumber = participantNumber
   supabaseStore.user.group = group
   supabaseStore.isAuthenticated = true
   if (phase !== undefined) progressStore.phase = phase
-  return { pinia, supabaseStore, progressStore }
+  return { pinia, supabaseStore, progressStore, stimuliStore }
 }
 
 /** Lets pending promises (mounted hooks, persister writes) settle. */

@@ -6,8 +6,31 @@ import { serializeLatest } from './lib/serializeLatest'
 import { ref } from "vue"
 import type { Trial, TrialPlan } from './utils/trialPlan'
 import type { StudyPosition } from './utils/resume'
+import type { Database } from './lib/database.types'
+
+/** Tables of the study schema and their insert shapes, from the generated database types. */
+export type StudyTable = keyof Database['study_v2']['Tables']
+export type InsertRow<T extends StudyTable> = Database['study_v2']['Tables'][T]['Insert']
 
 export type StudyGroup = 'CDM' | 'SCT' | 'KG'
+
+/** Answers of the phase-1 questionnaire as PhaseOne.vue collects them. */
+export interface QuestionnaireData {
+  wantsVPHours: boolean
+  sonaId: string
+  gender: string
+  age: number
+  education: string
+  ethnicity: string
+  currentActivity: string
+  currentActivityDetail: string
+  chronicPain: boolean
+  painLocation: string
+  privatePainExperience: boolean
+  privatePainRelation: string
+  professionalPainExperience: boolean
+  professionalPainActivity: string
+}
 
 /**
  * Every write goes through the persister (see src/lib/persist.ts): write-ahead
@@ -29,8 +52,14 @@ export const useSupabaseStore = defineStore('supabaseStore', () => {
     group: '' as StudyGroup
   })
 
-  function persist (table: string, row: Row, onConflict: string) {
-    return persister.persist(user.value.participantNumber, table, row, onConflict)
+  /**
+   * Typed entry to the persister: `row` must match the table's generated
+   * Insert type, so a column the database does not have is a compile error
+   * (the first collection lost 96 participants' photo ratings to exactly
+   * that; see src/lib/persist.ts).
+   */
+  function persist<T extends StudyTable> (table: T, row: InsertRow<T>, onConflict: string) {
+    return persister.persist(user.value.participantNumber, table, row as Row, onConflict)
   }
 
   /** Re-sends writes that could not be delivered earlier (called after login and when the browser comes back online). */
@@ -41,7 +70,7 @@ export const useSupabaseStore = defineStore('supabaseStore', () => {
 
   // Progress writes run one at a time, newest value wins (see serializeLatest):
   // two upserts of the same row in flight at once could land in either order.
-  const writeProgress = serializeLatest((row: Row) => persist('progress', row, 'participant_number'))
+  const writeProgress = serializeLatest((row: InsertRow<'progress'>) => persist('progress', row, 'participant_number'))
 
   /** Upserts the resume point: the phase and, within phases 2/3, the position inside it. */
   async function saveProgress (phase: number, position: StudyPosition | null = null) {
@@ -64,7 +93,7 @@ export const useSupabaseStore = defineStore('supabaseStore', () => {
       .eq('study_group', group)
       .maybeSingle()
 
-    return { data, error }
+    return { data: data ? { ...data, position: data.position as StudyPosition | null } : null, error }
   }
 
   /**
@@ -122,10 +151,10 @@ export const useSupabaseStore = defineStore('supabaseStore', () => {
       .eq('participant_number', participantNumber)
       .maybeSingle()
     if (error) console.error('Error loading trial plan:', error)
-    return { plan: (data?.plan ?? null) as TrialPlan | null, error }
+    return { plan: (data?.plan ?? null) as unknown as TrialPlan | null, error }
   }
 
-  async function saveUserData (formData: any, contextOrder?: string) {
+  async function saveUserData (formData: QuestionnaireData, contextOrder?: string) {
     const { participantNumber, group } = user.value
     return persist('form_data', {
       participant_number: participantNumber,

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from 'vue'
-import { getCurrentVideo } from '@/utils/videoManager'
 import { useSupabaseStore } from '@/useSupabase.store'
+import { useStimuliStore } from '@/useStimuli.store'
 
 /**
  * Plays the context's instruction audio before each video. Emits exactly once:
@@ -11,6 +11,7 @@ import { useSupabaseStore } from '@/useSupabase.store'
  */
 
 const supabaseStore = useSupabaseStore()
+const stimuliStore = useStimuliStore()
 const props = defineProps<{
   videoIndex: number
   context: string
@@ -45,7 +46,7 @@ function finish (reason: InstructionEndReason) {
   finished = true
   clearTimer()
   if (reason !== 'ended') console.warn(`Instruction audio for video ${props.videoIndex + 1} ended by ${reason}`)
-  emit('audio-ended', getCurrentVideo(props.videoIndex).filename, reason)
+  emit('audio-ended', stimuliStore.trial(props.videoIndex).filename, reason)
 }
 
 function onPlay () {

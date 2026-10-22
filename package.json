@@ -14,7 +14,8 @@
     "backup": "node scripts/export-supabase.mjs backups/$(date +%F)",
     "test:unit": "vitest run",
     "test:e2e": "playwright test",
-    "test:all": "npm run test && npm run test:e2e"
+    "test:all": "npm run test && npm run test:e2e",
+    "types:db": "sh scripts/gen-db-types.sh"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.47.16",

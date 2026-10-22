@@ -1,20 +1,14 @@
-import { shallowRef, computed } from 'vue'
-import {
-  generateTrialPlan,
-  assertValidTrialPlan,
-  describeTrialPlan,
-  type CatalogVideo,
-  type Trial,
-  type TrialPlan,
-  type Context,
-  type AudioType
-} from './trialPlan'
+import type { CatalogVideo, Trial, TrialPlan, Context, AudioType } from './trialPlan'
 
 export type { Trial, TrialPlan, Context, AudioType }
 
-// Fixed catalog of the 36 people shown in phase 2 (and as photos in phase 3).
-// videoType 'pain-specific' = facial pain expression YES, 'unspecific' = NO.
-export const allVideos: CatalogVideo[] = [
+/**
+ * Fixed catalog of the 36 people shown in phase 2 (and as photos in phase 3),
+ * plus the URL helpers for their media. Pure data: the participant's trial
+ * plan lives in src/useStimuli.store.ts.
+ * videoType 'pain-specific' = facial pain expression YES, 'unspecific' = NO.
+ */
+export const allVideos: readonly CatalogVideo[] = [
   // Young females (5 individuals)
   // Pain-specific
   { filename: 'female_young_pain_01.mp4', personId: 'f_y_p_1', gender: 'female', ageGroup: 'young', videoType: 'pain-specific' },
@@ -68,90 +62,23 @@ export const allVideos: CatalogVideo[] = [
   { filename: 'male_old_unspecific_08.mp4', personId: 'm_o_u_8', gender: 'male', ageGroup: 'old', videoType: 'unspecific' }
 ]
 
-// ---------------------------------------------------------------------------
-// Session state: the trial plan of the current participant.
-//
-// The plan is generated ONCE per participant (in phase 1), persisted to the
-// `trial_plans` table and re-used in phase 2 – so a page reload or the
-// phase 1 → phase 2 transition never re-randomizes it. The old implementation
-// mutated the shared catalog objects and re-ran the assignment on every
-// mount, which carried stale audio assignments into a new context assignment
-// and broke the 2-per-combination balance.
-// ---------------------------------------------------------------------------
-const trialPlan = shallowRef<TrialPlan | null>(null)
-
-/** Order in which the three contexts are shown (empty until a plan exists). */
-export const contextOrder = computed<Context[]>(() => trialPlan.value?.contextOrder ?? [])
-
-export function isVideoOrderInitialized (): boolean {
-  return trialPlan.value !== null
-}
-
-export function getTrialPlan (): TrialPlan | null {
-  return trialPlan.value
-}
-
-/** Generates a NEW validated plan (throws TrialPlanError if it cannot be balanced). */
-export function initializeVideoOrder (): TrialPlan {
-  const plan = generateTrialPlan(allVideos)
-  trialPlan.value = plan
-  console.log('Trial plan generated and validated\n' + describeTrialPlan(plan))
-  return plan
-}
-
-/** Returns the existing plan, generating one only if none exists yet. */
-export function ensureVideoOrder (): TrialPlan {
-  return trialPlan.value ?? initializeVideoOrder()
-}
-
-/** Restores a previously saved plan (e.g. loaded from Supabase); it is re-validated. */
-export function setTrialPlan (plan: TrialPlan): TrialPlan {
-  assertValidTrialPlan(plan, allVideos)
-  trialPlan.value = plan
-  console.log('Trial plan restored and validated\n' + describeTrialPlan(plan))
-  return plan
-}
-
-/** Forgets the plan in memory. Only tests need this: the app never logs a participant out. */
-export function clearTrialPlan (): void {
-  trialPlan.value = null
-}
-
-/** Trial at 0-based index (0..35) in presentation order. */
-export function getCurrentVideo (index: number): Trial {
-  const plan = trialPlan.value
-  if (!plan) throw new Error('Trial plan not initialized')
-  const trial = plan.trials[index]
-  if (!trial) throw new Error(`No trial at index ${index}`)
-  return trial
-}
-
-// Function to get the video source URL
 export function getVideoSource (filename: string): string {
   return `${import.meta.env.BASE_URL}videos/${filename}`
 }
 
-// Function to get the audio source URL
-export function getAudioSource (audioType: 'no_pain' | 'slight_pain' | 'strong_pain', studyGroup: string): string {
-  // For CDM group
+/** Self-report audio for a trial; the CDM group has its own slight/strong files. */
+export function getAudioSource (audioType: AudioType, studyGroup: string): string {
+  const base = `${import.meta.env.BASE_URL}audio/`
   if (studyGroup === 'CDM') {
     switch (audioType) {
-      case 'no_pain':
-        return `${import.meta.env.BASE_URL}audio/cdm_sct_kg_no_pain.mp3`
-      case 'slight_pain':
-        return `${import.meta.env.BASE_URL}audio/cdm_slight_pain.mp3`
-      case 'strong_pain':
-        return `${import.meta.env.BASE_URL}audio/cdm_strong_pain.mp3`
+      case 'no_pain': return `${base}cdm_sct_kg_no_pain.mp3`
+      case 'slight_pain': return `${base}cdm_slight_pain.mp3`
+      case 'strong_pain': return `${base}cdm_strong_pain.mp3`
     }
   }
-
-  // For SCT and KG groups
   switch (audioType) {
-    case 'no_pain':
-      return `${import.meta.env.BASE_URL}audio/cdm_sct_kg_no_pain.mp3`
-    case 'slight_pain':
-      return `${import.meta.env.BASE_URL}audio/sct_kg_stlight_pain.mp3`
-    case 'strong_pain':
-      return `${import.meta.env.BASE_URL}audio/sct_kg_strong_pain.mp3`
+    case 'no_pain': return `${base}cdm_sct_kg_no_pain.mp3`
+    case 'slight_pain': return `${base}sct_kg_stlight_pain.mp3`
+    case 'strong_pain': return `${base}sct_kg_strong_pain.mp3`
   }
-} 
+}

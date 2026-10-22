@@ -4,7 +4,7 @@ import { mount, enableAutoUnmount, type VueWrapper } from '@vue/test-utils'
 import PhaseTwo from '../PhaseTwo.vue'
 import { PHASE } from '@/useProgress.store'
 import { generateTrialPlan, type TrialPlan } from '@/utils/trialPlan'
-import { allVideos, setTrialPlan, clearTrialPlan, getTrialPlan } from '@/utils/videoManager'
+import { allVideos } from '@/utils/videoManager'
 import { PHASE2_STEPS } from '@/utils/phaseTwoSteps'
 import { phaseTwoResumePoint } from '@/utils/resume'
 import contextText from '@/text/context.json'
@@ -103,13 +103,12 @@ describe('PhaseTwo', () => {
   beforeEach(() => {
     fakeDb.reset()
     localStorage.clear()
-    clearTrialPlan()
   })
 
   it('runs all 88 steps in plan order, stores one rating per trial and hands over to phase 3', async () => {
     const plan = generateTrialPlan(allVideos, seededRandom(42))
-    setTrialPlan(plan)
-    const { pinia, progressStore } = loginTestParticipant('101', 'CDM', PHASE.videos)
+    const { pinia, progressStore, stimuliStore } = loginTestParticipant('101', 'CDM', PHASE.videos)
+    stimuliStore.setPlan(plan)
     const savePosition = vi.spyOn(progressStore, 'savePosition')
 
     const wrapper = mount(PhaseTwo, { global: { plugins: [pinia], stubs } })
@@ -153,8 +152,8 @@ describe('PhaseTwo', () => {
 
   it('resumes a saved rating step at its video, with the trial derived from the step', async () => {
     const plan = generateTrialPlan(allVideos, seededRandom(5))
-    setTrialPlan(plan)
-    const { pinia, progressStore } = loginTestParticipant('301', 'KG', PHASE.videos)
+    const { pinia, progressStore, stimuliStore } = loginTestParticipant('301', 'KG', PHASE.videos)
+    stimuliStore.setPlan(plan)
     progressStore.position = { phase: 2, progressIndex: 35, videoIndex: 99 }  // second context, first rating; stale videoIndex
     const savePosition = vi.spyOn(progressStore, 'savePosition')
 
@@ -170,36 +169,36 @@ describe('PhaseTwo', () => {
   it('loads the saved plan after a reload instead of generating a new one', async () => {
     const plan = generateTrialPlan(allVideos, seededRandom(11))
     fakeDb.seed('trial_plans', [{ participant_number: '102', study_group: 'CDM', context_order: plan.contextOrder.join(','), plan }])
-    const { pinia } = loginTestParticipant('102', 'CDM', PHASE.videos)
+    const { pinia, stimuliStore } = loginTestParticipant('102', 'CDM', PHASE.videos)
 
     const wrapper = mount(PhaseTwo, { global: { plugins: [pinia], stubs } })
     await flushPromises()
 
-    expect(getTrialPlan()).toEqual(plan)
+    expect(stimuliStore.trialPlan).toEqual(plan)
     expect(wrapper.text()).toContain('Nun beginnt der 2. Teil')
     expect(fakeDb.calls.filter(c => c.table === 'trial_plans' && c.op === 'upsert')).toHaveLength(0)
   })
 
   it('shows the reload message when the plan cannot be read, and never regenerates it', async () => {
     fakeDb.failNext('trial_plans', 'select')
-    const { pinia } = loginTestParticipant('103', 'SCT', PHASE.videos)
+    const { pinia, stimuliStore } = loginTestParticipant('103', 'SCT', PHASE.videos)
 
     const wrapper = mount(PhaseTwo, { global: { plugins: [pinia], stubs } })
     await flushPromises()
 
     expect(wrapper.text()).toContain('Videozuteilung konnte nicht geladen werden')
-    expect(getTrialPlan()).toBeNull()
+    expect(stimuliStore.trialPlan).toBeNull()
     expect(fakeDb.calls.filter(c => c.table === 'trial_plans' && c.op === 'upsert')).toHaveLength(0)
   })
 
   it('generates and saves a plan only when the database confirmed none exists', async () => {
-    const { pinia } = loginTestParticipant('104', 'KG', PHASE.videos)
+    const { pinia, stimuliStore } = loginTestParticipant('104', 'KG', PHASE.videos)
     mount(PhaseTwo, { global: { plugins: [pinia], stubs } })
     await flushPromises()
 
-    expect(getTrialPlan()).not.toBeNull()
+    expect(stimuliStore.trialPlan).not.toBeNull()
     const saved = fakeDb.rows('trial_plans')
     expect(saved).toHaveLength(1)
-    expect(saved[0]).toMatchObject({ participant_number: '104', study_group: 'KG', plan: getTrialPlan() })
+    expect(saved[0]).toMatchObject({ participant_number: '104', study_group: 'KG', plan: stimuliStore.trialPlan })
   })
 })

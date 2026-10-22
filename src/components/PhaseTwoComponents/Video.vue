@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from 'vue'
-import { getCurrentVideo, getVideoSource, getAudioSource } from '@/utils/videoManager'
+import { getVideoSource, getAudioSource } from '@/utils/videoManager'
 import { useSupabaseStore } from '@/useSupabase.store'
+import { useStimuliStore } from '@/useStimuli.store'
 
 /**
  * One trial: the muted video plays while the self-report audio is heard.
@@ -21,6 +22,7 @@ import { useSupabaseStore } from '@/useSupabase.store'
  */
 
 const supabaseStore = useSupabaseStore()
+const stimuliStore = useStimuliStore()
 const props = defineProps<{
   videoIndex: number
 }>()
@@ -38,7 +40,7 @@ const END_MARGIN_MS = 1500
 
 const videoElement = ref<HTMLVideoElement | null>(null)
 const audioElement = ref<HTMLAudioElement | null>(null)
-const currentVideo = getCurrentVideo(props.videoIndex)
+const currentVideo = stimuliStore.trial(props.videoIndex)
 const videoSource = getVideoSource(currentVideo.filename)
 const audioSource = getAudioSource(currentVideo.audioType, supabaseStore.user.group)
 

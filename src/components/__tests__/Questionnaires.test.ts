@@ -8,7 +8,7 @@ import EndingQuestions from '../EndingQuestions.vue'
 import Ending from '../Ending.vue'
 import { PHASE } from '@/useProgress.store'
 import { generateTrialPlan } from '@/utils/trialPlan'
-import { allVideos, clearTrialPlan, getTrialPlan } from '@/utils/videoManager'
+import { allVideos } from '@/utils/videoManager'
 import { fakeDb } from '@/test/fakeSupabase'
 import { loginTestParticipant, seededRandom, flushPromises } from '@/test/setup'
 
@@ -24,7 +24,6 @@ enableAutoUnmount(afterEach)
 beforeEach(() => {
   fakeDb.reset()
   localStorage.clear()
-  clearTrialPlan()
 })
 
 describe('Login', () => {
@@ -112,12 +111,12 @@ describe('PhaseOne', () => {
   }
 
   it('saves the questionnaire with a balanced plan and moves to phase 2', async () => {
-    const { pinia, progressStore } = loginTestParticipant('101', 'CDM', PHASE.questionnaire)
+    const { pinia, progressStore, stimuliStore } = loginTestParticipant('101', 'CDM', PHASE.questionnaire)
     const wrapper = mount(PhaseOne, { global: { plugins: [pinia] } })
     await fillAndSubmit(wrapper)
 
     expect(progressStore.phase).toBe(PHASE.videos)
-    const plan = getTrialPlan()
+    const plan = stimuliStore.trialPlan
     expect(plan).not.toBeNull()
     expect(fakeDb.rows('trial_plans')[0]).toMatchObject({ participant_number: '101', plan, context_order: plan!.contextOrder.join(',') })
     expect(fakeDb.rows('form_data')[0]).toMatchObject({
@@ -138,23 +137,23 @@ describe('PhaseOne', () => {
   it('reuses a plan already saved for the participant number', async () => {
     const saved = generateTrialPlan(allVideos, seededRandom(9))
     fakeDb.seed('trial_plans', [{ participant_number: '101', study_group: 'CDM', context_order: saved.contextOrder.join(','), plan: saved }])
-    const { pinia } = loginTestParticipant('101', 'CDM', PHASE.questionnaire)
+    const { pinia, stimuliStore } = loginTestParticipant('101', 'CDM', PHASE.questionnaire)
     const wrapper = mount(PhaseOne, { global: { plugins: [pinia] } })
     await fillAndSubmit(wrapper)
 
-    expect(getTrialPlan()).toEqual(saved)
+    expect(stimuliStore.trialPlan).toEqual(saved)
     expect(fakeDb.rows('trial_plans')[0].plan).toEqual(saved)
     expect(fakeDb.rows('form_data')[0].context_order).toBe(saved.contextOrder.join(','))
   })
 
   it('does not generate a plan when the existing one cannot be read', async () => {
     fakeDb.failNext('trial_plans', 'select')
-    const { pinia, progressStore } = loginTestParticipant('101', 'CDM', PHASE.questionnaire)
+    const { pinia, progressStore, stimuliStore } = loginTestParticipant('101', 'CDM', PHASE.questionnaire)
     const wrapper = mount(PhaseOne, { global: { plugins: [pinia] } })
     await fillAndSubmit(wrapper)
 
     expect(wrapper.text()).toContain('Fehler beim Laden der Videozuteilung')
-    expect(getTrialPlan()).toBeNull()
+    expect(stimuliStore.trialPlan).toBeNull()
     expect(fakeDb.rows('trial_plans')).toHaveLength(0)
     expect(progressStore.phase).toBe(PHASE.questionnaire)
   })

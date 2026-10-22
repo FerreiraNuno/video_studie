@@ -7,7 +7,8 @@ import Context from './PhaseTwoComponents/Context.vue'
 import { useProgressStore, PHASE } from '../useProgress.store'
 import { computed, ref, onMounted, watch } from 'vue'
 import { useSupabaseStore } from '@/useSupabase.store'
-import { initializeVideoOrder, getCurrentVideo, getVideoSource, contextOrder, isVideoOrderInitialized, setTrialPlan } from '@/utils/videoManager'
+import { getVideoSource } from '@/utils/videoManager'
+import { useStimuliStore } from '@/useStimuli.store'
 import contextText from '../text/context.json'
 import { PHASE2_STEPS, PHASE2_LAST_STEP, PHASE2_TOTAL_TRIALS, type ContextPart } from '@/utils/phaseTwoSteps'
 import { phaseTwoResumePoint } from '@/utils/resume'
@@ -25,6 +26,7 @@ const testVideo = `${baseUrl}videos/testvideo.mp4`
 
 const progressStore = useProgressStore()
 const supabaseStore = useSupabaseStore()
+const stimuliStore = useStimuliStore()
 
 const progressIndex = ref(0)
 /** inside a video step: the instruction audio has ended and the video is showing */
@@ -43,12 +45,12 @@ const step = computed(() => PHASE2_STEPS[progressIndex.value])
 /** context shown by the current step (undefined outside the context sections) */
 const currentContext = computed(() => {
   const s = step.value
-  return s && 'section' in s ? contextOrder.value[s.section] : undefined
+  return s && 'section' in s ? stimuliStore.contextOrder[s.section] : undefined
 })
 /** trial of the current video / rating step */
 const currentTrial = computed(() => {
   const s = step.value
-  return s && (s.kind === 'video' || s.kind === 'rating') ? getCurrentVideo(s.trialIndex) : null
+  return s && (s.kind === 'video' || s.kind === 'rating') ? stimuliStore.trial(s.trialIndex) : null
 })
 const phase2Finished = computed(() => progressIndex.value >= PHASE2_LAST_STEP)
 
@@ -65,13 +67,13 @@ function contextAudio (context: string, part: ContextPart): string {
 //    ratings already stored under it would no longer match.
 onMounted(async () => {
   try {
-    if (!isVideoOrderInitialized()) {
+    if (!stimuliStore.hasTrialPlan) {
       const { plan, error: loadError } = await supabaseStore.loadTrialPlan()
       if (loadError) throw loadError
       if (plan) {
-        setTrialPlan(plan)
+        stimuliStore.setPlan(plan)
       } else {
-        const newPlan = initializeVideoOrder()
+        const newPlan = stimuliStore.generatePlan()
         const { error } = await supabaseStore.saveTrialPlan(newPlan)
         if (error) throw error
       }
@@ -94,7 +96,7 @@ const nextVideoSource = computed(() => {
   if (!planReady.value || showingVideo.value) return null
   const next = phaseTwoResumePoint({ phase: PHASE.videos, progressIndex: progressIndex.value }).videoIndex
   if (next >= PHASE2_TOTAL_TRIALS) return null
-  return getVideoSource(getCurrentVideo(next).filename)
+  return getVideoSource(stimuliStore.trial(next).filename)
 })
 
 // Persist the position after every step. A rating step is stored as the video

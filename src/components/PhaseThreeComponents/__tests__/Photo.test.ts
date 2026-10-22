@@ -2,17 +2,27 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import Photo from '../Photo.vue'
-import { allPhotoFilenames, setPhotoOrder } from '@/utils/photoManager'
+import { allPhotoFilenames } from '@/utils/photoManager'
+import { loginTestParticipant } from '@/test/setup'
+
+vi.mock('@/lib/supabaseClient', async () => {
+  const { fakeDb } = await import('@/test/fakeSupabase')
+  return { supabase: fakeDb, STUDY_SCHEMA: 'study_v2' }
+})
 
 describe('Photo', () => {
+  let pinia: ReturnType<typeof loginTestParticipant>['pinia']
+
   beforeEach(() => {
     vi.useFakeTimers()
-    setPhotoOrder(allPhotoFilenames)
+    const session = loginTestParticipant()
+    pinia = session.pinia
+    session.stimuliStore.setPhotoOrder(allPhotoFilenames)
   })
   afterEach(() => vi.useRealTimers())
 
   function mountPhoto (photoIndex = 0) {
-    const wrapper = mount(Photo, { props: { photoIndex } })
+    const wrapper = mount(Photo, { props: { photoIndex }, global: { plugins: [pinia] } })
     return { wrapper, img: wrapper.find('img'), emitted: () => wrapper.emitted('photo-ended') ?? [] }
   }
 

@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import Video from '../Video.vue'
 import { generateTrialPlan } from '@/utils/trialPlan'
-import { allVideos, setTrialPlan, getCurrentVideo } from '@/utils/videoManager'
+import { allVideos } from '@/utils/videoManager'
 import { loginTestParticipant, seededRandom, fireMedia, setDuration } from '@/test/setup'
 
 vi.mock('@/lib/supabaseClient', async () => {
@@ -18,11 +18,13 @@ vi.mock('@/lib/supabaseClient', async () => {
  */
 describe('Video', () => {
   let pinia: ReturnType<typeof loginTestParticipant>['pinia']
+  let stimuli: ReturnType<typeof loginTestParticipant>['stimuliStore']
+  const getCurrentVideo = (i: number) => stimuli.trial(i)
 
   beforeEach(() => {
     vi.useFakeTimers()
-    setTrialPlan(generateTrialPlan(allVideos, seededRandom(7)))
-    pinia = loginTestParticipant('101', 'CDM').pinia
+    ;({ pinia, stimuliStore: stimuli } = loginTestParticipant('101', 'CDM'))
+    stimuli.setPlan(generateTrialPlan(allVideos, seededRandom(7)))
   })
   afterEach(() => {
     vi.useRealTimers()

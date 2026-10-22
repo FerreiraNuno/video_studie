@@ -2,10 +2,12 @@
 import { ref } from 'vue'
 import { useProgressStore, PHASE } from '../useProgress.store'
 import { useSupabaseStore } from '../useSupabase.store'
-import { initializeVideoOrder, setTrialPlan, type TrialPlan } from '@/utils/videoManager'
+import { useStimuliStore } from '../useStimuli.store'
+import type { TrialPlan } from '@/utils/trialPlan'
 
 const progressStore = useProgressStore()
 const supabaseStore = useSupabaseStore()
+const stimuliStore = useStimuliStore()
 
 const wantsVPHours = ref(false)
 const sonaId = ref('')
@@ -101,7 +103,7 @@ async function saveQuestionnaire () {
       return
     }
     try {
-      plan = saved ? setTrialPlan(saved) : initializeVideoOrder()
+      plan = saved ? stimuliStore.setPlan(saved) : stimuliStore.generatePlan()
     } catch (e) {
       console.error(e)
       errorMessage.value = 'Interner Fehler bei der Zuteilung der Videos. Bitte wenden Sie sich an die Studienleitung.'
@@ -114,7 +116,7 @@ async function saveQuestionnaire () {
     wantsVPHours: wantsVPHours.value,
     sonaId: sonaId.value,
     gender: gender.value,
-    age: age.value,
+    age: Number(age.value),
     education: education.value,
     ethnicity: ethnicity.value,
     currentActivity: currentActivity.value,

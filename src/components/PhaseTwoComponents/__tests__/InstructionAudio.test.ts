@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import InstructionAudio from '../InstructionAudio.vue'
 import { generateTrialPlan } from '@/utils/trialPlan'
-import { allVideos, setTrialPlan, getCurrentVideo } from '@/utils/videoManager'
+import { allVideos } from '@/utils/videoManager'
 import { loginTestParticipant, seededRandom, fireMedia, setDuration } from '@/test/setup'
 
 vi.mock('@/lib/supabaseClient', async () => {
@@ -13,11 +13,13 @@ vi.mock('@/lib/supabaseClient', async () => {
 
 describe('InstructionAudio', () => {
   let pinia: ReturnType<typeof loginTestParticipant>['pinia']
+  let stimuli: ReturnType<typeof loginTestParticipant>['stimuliStore']
+  const getCurrentVideo = (i: number) => stimuli.trial(i)
 
   beforeEach(() => {
     vi.useFakeTimers()
-    setTrialPlan(generateTrialPlan(allVideos, seededRandom(3)))
-    pinia = loginTestParticipant('201', 'SCT').pinia
+    ;({ pinia, stimuliStore: stimuli } = loginTestParticipant('201', 'SCT'))
+    stimuli.setPlan(generateTrialPlan(allVideos, seededRandom(3)))
   })
   afterEach(() => {
     vi.useRealTimers()

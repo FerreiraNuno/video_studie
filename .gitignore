@@ -35,3 +35,6 @@ backups/
 # Playwright
 test-results/
 playwright-report/
+
+# Supabase CLI scratch (may hold connection details)
+supabase/.temp/

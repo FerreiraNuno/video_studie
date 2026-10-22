@@ -49,6 +49,29 @@ function columnsFromMigrations (): Map<string, Set<string>> {
   return columns
 }
 
+/** Columns per table from the generated src/lib/database.types.ts (Row blocks of study_v2). */
+function columnsFromGeneratedTypes (): Map<string, Set<string>> {
+  const source = readFileSync(join(__dirname, '../lib/database.types.ts'), 'utf8')
+  const tablesOnly = source.slice(source.indexOf('    Tables: {'), source.indexOf('    Views: {'))
+  const columns = new Map<string, Set<string>>()
+  for (const match of tablesOnly.matchAll(/\n {6}(\w+): \{\n {8}Row: \{\n([\s\S]*?)\n {8}\};/g)) {
+    const [, table, body] = match
+    columns.set(table, new Set([...body.matchAll(/^\s+(\w+)\??:/gm)].map(m => m[1])))
+  }
+  return columns
+}
+
+describe('generated database types vs. migrations', () => {
+  it('declare the same tables and columns (run `npm run types:db` after a migration)', () => {
+    const generated = columnsFromGeneratedTypes()
+    const migrated = columnsFromMigrations()
+    expect([...generated.keys()].sort()).toEqual([...migrated.keys()].sort())
+    for (const [table, columns] of migrated) {
+      expect([...generated.get(table) ?? []].sort(), `columns of ${table}`).toEqual([...columns].sort())
+    }
+  })
+})
+
 describe('store writes vs. migrations', () => {
   it('parses the migrations', () => {
     const columns = columnsFromMigrations()

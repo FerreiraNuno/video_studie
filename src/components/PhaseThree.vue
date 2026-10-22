@@ -5,11 +5,13 @@ import { useSupabaseStore } from '../useSupabase.store'
 import Photo from './PhaseThreeComponents/Photo.vue'
 import Rating from './PhaseThreeComponents/Rating.vue'
 import FinalQuestions from './PhaseThreeComponents/FinalQuestions.vue'
-import { initializePhotoOrder, setPhotoOrder, getPhotoOrder, getCurrentPhoto, allPhotoFilenames } from '@/utils/photoManager'
+import { allPhotoFilenames } from '@/utils/photoManager'
+import { useStimuliStore } from '@/useStimuli.store'
 import { phaseThreeResumePoint, isValidPhotoOrder, PHASE3_FINAL_STEP } from '@/utils/resume'
 
 const progressStore = useProgressStore()
 const supabaseStore = useSupabaseStore()
+const stimuliStore = useStimuliStore()
 
 const progressIndex = ref(0)
 const photoIndex = ref(0)
@@ -20,9 +22,9 @@ const ready = ref(false)
 onMounted(() => {
   const saved = progressStore.position
   if (saved?.phase === PHASE.photos && isValidPhotoOrder(saved.photoOrder, allPhotoFilenames)) {
-    setPhotoOrder(saved.photoOrder)
+    stimuliStore.setPhotoOrder(saved.photoOrder)
   } else {
-    initializePhotoOrder()
+    stimuliStore.shufflePhotos()
   }
   const resume = phaseThreeResumePoint(saved)
   progressIndex.value = resume.progressIndex
@@ -38,7 +40,7 @@ function persistPosition () {
     phase: PHASE.photos,
     progressIndex: atRating ? p - 1 : p,
     photoIndex: photoIndex.value,
-    photoOrder: getPhotoOrder(),
+    photoOrder: stimuliStore.photoFilenames,
   })
 }
 
@@ -60,7 +62,7 @@ function submitRating (ratings: {
   stressLevel: number
   empathy: number
 }) {
-  const photo = getCurrentPhoto(photoIndex.value)
+  const photo = stimuliStore.photo(photoIndex.value)
   // Retries + outbox happen inside the store; the participant continues immediately.
   void supabaseStore.savePhotoRating(photoIndex.value, ratings, photo.filename)
   finishSection()

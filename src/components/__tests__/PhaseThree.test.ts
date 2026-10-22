@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { mount, enableAutoUnmount } from '@vue/test-utils'
 import PhaseThree from '../PhaseThree.vue'
 import { PHASE } from '@/useProgress.store'
-import { allPhotoFilenames, getPhotoOrder } from '@/utils/photoManager'
+import { allPhotoFilenames } from '@/utils/photoManager'
 import { PHASE3_FINAL_STEP } from '@/utils/resume'
 import { fakeDb } from '@/test/fakeSupabase'
 import { loginTestParticipant, flushPromises } from '@/test/setup'
@@ -28,12 +28,12 @@ describe('PhaseThree', () => {
   })
 
   it('shows every photo once in a persisted random order, rates each, then the final questions', async () => {
-    const { pinia, progressStore } = loginTestParticipant('101', 'CDM', PHASE.photos)
+    const { pinia, progressStore, stimuliStore } = loginTestParticipant('101', 'CDM', PHASE.photos)
     const savePosition = vi.spyOn(progressStore, 'savePosition')
     const wrapper = mount(PhaseThree, { global: { plugins: [pinia], stubs } })
     await flushPromises()
 
-    const order = getPhotoOrder()
+    const order = stimuliStore.photoFilenames
     expect([...order].sort()).toEqual([...allPhotoFilenames].sort())
     expect(savePosition).toHaveBeenLastCalledWith({ phase: 3, progressIndex: 0, photoIndex: 0, photoOrder: order })
 
@@ -75,12 +75,12 @@ describe('PhaseThree', () => {
 
   it('resumes with the saved order at the saved photo, rewinding a rating step to its photo', async () => {
     const savedOrder = [...allPhotoFilenames].reverse()
-    const { pinia, progressStore } = loginTestParticipant('101', 'CDM', PHASE.photos)
+    const { pinia, progressStore, stimuliStore } = loginTestParticipant('101', 'CDM', PHASE.photos)
     progressStore.position = { phase: 3, progressIndex: 8, photoIndex: 3, photoOrder: savedOrder }
     const wrapper = mount(PhaseThree, { global: { plugins: [pinia], stubs } })
     await flushPromises()
 
-    expect(getPhotoOrder()).toEqual(savedOrder)
+    expect(stimuliStore.photoFilenames).toEqual(savedOrder)
     const photo = wrapper.findComponent(PhotoStub)
     expect(photo.exists()).toBe(true)
     expect(photo.props('photoIndex')).toBe(3)
@@ -95,10 +95,10 @@ describe('PhaseThree', () => {
   })
 
   it('draws a fresh order when the saved one is not a permutation of the catalog', async () => {
-    const { pinia, progressStore } = loginTestParticipant('101', 'CDM', PHASE.photos)
+    const { pinia, progressStore, stimuliStore } = loginTestParticipant('101', 'CDM', PHASE.photos)
     progressStore.position = { phase: 3, progressIndex: 5, photoIndex: 2, photoOrder: allPhotoFilenames.slice(0, 10) }
     mount(PhaseThree, { global: { plugins: [pinia], stubs } })
     await flushPromises()
-    expect([...getPhotoOrder()].sort()).toEqual([...allPhotoFilenames].sort())
+    expect([...stimuliStore.photoFilenames].sort()).toEqual([...allPhotoFilenames].sort())
   })
 })
