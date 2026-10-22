@@ -8,22 +8,23 @@ const isInformed = ref('')
 const wantsDeletion = ref('')
 const agreesSilence = ref('')
 const showClosingMessage = ref(false)
+const submitting = ref(false)
 
 async function handleSubmit () {
   if (!isInformed.value || !wantsDeletion.value || !agreesSilence.value) {
     return
   }
 
-  try {
-    await supabaseStore.saveEndingQuestions({
-      isInformed: isInformed.value,
-      wantsDeletion: wantsDeletion.value,
-      agreesSilence: agreesSilence.value
-    })
-    showClosingMessage.value = true
-  } catch (error) {
-    console.error('Failed to save ending questions:', error)
-  }
+  if (submitting.value) return
+  submitting.value = true
+  // Retries + outbox happen inside the store; a failed request is re-sent
+  // on the next login of this participant number.
+  await supabaseStore.saveEndingQuestions({
+    isInformed: isInformed.value,
+    wantsDeletion: wantsDeletion.value,
+    agreesSilence: agreesSilence.value
+  })
+  showClosingMessage.value = true
 }
 </script>
 
@@ -109,7 +110,7 @@ async function handleSubmit () {
       <button
         class="submit-button"
         @click="handleSubmit"
-        :disabled="!isInformed || !wantsDeletion || !agreesSilence"
+        :disabled="submitting || !isInformed || !wantsDeletion || !agreesSilence"
       >
         Absenden
       </button>

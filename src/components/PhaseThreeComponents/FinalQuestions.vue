@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useProgressStore } from '@/useProgress.store'
+import { useProgressStore, PHASE } from '@/useProgress.store'
 import { useSupabaseStore } from '@/useSupabase.store'
 import RatingScale from '../shared/RatingScale.vue'
 
@@ -18,6 +18,7 @@ const doctorEmpathyRating = ref(5)
 const pensionEmpathyRating = ref(5)
 const studyPurpose = ref('')
 const currentStep = ref(1)
+const submitting = ref(false)
 
 function nextStep () {
   if (currentStep.value < 3) {
@@ -28,6 +29,8 @@ function nextStep () {
 }
 
 async function submitRatings () {
+  if (submitting.value) return
+  submitting.value = true
   await supabaseStore.saveFinalRatings({
     exaggeration: exaggerationRating.value,
     faking: fakingRating.value,
@@ -38,7 +41,7 @@ async function submitRatings () {
     pension_empathy: pensionEmpathyRating.value,
     study_purpose: studyPurpose.value
   })
-  progressStore.nextPhase()
+  await progressStore.setPhase(PHASE.ending)
 }
 </script>
 
@@ -166,7 +169,7 @@ async function submitRatings () {
     <button
       @click="nextStep"
       class="next-button"
-      :disabled="currentStep === 3 && studyPurpose.length === 0"
+      :disabled="submitting || (currentStep === 3 && studyPurpose.length === 0)"
     >
       Weiter
     </button>

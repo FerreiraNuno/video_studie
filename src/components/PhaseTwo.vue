@@ -4,7 +4,7 @@ import Video from './PhaseTwoComponents/Video.vue'
 import InstructionAudio from './PhaseTwoComponents/InstructionAudio.vue'
 import Loading from './PhaseTwoComponents/Loading.vue'
 import Context from './PhaseTwoComponents/Context.vue'
-import { useProgressStore } from '../useProgress.store'
+import { useProgressStore, PHASE } from '../useProgress.store'
 import { computed, ref, onMounted } from 'vue'
 import { useSupabaseStore } from '@/useSupabase.store'
 import { initializeVideoOrder, getCurrentVideo, contextOrder, isVideoOrderInitialized, setTrialPlan, type Trial } from '@/utils/videoManager'
@@ -183,7 +183,8 @@ function submitRating (ratings: { pain: number, credibility: number, difficulty:
   if (trial.position !== videoIndex.value) {
     console.warn(`Trial position ${trial.position} does not match video counter ${videoIndex.value}`)
   }
-  supabaseStore.saveRating(ratings, trial)
+  // Retries + outbox happen inside the store; the participant continues immediately.
+  void supabaseStore.saveRating(ratings, trial)
   finishSection()
 }
 
@@ -208,7 +209,7 @@ function finishSection () {
 }
 
 function finishPhaseTwo () {
-  progressStore.nextPhase()
+  progressStore.setPhase(PHASE.photos)
 }
 </script>
 

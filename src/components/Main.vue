@@ -19,7 +19,7 @@ const progressStore = useProgressStore()
   <PhaseThree v-else-if="progressStore.phase == 3" />
 
   <!-- Phase 4 -->
-  <Ending v-else-if="progressStore.phase == 4" />
+  <Ending v-else-if="progressStore.phase !== undefined && progressStore.phase >= 4" />
 
   <div v-else></div>
 </template>

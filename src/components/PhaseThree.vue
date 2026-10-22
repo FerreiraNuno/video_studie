@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { useProgressStore } from '../useProgress.store'
+import { useProgressStore, PHASE } from '../useProgress.store'
 import { useSupabaseStore } from '../useSupabase.store'
 import Photo from './PhaseThreeComponents/Photo.vue'
 import Rating from './PhaseThreeComponents/Rating.vue'
@@ -33,7 +33,8 @@ function submitRating (ratings: {
   empathy: number
 }) {
   const photo = getCurrentPhoto(photoIndex.value)
-  supabaseStore.savePhotoRating(photoIndex.value, ratings, photo.filename)
+  // Retries + outbox happen inside the store; the participant continues immediately.
+  void supabaseStore.savePhotoRating(photoIndex.value, ratings, photo.filename)
   finishSection()
 }
 
@@ -49,7 +50,7 @@ function finishSection () {
 }
 
 function finishPhaseThree () {
-  progressStore.nextPhase()
+  progressStore.setPhase(PHASE.ending)
 }
 </script>
 

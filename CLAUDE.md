@@ -60,6 +60,10 @@ Active tables (same names in both schemas, RLS disabled — intentional for this
 
 All Supabase reads/writes go through [src/useSupabase.store.ts](src/useSupabase.store.ts) — that's the file to check when adding a new field or table.
 
+**Writes are never plain inserts.** Every save goes through the persister in [src/lib/persist.ts](src/lib/persist.ts): the row is parked in a localStorage outbox first, sent as an `upsert` on its natural key (e.g. `participant_number,video_index`), retried with back-off, and removed from the outbox only after the server confirmed it. Leftovers are flushed on the next login of that participant number and on the browser's `online` event. The unique indexes behind the `onConflict` keys come from [supabase/migrations/20261022_03_unique_keys_for_idempotent_writes.sql](supabase/migrations/20261022_03_unique_keys_for_idempotent_writes.sql) — a new table needs a natural key there before the app may write to it. Background: in the first collection fire-and-forget inserts silently dropped single ratings, and an insert with a column the table did not yet have (`empathy`, Sept 2025 – July 2026) cost 96 participants all their photo ratings.
+
+Phase transitions use `progressStore.setPhase(PHASE.x)` with an explicit target, never a blind increment.
+
 **Ignore these tables** — not part of the active study, leftover/unrelated: `image_reports`, `weguess_images`, `test_images`.
 
 ## Notes

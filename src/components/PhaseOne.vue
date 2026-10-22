@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useProgressStore } from '../useProgress.store'
+import { useProgressStore, PHASE } from '../useProgress.store'
 import { useSupabaseStore } from '../useSupabase.store'
 import { initializeVideoOrder } from '@/utils/videoManager'
 
@@ -100,12 +100,12 @@ const submitForm = async () => {
     return
   }
 
-  const response = await supabaseStore.saveUserData(formData, contextOrderString)
-  if (response?.code) {
-    errorMessage.value = `Fehler beim Absenden des Formulars: ${response.message}`
-  } else {
-    progressStore.nextPhase()
+  const { error: formError } = await supabaseStore.saveUserData(formData, contextOrderString)
+  if (formError) {
+    errorMessage.value = `Fehler beim Absenden des Formulars: ${formError.message}`
+    return
   }
+  await progressStore.setPhase(PHASE.videos)
 }
 </script>
 

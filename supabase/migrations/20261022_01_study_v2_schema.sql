@@ -9,7 +9,9 @@
 --   2. Dashboard → Project Settings → API → "Exposed schemas": add `study_v2`
 --      (otherwise the browser client gets "The schema must be one of the
 --      following: public, graphql_public").
---   3. Deploy the app (src/lib/supabaseClient.ts points at `study_v2`).
+--   3. Run 20261022_03_unique_keys_for_idempotent_writes.sql (natural keys
+--      the app's upserts rely on).
+--   4. Deploy the app (src/lib/supabaseClient.ts points at `study_v2`).
 --
 -- RLS is intentionally disabled, exactly like the `public` tables: the app
 -- writes with the anon key and there is no login besides the shared password.

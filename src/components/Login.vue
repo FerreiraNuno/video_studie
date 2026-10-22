@@ -47,6 +47,9 @@ async function handleLogin () {
       errorMessage.value = response.error.message
     } else {
       supabaseStore.isAuthenticated = true
+      // Deliver writes an earlier session of this participant could not send.
+      void supabaseStore.flushOutbox()
+      window.addEventListener('online', () => { void supabaseStore.flushOutbox() })
       await progressStore.startStudy()
     }
   } else {
