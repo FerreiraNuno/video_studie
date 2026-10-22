@@ -64,6 +64,8 @@ All Supabase reads/writes go through [src/useSupabase.store.ts](src/useSupabase.
 
 Phase transitions use `progressStore.setPhase(PHASE.x)` with an explicit target, never a blind increment.
 
+**Backups / keep-alive.** [.github/workflows/supabase-daily.yml](.github/workflows/supabase-daily.yml) runs daily: one REST read keeps the Free-plan project from auto-pausing, and [scripts/export-supabase.mjs](scripts/export-supabase.mjs) exports all tables of `study_v2` and `public` into an AES-encrypted artifact (90 days retention, secret `BACKUP_PASSPHRASE`; the repo is public, so never upload plain data). Locally: `set -a; . ./.env.local; set +a; SUPABASE_URL=$VITE_API_BACKEND_URL SUPABASE_KEY=$VITE_API_BACKEND_KEY npm run backup` → `backups/<date>/` (gitignored).
+
 **Ignore these tables** — not part of the active study, leftover/unrelated: `image_reports`, `weguess_images`, `test_images`.
 
 ## Notes

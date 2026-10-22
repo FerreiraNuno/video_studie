@@ -1,0 +1,69 @@
+# Daily Supabase maintenance for the Free plan:
+#
+#   keep-alive  – one REST read per day. Free-plan projects are paused after
+#                 7 days without API activity, which would break the study's
+#                 login page until someone restores the project by hand.
+#   backup      – exports all study tables (scripts/export-supabase.mjs),
+#                 encrypts the archive with the BACKUP_PASSPHRASE secret and
+#                 keeps it as a workflow artifact for 90 days. The repository
+#                 is public, so artifacts must never contain plain participant
+#                 data.
+#
+# Restore a downloaded artifact:
+#   openssl enc -d -aes-256-cbc -pbkdf2 -in supabase-backup-<date>.tar.gz.enc -pass pass:<passphrase> | tar xz
+#
+# Required repository secrets: VITE_API_BACKEND_URL, VITE_API_BACKEND_KEY
+# (already used by deploy.yml) and BACKUP_PASSPHRASE.
+name: Supabase daily
+
+on:
+  schedule:
+    - cron: '17 3 * * *'   # 03:17 UTC every day
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  keep-alive:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Read one row from study_v2.progress
+        env:
+          SUPABASE_URL: ${{ secrets.VITE_API_BACKEND_URL }}
+          SUPABASE_KEY: ${{ secrets.VITE_API_BACKEND_KEY }}
+        run: |
+          status=$(curl -s -o /dev/null -w '%{http_code}' \
+            "$SUPABASE_URL/rest/v1/progress?select=participant_number&limit=1" \
+            -H "apikey: $SUPABASE_KEY" -H "Authorization: Bearer $SUPABASE_KEY" -H "Accept-Profile: study_v2")
+          echo "HTTP $status"
+          test "$status" = "200"
+
+  backup:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Export all study tables
+        env:
+          SUPABASE_URL: ${{ secrets.VITE_API_BACKEND_URL }}
+          SUPABASE_KEY: ${{ secrets.VITE_API_BACKEND_KEY }}
+        run: node scripts/export-supabase.mjs export
+      - name: Encrypt archive
+        env:
+          BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+        run: |
+          test -n "$BACKUP_PASSPHRASE" || { echo "BACKUP_PASSPHRASE secret is missing"; exit 1; }
+          name="supabase-backup-$(date -u +%F)"
+          tar czf - export | openssl enc -aes-256-cbc -pbkdf2 -salt -pass env:BACKUP_PASSPHRASE -out "$name.tar.gz.enc"
+          rm -rf export
+          ls -l "$name.tar.gz.enc"
+          echo "NAME=$name" >> "$GITHUB_ENV"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.NAME }}
+          path: ${{ env.NAME }}.tar.gz.enc
+          retention-days: 90
+          if-no-files-found: error
