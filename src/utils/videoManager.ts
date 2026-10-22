@@ -112,6 +112,11 @@ export function setTrialPlan (plan: TrialPlan): TrialPlan {
   return plan
 }
 
+/** Forgets the plan in memory. Only tests need this: the app never logs a participant out. */
+export function clearTrialPlan (): void {
+  trialPlan.value = null
+}
+
 /** Trial at 0-based index (0..35) in presentation order. */
 export function getCurrentVideo (index: number): Trial {
   const plan = trialPlan.value

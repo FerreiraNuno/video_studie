@@ -42,6 +42,15 @@ The plan is generated **once** per participant (PhaseOne submit; a plan already 
 
 The phase-2 step sequence (88 steps: intro/tests, then per context intro, scenario, 12 video+rating pairs with reminders after 4 and 8) is generated once in [src/utils/phaseTwoSteps.ts](src/utils/phaseTwoSteps.ts); [PhaseTwo.vue](src/components/PhaseTwo.vue) renders `PHASE2_STEPS[progressIndex]` and the resume helpers read the same table, so do not hard-code step numbers anywhere else. A reload during phase 2 or 3 resumes at the current video / photo via `progress.position` (see [src/utils/resume.ts](src/utils/resume.ts); the phase-3 photo order is stored there too, randomized once per participant). Should the position be missing (e.g. an old row), the phase restarts; re-submitted ratings for stored positions are then ignored by the insert-once write path (first answer wins).
 
+## Tests
+
+`npm test` (Vitest, < 2 s) and `npm run test:e2e` (Playwright, ~2 min); both run in the deploy workflow before the build, so a red run blocks the deploy.
+
+- **Pure modules** (`src/utils/__tests__`, `src/lib/__tests__`): trial plan balance, the phase-2 step table, resume points, persister, writer.
+- **Component tests** (`src/components/**/__tests__`, happy-dom): the media step machines are driven by dispatching `playing`/`ended`/`error` on the elements and advancing fake timers — no media is decoded. The phase flow tests mount `PhaseTwo`/`PhaseThree` with stub children ([src/test/stubs.ts](src/test/stubs.ts)) and walk every step. All of them replace the Supabase client with the in-memory fake in [src/test/fakeSupabase.ts](src/test/fakeSupabase.ts) via `vi.mock('@/lib/supabaseClient', …)`, so the real stores, persister and writer run. `clearTrialPlan()` in `videoManager.ts` exists for these tests only.
+- **Schema contract** ([src/__tests__/schemaContract.test.ts](src/__tests__/schemaContract.test.ts)): every column a store write produces must be declared in `supabase/migrations/`. Adding a column means adding a migration first, or this test fails.
+- **End-to-end** ([e2e/study.spec.ts](e2e/study.spec.ts)): one participant through the whole study in headless Chromium, with reloads in phases 2 and 3. Media requests are answered with the sub-second fixtures in `e2e/fixtures/`, photo display timers are skipped with Playwright's clock, and Supabase is the in-memory PostgREST in [e2e/fakePostgrest.ts](e2e/fakePostgrest.ts) (the app is pointed at `http://localhost:5174/supabase` by [playwright.config.ts](playwright.config.ts)). Nothing reaches the real project. Locally: `npx playwright install chromium` once.
+
 ## Supabase
 
 Project: **videoFragebogen** (`ctsptoeoypyrtoxuujlv`, `eu-central-1`), org `klinPsych`, on the **Free plan** since 2026-10-22 (needs the daily keep-alive below).

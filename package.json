@@ -11,7 +11,10 @@
     "build-only": "vite build",
     "type-check": "vue-tsc --build",
     "test": "vitest run",
-    "backup": "node scripts/export-supabase.mjs backups/$(date +%F)"
+    "backup": "node scripts/export-supabase.mjs backups/$(date +%F)",
+    "test:unit": "vitest run",
+    "test:e2e": "playwright test",
+    "test:all": "npm run test && npm run test:e2e"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.47.16",
@@ -19,10 +22,13 @@
     "vue": "^3.5.13"
   },
   "devDependencies": {
+    "@playwright/test": "^1.64.1",
     "@tsconfig/node22": "^22.0.0",
     "@types/node": "^22.10.2",
     "@vitejs/plugin-vue": "^5.2.1",
+    "@vue/test-utils": "^2.5.1",
     "@vue/tsconfig": "^0.7.0",
+    "happy-dom": "^21.0.4",
     "npm-run-all2": "^7.0.2",
     "typescript": "~5.6.3",
     "vite": "^6.0.5",

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
 import { useSupabaseStore } from '@/useSupabase.store'
 
 const supabaseStore = useSupabaseStore()
@@ -88,7 +88,9 @@ onMounted(() => {
   })
 })
 
-onUnmounted(() => {
+// Before unmount, not after: Vue clears template refs while unmounting, so an
+// onUnmounted hook would find them null and a detached element would play on.
+onBeforeUnmount(() => {
   if (timer !== null) clearTimeout(timer)
   const audio = audioRef.value
   if (audio) {

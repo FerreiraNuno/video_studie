@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { getCurrentVideo, getVideoSource, getAudioSource } from '@/utils/videoManager'
 import { useSupabaseStore } from '@/useSupabase.store'
 
@@ -140,7 +140,9 @@ onMounted(() => {
   }
 })
 
-onUnmounted(() => {
+// Before unmount, not after: Vue clears template refs while unmounting, so an
+// onUnmounted hook would find them null and a detached element would play on.
+onBeforeUnmount(() => {
   finished = true
   clearTimer()
   videoElement.value?.removeEventListener('playing', onVideoPlaying)

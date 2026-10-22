@@ -32,8 +32,21 @@ jobs:
         uses: actions/configure-pages@v4
       - name: Install dependencies
         run: npm ci
-      - name: Run tests (trial balancing)
+      - name: Unit and component tests
         run: npm test
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+      - name: End-to-end study run (fake Supabase, fixture media)
+        run: npm run test:e2e
+      - name: Upload Playwright report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report
+            test-results
+          retention-days: 7
       - name: Inject environment variables
         run: echo "VITE_API_BACKEND_URL=${{ secrets.VITE_API_BACKEND_URL }}" >> .env && echo "VITE_API_BACKEND_KEY=${{ secrets.VITE_API_BACKEND_KEY }}" >> .env
       - name: Build with Vite

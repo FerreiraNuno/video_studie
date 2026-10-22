@@ -75,9 +75,17 @@ describe('phaseThreeResumePoint', () => {
     expect(phaseThreeResumePoint({ phase: 3, progressIndex: 8, photoIndex: 3 })).toEqual({ progressIndex: 7, photoIndex: 3 })
   })
 
+  it('rewinds the rating of the last photo to that photo instead of the final questions', () => {
+    // photo 35 is rated at step 72 – that step must not be mistaken for the final questions
+    expect(phaseThreeResumePoint({ phase: 3, progressIndex: 72, photoIndex: 35 })).toEqual({ progressIndex: 71, photoIndex: 35 })
+    expect(PHASE3_FINAL_STEP).toBeGreaterThan(72)
+  })
+
   it('resumes the final questions', () => {
-    expect(phaseThreeResumePoint({ phase: 3, progressIndex: PHASE3_FINAL_STEP, photoIndex: 36 })).toEqual({ progressIndex: 72, photoIndex: 36 })
-    expect(phaseThreeResumePoint({ phase: 3, progressIndex: 71, photoIndex: 36 })).toEqual({ progressIndex: 72, photoIndex: 36 })
+    expect(phaseThreeResumePoint({ phase: 3, progressIndex: PHASE3_FINAL_STEP, photoIndex: 36 })).toEqual({ progressIndex: PHASE3_FINAL_STEP, photoIndex: 36 })
+    expect(phaseThreeResumePoint({ phase: 3, progressIndex: 71, photoIndex: 36 })).toEqual({ progressIndex: PHASE3_FINAL_STEP, photoIndex: 36 })
+    // positions written by the earlier app version used 72 for the final questions
+    expect(phaseThreeResumePoint({ phase: 3, progressIndex: 72, photoIndex: 36 })).toEqual({ progressIndex: PHASE3_FINAL_STEP, photoIndex: 36 })
   })
 })
 

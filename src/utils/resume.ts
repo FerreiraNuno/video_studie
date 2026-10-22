@@ -47,8 +47,11 @@ export function phaseTwoResumePoint (saved: StudyPosition | null | undefined): {
 }
 
 // --- phase 3 --------------------------------------------------------------
-// 0 = intro, odd = photo, even > 0 = rating, >= 72 = final questions.
-export const PHASE3_FINAL_STEP = 72
+// 0 = intro, odd = photo i at 2i+1, even > 0 = rating of photo i at 2i+2,
+// >= PHASE3_FINAL_STEP = final questions. The sentinel sits after the last
+// rating step (photo 35 is rated at step 72); an earlier value of 72 made a
+// reload during the last rating resume at the final questions, losing it.
+export const PHASE3_FINAL_STEP = 73
 
 /**
  * Where to resume phase 3. A rating step resumes at the photo step before it
