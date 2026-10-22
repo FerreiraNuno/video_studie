@@ -38,7 +38,9 @@ The phase-2 **trial plan** is built by the pure module [src/utils/trialPlan.ts](
 
 The plan is generated **once** per participant (PhaseOne submit), saved to `trial_plans`, and re-used in PhaseTwo (loaded from the DB after a reload). Never call `initializeVideoOrder()` a second time for the same participant — the pre-Oct-2026 code did exactly that (PhaseOne + PhaseTwo mount) and, because it mutated shared catalog objects, carried stale audio assignments into a fresh context assignment, which destroyed the balance for almost all of the first 130 participants. PhaseTwo generates a plan only when the database confirmed none exists; a failed read shows the reload message instead (a fresh plan would be upserted over the saved one and no longer match the ratings already stored).
 
-A reload during phase 2 or 3 restarts that phase from its first item. Re-submitted ratings for positions already stored are ignored by the insert-once write path (first answer wins), so the data stays consistent but the participant repeats the phase.
+**Phase-2 trial timing (decided by the study team, Oct 2026): a trial ends when the self-report audio ends**, not when the video ends. Videos run 3–10 s, the audio 4–6.3 s, so longer videos are cut off and shorter ones freeze on the last frame until the audio finishes. This is intended stimulus exposure — do not change [Video.vue](src/components/PhaseTwoComponents/Video.vue) to wait for the video.
+
+A reload during phase 2 or 3 resumes at the current video / photo via `progress.position` (see [src/utils/resume.ts](src/utils/resume.ts); the phase-3 photo order is stored there too, randomized once per participant). Should the position be missing (e.g. an old row), the phase restarts; re-submitted ratings for stored positions are then ignored by the insert-once write path (first answer wins).
 
 ## Supabase
 
