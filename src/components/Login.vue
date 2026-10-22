@@ -44,7 +44,8 @@ async function handleLogin () {
     const response = await supabaseStore.loadProgress()
     loading.value = false
     if (response.error && response.error.code !== 'PGRST116') {
-      errorMessage.value = response.error.message
+      console.error('Login: progress could not be loaded:', response.error)
+      errorMessage.value = 'Die Verbindung zum Server ist fehlgeschlagen. Bitte prüfen Sie Ihre Internetverbindung und versuchen Sie es erneut.'
     } else {
       supabaseStore.isAuthenticated = true
       // Deliver writes an earlier session of this participant could not send.

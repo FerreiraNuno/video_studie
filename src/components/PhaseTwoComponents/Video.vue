@@ -12,6 +12,10 @@ import { useSupabaseStore } from '@/useSupabase.store'
  *   - `finish()` emits exactly once and is the only way out.
  *   - A hard timer runs from mount, independent of playback; once the audio
  *     plays, it is re-armed to the audio's remaining duration + margin.
+ *   - The self-report audio starts on the video's `playing` event (frames are
+ *     actually being rendered), not on `play` (which fires as soon as play()
+ *     is called, before any data arrived). Otherwise the audio – which ends
+ *     the trial – ran while the video was still buffering on slow lines.
  *   - Media errors retry once, then finish. play() rejections are caught.
  *   - Everything is cleaned up on unmount.
  */
@@ -62,14 +66,22 @@ function finish (reason: string) {
   emit('video-ended', currentVideo.filename)
 }
 
-function onVideoPlay () {
-  const video = videoElement.value
-  if (video) video.muted = true
-  isLoading.value = false
+let audioStarted = false
+
+function startAudio () {
+  if (audioStarted) return
+  audioStarted = true
   const audio = audioElement.value
   if (audio && audio.paused) {
     audio.play().catch(e => console.warn('Self-report audio could not start:', e))
   }
+}
+
+function onVideoPlaying () {
+  const video = videoElement.value
+  if (video) video.muted = true
+  isLoading.value = false
+  startAudio()
 }
 
 function onVideoError () {
@@ -112,7 +124,7 @@ onMounted(() => {
   const video = videoElement.value
   if (video) {
     video.muted = true
-    video.addEventListener('play', onVideoPlay)
+    video.addEventListener('playing', onVideoPlaying)
     video.addEventListener('error', onVideoError)
     video.play().catch(() => { /* autoplay attribute will retry; the hard timer covers the rest */ })
   }
@@ -128,7 +140,7 @@ onMounted(() => {
 onUnmounted(() => {
   finished = true
   clearTimer()
-  videoElement.value?.removeEventListener('play', onVideoPlay)
+  videoElement.value?.removeEventListener('playing', onVideoPlaying)
   videoElement.value?.removeEventListener('error', onVideoError)
   audioElement.value?.removeEventListener('play', onAudioPlay)
   audioElement.value?.removeEventListener('ended', onAudioEnded)
@@ -149,6 +161,7 @@ onUnmounted(() => {
         :src="videoSource"
         autoplay
         playsinline
+        preload="auto"
         :muted="true"
       >
         Ihr Browser unterstützt die Video Wiedergabe nicht.

@@ -7,7 +7,7 @@ import Context from './PhaseTwoComponents/Context.vue'
 import { useProgressStore, PHASE } from '../useProgress.store'
 import { computed, ref, onMounted, watch } from 'vue'
 import { useSupabaseStore } from '@/useSupabase.store'
-import { initializeVideoOrder, getCurrentVideo, contextOrder, isVideoOrderInitialized, setTrialPlan, type Trial } from '@/utils/videoManager'
+import { initializeVideoOrder, getCurrentVideo, getVideoSource, contextOrder, isVideoOrderInitialized, setTrialPlan, type Trial } from '@/utils/videoManager'
 import context from '../text/context.json'
 import { phaseTwoResumePoint, isPhaseTwoRatingStep, PHASE2_LAST_STEP } from '@/utils/resume'
 
@@ -182,6 +182,16 @@ const showContextRatingsThirdSet = computed(() => {
 })
 
 const phase2Finished = computed(() => progressIndex.value >= PHASE2_LAST_STEP)
+
+const showingVideo = computed(() =>
+  (showContextVideosFirstSet.value || showContextVideosSecondSet.value || showContextVideosThirdSet.value) && audioCompleted.value)
+
+// While the participant hears the instruction or rates the previous video,
+// the next video is fetched by a hidden player so it starts without buffering.
+const nextVideoSource = computed(() => {
+  if (!planReady.value || showingVideo.value || videoIndex.value >= 36) return null
+  return getVideoSource(getCurrentVideo(videoIndex.value).filename)
+})
 
 // Persist the position after every step. A rating step is stored as the video
 // step before it (see utils/resume.ts), so a reload replays that video first.
@@ -412,6 +422,15 @@ function finishPhaseTwo () {
     @rating-submitted="submitRating"
   />
   <Loading v-else />
+
+  <video
+    v-if="nextVideoSource"
+    :src="nextVideoSource"
+    preload="auto"
+    muted
+    playsinline
+    class="preload"
+  ></video>
 </template>
 
 <style scoped>
@@ -440,5 +459,13 @@ audio {
   width: 100%;
   max-width: 800px;
   margin: 1rem 0;
+}
+
+.preload {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
 }
 </style>

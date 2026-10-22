@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import { useProgressStore, PHASE } from '../useProgress.store'
 import { useSupabaseStore } from '../useSupabase.store'
-import { initializeVideoOrder } from '@/utils/videoManager'
+import { initializeVideoOrder, type TrialPlan } from '@/utils/videoManager'
 
 const progressStore = useProgressStore()
 const supabaseStore = useSupabaseStore()
@@ -24,6 +24,10 @@ const professionalPainExperience = ref(false)
 const professionalPainActivity = ref('')
 
 const errorMessage = ref('')
+const submitting = ref(false)
+// The plan is generated once per questionnaire; a retry after a failed save
+// re-sends the same plan instead of producing a second one.
+let plan: TrialPlan | null = null
 
 const validateForm = () => {
   if (!hasConsented.value) {
@@ -58,20 +62,32 @@ const validateForm = () => {
 }
 
 const submitForm = async () => {
+  // A second click (or Enter) while the first submit is still saving must not
+  // run again: every run would generate its own trial plan, and the plan that
+  // reached the database last would no longer be the one shown in phase 2.
+  if (submitting.value) return
   if (!validateForm()) {
     return
   }
+  submitting.value = true
+  try {
+    await saveQuestionnaire()
+  } finally {
+    submitting.value = false
+  }
+}
 
+async function saveQuestionnaire () {
   // Generate (and validate) this participant's balanced trial plan once.
   // It is persisted so phase 2 shows exactly this plan, also after a reload.
-  let plan
   try {
-    plan = initializeVideoOrder()
+    if (!plan) plan = initializeVideoOrder()
   } catch (e) {
     console.error(e)
     errorMessage.value = 'Interner Fehler bei der Zuteilung der Videos. Bitte wenden Sie sich an die Studienleitung.'
     return
   }
+  const trialPlan = plan
 
   const formData = {
     wantsVPHours: wantsVPHours.value,
@@ -91,10 +107,10 @@ const submitForm = async () => {
   }
 
   // Convert context order array to comma-separated string
-  const contextOrderString = plan.contextOrder.join(',')
+  const contextOrderString = trialPlan.contextOrder.join(',')
   console.log('Context order being saved:', contextOrderString)
 
-  const { error: planError } = await supabaseStore.saveTrialPlan(plan)
+  const { error: planError } = await supabaseStore.saveTrialPlan(trialPlan)
   if (planError) {
     errorMessage.value = `Fehler beim Speichern der Videozuteilung: ${planError.message}`
     return
@@ -249,7 +265,10 @@ const submitForm = async () => {
           v-model="professionalPainActivity" />
       </div>
 
-      <button type="submit">Weiter</button>
+      <button
+        type="submit"
+        :disabled="submitting"
+      >{{ submitting ? 'Wird gespeichert…' : 'Weiter' }}</button>
       <p v-if="errorMessage">{{ errorMessage }}</p>
     </div>
   </form>
@@ -351,8 +370,13 @@ button {
   cursor: pointer;
 }
 
-button:hover {
+button:hover:not(:disabled) {
   background-color: #0056b3;
+}
+
+button:disabled {
+  background-color: #a0a0a0;
+  cursor: not-allowed;
 }
 
 div {
