@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue'
-import { useSupabaseStore } from '@/useSupabase.store'
+import { ref, watch } from 'vue'
 
 const props = defineProps<{
   label: string
@@ -13,12 +12,11 @@ const emit = defineEmits<{
   (e: 'update:modelValue', value: number): void
 }>()
 
-const supabaseStore = useSupabaseStore()
 const rating = ref<number | null>(null)
 
 watch(() => props.modelValue, (newValue) => {
   rating.value = newValue
-})
+}, { immediate: true })
 
 function updateRating (value: number) {
   rating.value = value

@@ -9,18 +9,32 @@ const supabaseStore = useSupabaseStore()
 
 const group = computed(() => supabaseStore.user.group)
 
-const exaggerationRating = ref(5)
-const fakingRating = ref(5)
-const understatingRating = ref(5)
-const suppressionRating = ref(5)
-const busEmpathyRating = ref(5)
-const doctorEmpathyRating = ref(5)
-const pensionEmpathyRating = ref(5)
+// Scales start empty: a value is only submitted once the participant has
+// set it (the first collection stored an untouched default of 5 as an answer).
+const exaggerationRating = ref<number | null>(null)
+const fakingRating = ref<number | null>(null)
+const understatingRating = ref<number | null>(null)
+const suppressionRating = ref<number | null>(null)
+const busEmpathyRating = ref<number | null>(null)
+const doctorEmpathyRating = ref<number | null>(null)
+const pensionEmpathyRating = ref<number | null>(null)
 const studyPurpose = ref('')
 const currentStep = ref(1)
 const submitting = ref(false)
 
+const stepComplete = computed(() => {
+  switch (currentStep.value) {
+    case 1:
+      return [exaggerationRating, fakingRating, understatingRating, suppressionRating].every(r => r.value !== null)
+    case 2:
+      return [busEmpathyRating, doctorEmpathyRating, pensionEmpathyRating].every(r => r.value !== null)
+    default:
+      return studyPurpose.value.trim().length > 0
+  }
+})
+
 function nextStep () {
+  if (!stepComplete.value) return
   if (currentStep.value < 3) {
     currentStep.value += 1
   } else {
@@ -30,6 +44,9 @@ function nextStep () {
 
 async function submitRatings () {
   if (submitting.value) return
+  if (exaggerationRating.value === null || fakingRating.value === null || understatingRating.value === null ||
+    suppressionRating.value === null || busEmpathyRating.value === null || doctorEmpathyRating.value === null ||
+    pensionEmpathyRating.value === null) return
   submitting.value = true
   await supabaseStore.saveFinalRatings({
     exaggeration: exaggerationRating.value,
@@ -39,7 +56,7 @@ async function submitRatings () {
     bus_empathy: busEmpathyRating.value,
     doctor_empathy: doctorEmpathyRating.value,
     pension_empathy: pensionEmpathyRating.value,
-    study_purpose: studyPurpose.value
+    study_purpose: studyPurpose.value.trim()
   })
   await progressStore.setPhase(PHASE.ending)
 }
@@ -169,7 +186,7 @@ async function submitRatings () {
     <button
       @click="nextStep"
       class="next-button"
-      :disabled="submitting || (currentStep === 3 && studyPurpose.length === 0)"
+      :disabled="submitting || !stepComplete"
     >
       Weiter
     </button>

@@ -11,7 +11,8 @@ import { initializeVideoOrder, getCurrentVideo, contextOrder, isVideoOrderInitia
 import context from '../text/context.json'
 import { phaseTwoResumePoint, isPhaseTwoRatingStep, PHASE2_LAST_STEP } from '@/utils/resume'
 
-const testVideo = `${import.meta.env.BASE_URL}videos/testvideo.mp4`
+const baseUrl = import.meta.env.BASE_URL
+const testVideo = `${baseUrl}videos/testvideo.mp4`
 
 // Import the test video
 const progressStore = useProgressStore()
@@ -303,8 +304,8 @@ function finishPhaseTwo () {
       preload="auto"
     >
       <source
-        src="/bugle_tune.mp3"
-        type="audio/ogg"
+        :src="`${baseUrl}bugle_tune.mp3`"
+        type="audio/mpeg"
       >
       Your browser does not support the audio element.
     </audio>
