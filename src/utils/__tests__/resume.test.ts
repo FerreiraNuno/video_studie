@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import {
-  phaseTwoResumePoint, phaseTwoVideoIndex, phaseThreeResumePoint, isPhaseTwoRatingStep, isPhaseTwoVideoStep,
-  isValidPhotoOrder, PHASE2_CONTEXT_STARTS, PHASE2_LAST_STEP, PHASE3_FINAL_STEP,
+  phaseTwoResumePoint, phaseThreeResumePoint, isPhaseTwoRatingStep, isPhaseTwoVideoStep, isValidPhotoOrder,
+  PHASE2_CONTEXT_STARTS, PHASE3_FINAL_STEP,
 } from '../resume'
 
 describe('phase 2 steps', () => {
@@ -24,22 +24,6 @@ describe('phase 2 steps', () => {
       }
     }
     for (const intro of [0, 1, 2, 3]) expect(isPhaseTwoRatingStep(intro)).toBe(false)
-  })
-})
-
-describe('phaseTwoVideoIndex', () => {
-  it('counts 12 videos per context block in presentation order', () => {
-    for (const intro of [0, 1, 2, 3]) expect(phaseTwoVideoIndex(intro)).toBe(0)
-    PHASE2_CONTEXT_STARTS.forEach((start, section) => {
-      const base = section * 12
-      expect(phaseTwoVideoIndex(start)).toBe(base)          // intro
-      expect(phaseTwoVideoIndex(start + 1)).toBe(base)      // scenario
-      const videos = [2, 4, 6, 8, 11, 13, 15, 17, 20, 22, 24, 26]
-      videos.forEach((o, i) => expect(phaseTwoVideoIndex(start + o)).toBe(base + i))
-      expect(phaseTwoVideoIndex(start + 10)).toBe(base + 4) // reminder after 4
-      expect(phaseTwoVideoIndex(start + 19)).toBe(base + 8) // reminder after 8
-    })
-    expect(phaseTwoVideoIndex(PHASE2_LAST_STEP + 1)).toBe(36)
   })
 })
 

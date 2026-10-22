@@ -40,7 +40,7 @@ The plan is generated **once** per participant (PhaseOne submit; a plan already 
 
 **Phase-2 trial timing (decided by the study team, Oct 2026): a trial ends when the self-report audio ends**, not when the video ends. Videos run 3–10 s, the audio 4–6.3 s, so longer videos are cut off and shorter ones freeze on the last frame until the audio finishes. This is intended stimulus exposure — do not change [Video.vue](src/components/PhaseTwoComponents/Video.vue) to wait for the video.
 
-A reload during phase 2 or 3 resumes at the current video / photo via `progress.position` (see [src/utils/resume.ts](src/utils/resume.ts); the phase-3 photo order is stored there too, randomized once per participant). Should the position be missing (e.g. an old row), the phase restarts; re-submitted ratings for stored positions are then ignored by the insert-once write path (first answer wins).
+The phase-2 step sequence (88 steps: intro/tests, then per context intro, scenario, 12 video+rating pairs with reminders after 4 and 8) is generated once in [src/utils/phaseTwoSteps.ts](src/utils/phaseTwoSteps.ts); [PhaseTwo.vue](src/components/PhaseTwo.vue) renders `PHASE2_STEPS[progressIndex]` and the resume helpers read the same table, so do not hard-code step numbers anywhere else. A reload during phase 2 or 3 resumes at the current video / photo via `progress.position` (see [src/utils/resume.ts](src/utils/resume.ts); the phase-3 photo order is stored there too, randomized once per participant). Should the position be missing (e.g. an old row), the phase restarts; re-submitted ratings for stored positions are then ignored by the insert-once write path (first answer wins).
 
 ## Supabase
 

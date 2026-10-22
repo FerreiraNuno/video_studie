@@ -7,20 +7,28 @@ import Context from './PhaseTwoComponents/Context.vue'
 import { useProgressStore, PHASE } from '../useProgress.store'
 import { computed, ref, onMounted, watch } from 'vue'
 import { useSupabaseStore } from '@/useSupabase.store'
-import { initializeVideoOrder, getCurrentVideo, getVideoSource, contextOrder, isVideoOrderInitialized, setTrialPlan, type Trial } from '@/utils/videoManager'
-import context from '../text/context.json'
-import { phaseTwoResumePoint, isPhaseTwoRatingStep, PHASE2_LAST_STEP } from '@/utils/resume'
+import { initializeVideoOrder, getCurrentVideo, getVideoSource, contextOrder, isVideoOrderInitialized, setTrialPlan } from '@/utils/videoManager'
+import contextText from '../text/context.json'
+import { PHASE2_STEPS, PHASE2_LAST_STEP, PHASE2_TOTAL_TRIALS, type ContextPart } from '@/utils/phaseTwoSteps'
+import { phaseTwoResumePoint } from '@/utils/resume'
+
+/**
+ * Phase 2 walks through PHASE2_STEPS (src/utils/phaseTwoSteps.ts); the only
+ * progress state is `progressIndex` (plus `audioCompleted` inside a video
+ * step). Everything else – which trial, which context, how many videos were
+ * shown – is read off the step table, so the sequence is defined in one place
+ * and a saved position can never disagree with it.
+ */
 
 const baseUrl = import.meta.env.BASE_URL
 const testVideo = `${baseUrl}videos/testvideo.mp4`
 
-// Import the test video
 const progressStore = useProgressStore()
 const supabaseStore = useSupabaseStore()
 
 const progressIndex = ref(0)
-const currentFilename = ref('')
-const currentTrial = ref<Trial | null>(null)  // the trial whose video was just shown and is being rated
+/** inside a video step: the instruction audio has ended and the video is showing */
+const audioCompleted = ref(false)
 // How the instruction audio and the video of the current trial ended; saved
 // with the rating so trials without a proper stimulus can be excluded.
 const instructionEndReason = ref<InstructionEndReason | null>(null)
@@ -29,11 +37,24 @@ const planReady = ref(false)
 const planError = ref('')
 const audioHeard = ref(false)
 const videoSeen = ref(false)
-const videoIndex = ref(0)  // Simple counter for videos
-const audioCompleted = ref(false)  // New state to track audio completion
 
-// Get the current group from the store
 const currentGroup = computed(() => supabaseStore.user.group)
+const step = computed(() => PHASE2_STEPS[progressIndex.value])
+/** context shown by the current step (undefined outside the context sections) */
+const currentContext = computed(() => {
+  const s = step.value
+  return s && 'section' in s ? contextOrder.value[s.section] : undefined
+})
+/** trial of the current video / rating step */
+const currentTrial = computed(() => {
+  const s = step.value
+  return s && (s.kind === 'video' || s.kind === 'rating') ? getCurrentVideo(s.trialIndex) : null
+})
+const phase2Finished = computed(() => progressIndex.value >= PHASE2_LAST_STEP)
+
+function contextAudio (context: string, part: ContextPart): string {
+  return (contextText as Record<string, Record<string, string>>)[`${context}_${part}`][currentGroup.value]
+}
 
 // Make sure the participant's trial plan is available:
 // 1. still in memory from phase 1 (normal flow), else
@@ -56,9 +77,7 @@ onMounted(async () => {
       }
     }
     // Resume inside the phase after a reload (position saved after every step).
-    const resume = phaseTwoResumePoint(progressStore.position)
-    progressIndex.value = resume.progressIndex
-    videoIndex.value = resume.videoIndex
+    progressIndex.value = phaseTwoResumePoint(progressStore.position).progressIndex
     audioCompleted.value = false
     planReady.value = true
   } catch (e) {
@@ -67,157 +86,30 @@ onMounted(async () => {
   }
 })
 
-// Helper function to check if current index is in a list
-const isInList = (index: number, list: number[]) => {
-  return list.includes(index)
-}
-
-const showIntro = computed(() => progressIndex.value === 0)
-const showAudio = computed(() => progressIndex.value === 1)
-const showTestVideo = computed(() => progressIndex.value === 2)
-const showStartMessage = computed(() => progressIndex.value === 3)
-
-// Context sections (each context has 28 steps: intro, scenario, 12 videos, 12 ratings, 2 reminders)
-const contextSections = [
-  { start: 4, end: 31 },    // First context
-  { start: 32, end: 59 },   // Second context
-  { start: 60, end: 87 }    // Third context
-]
-
-// Helper function to get current context section
-function getCurrentContextSection () {
-  for (let i = 0; i < contextSections.length; i++) {
-    const section = contextSections[i]
-    if (progressIndex.value >= section.start && progressIndex.value <= section.end) {
-      return i
-    }
-  }
-  return -1
-}
-
-// Helper function to get current context
-function getCurrentContext (): 'bus' | 'doctor' | 'pension' {
-  const section = getCurrentContextSection()
-  if (section === -1) return 'bus' // Default fallback
-
-  // Get the context order from videoManager
-  return contextOrder.value[section]
-}
-
-// Computed properties for each context section
-const showContextIntro = computed(() => {
-  const section = getCurrentContextSection()
-  return section !== -1 && progressIndex.value === contextSections[section].start
-})
-
-const showContextScenario = computed(() => {
-  const section = getCurrentContextSection()
-  return section !== -1 && progressIndex.value === contextSections[section].start + 1
-})
-
-const showContextVideosFirstSet = computed(() => {
-  const section = getCurrentContextSection()
-  return section !== -1 && isInList(progressIndex.value, [
-    contextSections[section].start + 2,
-    contextSections[section].start + 4,
-    contextSections[section].start + 6,
-    contextSections[section].start + 8
-  ])
-})
-
-const showContextRatingsFirstSet = computed(() => {
-  const section = getCurrentContextSection()
-  return section !== -1 && isInList(progressIndex.value, [
-    contextSections[section].start + 3,
-    contextSections[section].start + 5,
-    contextSections[section].start + 7,
-    contextSections[section].start + 9
-  ])
-})
-
-const showContextReminderAfter4 = computed(() => {
-  const section = getCurrentContextSection()
-  return section !== -1 && progressIndex.value === contextSections[section].start + 10
-})
-
-const showContextVideosSecondSet = computed(() => {
-  const section = getCurrentContextSection()
-  return section !== -1 && isInList(progressIndex.value, [
-    contextSections[section].start + 11,
-    contextSections[section].start + 13,
-    contextSections[section].start + 15,
-    contextSections[section].start + 17
-  ])
-})
-
-const showContextRatingsSecondSet = computed(() => {
-  const section = getCurrentContextSection()
-  return section !== -1 && isInList(progressIndex.value, [
-    contextSections[section].start + 12,
-    contextSections[section].start + 14,
-    contextSections[section].start + 16,
-    contextSections[section].start + 18
-  ])
-})
-
-const showContextReminderAfter8 = computed(() => {
-  const section = getCurrentContextSection()
-  return section !== -1 && progressIndex.value === contextSections[section].start + 19
-})
-
-const showContextVideosThirdSet = computed(() => {
-  const section = getCurrentContextSection()
-  return section !== -1 && isInList(progressIndex.value, [
-    contextSections[section].start + 20,
-    contextSections[section].start + 22,
-    contextSections[section].start + 24,
-    contextSections[section].start + 26
-  ])
-})
-
-const showContextRatingsThirdSet = computed(() => {
-  const section = getCurrentContextSection()
-  return section !== -1 && isInList(progressIndex.value, [
-    contextSections[section].start + 21,
-    contextSections[section].start + 23,
-    contextSections[section].start + 25,
-    contextSections[section].start + 27
-  ])
-})
-
-const phase2Finished = computed(() => progressIndex.value >= PHASE2_LAST_STEP)
-
-const showingVideo = computed(() =>
-  (showContextVideosFirstSet.value || showContextVideosSecondSet.value || showContextVideosThirdSet.value) && audioCompleted.value)
+const showingVideo = computed(() => step.value?.kind === 'video' && audioCompleted.value)
 
 // While the participant hears the instruction or rates the previous video,
 // the next video is fetched by a hidden player so it starts without buffering.
 const nextVideoSource = computed(() => {
-  if (!planReady.value || showingVideo.value || videoIndex.value >= 36) return null
-  return getVideoSource(getCurrentVideo(videoIndex.value).filename)
+  if (!planReady.value || showingVideo.value) return null
+  const next = phaseTwoResumePoint({ phase: PHASE.videos, progressIndex: progressIndex.value }).videoIndex
+  if (next >= PHASE2_TOTAL_TRIALS) return null
+  return getVideoSource(getCurrentVideo(next).filename)
 })
 
 // Persist the position after every step. A rating step is stored as the video
 // step before it (see utils/resume.ts), so a reload replays that video first.
-watch([progressIndex, videoIndex], ([p, v]) => {
+watch(progressIndex, (p) => {
   if (!planReady.value || phase2Finished.value) return
-  const rating = isPhaseTwoRatingStep(p)
-  void progressStore.savePosition({
-    phase: PHASE.videos,
-    progressIndex: rating ? p - 1 : p,
-    videoIndex: rating ? Math.max(0, v - 1) : v,
-  })
+  const point = phaseTwoResumePoint({ phase: PHASE.videos, progressIndex: p })
+  void progressStore.savePosition({ phase: PHASE.videos, ...point })
 })
 
-function submitRating (ratings: { pain: number, credibility: number, difficulty: number, action?: number }, filename: string) {
-  console.log('Submitting rating with filename:', filename.replace(/\.[^/.]+$/, ''))
+function submitRating (ratings: { pain: number, credibility: number, difficulty: number, action?: number }) {
   const trial = currentTrial.value
   if (!trial) {
     console.error('No trial found for rating')
     return
-  }
-  if (trial.position !== videoIndex.value) {
-    console.warn(`Trial position ${trial.position} does not match video counter ${videoIndex.value}`)
   }
   // Retries + outbox happen inside the store; the participant continues immediately.
   void supabaseStore.saveRating(ratings, trial, {
@@ -229,20 +121,17 @@ function submitRating (ratings: { pain: number, credibility: number, difficulty:
 
 // Both handlers are idempotent: a second emit for the same step (a media
 // component firing twice) must not advance twice, which would skip a trial.
-function handleAudioEnded (filename: string, reason: InstructionEndReason) {
+function handleAudioEnded (_filename: string, reason: InstructionEndReason) {
   if (audioCompleted.value) return
   audioCompleted.value = true
-  currentFilename.value = filename
-  currentTrial.value = getCurrentVideo(videoIndex.value)
   instructionEndReason.value = reason
   trialEndReason.value = null
 }
 
-function handleVideoEnded (filename: string, reason: TrialEndReason) {
+function handleVideoEnded (_filename: string, reason: TrialEndReason) {
   if (!audioCompleted.value) return
   trialEndReason.value = reason
-  audioCompleted.value = false  // Reset for next round
-  videoIndex.value++  // Increment video index after each video
+  audioCompleted.value = false  // Reset for the next video step
   progressIndex.value++
 }
 
@@ -267,11 +156,11 @@ function finishPhaseTwo () {
     <p>{{ planError }}</p>
   </div>
 
-  <Loading v-else-if="!planReady" />
+  <Loading v-else-if="!planReady || !step" />
 
   <div
     class="instruction"
-    v-else-if="showIntro"
+    v-else-if="step.kind === 'intro'"
   >
     <h2>Nun beginnt der 2. Teil der Studie.</h2>
     <p>Sie sehen gleich eine Reihe von Videos mit verschiedenen Personen. Ihre Aufgabe ist es, die Schmerzen der
@@ -293,20 +182,7 @@ function finishPhaseTwo () {
 
   <div
     class="instruction"
-    style="text-align: center;"
-    v-else-if="showStartMessage"
-  >
-    <h2>Prima, dass Sie bisher alles so gut gemeistert haben!</h2>
-    <p>Dann kann es jetzt mit der Beurteilung der Videos losgehen.</p>
-    <button
-      @click="progressIndex++"
-      class="next-button"
-    >Weiter</button>
-  </div>
-
-  <div
-    class="instruction"
-    v-else-if="showAudio"
+    v-else-if="step.kind === 'audio_test'"
   >
     <h2>Das hat ja sehr gut geklappt.</h2>
     <p>Sie werden gleich eine Reihe von Videos sehen und jeweils in einer Audiodatei dazu gesagt bekommen, was die
@@ -347,7 +223,7 @@ function finishPhaseTwo () {
 
   <div
     class="instruction"
-    v-else-if="showTestVideo"
+    v-else-if="step.kind === 'video_test'"
   >
     <p>Bitte überprüfen Sie, ob das Video gut wiedergegeben wird.</p>
     <video
@@ -374,61 +250,52 @@ function finishPhaseTwo () {
     >Weiter</button>
   </div>
 
-  <!-- Context sections -->
+  <div
+    class="instruction"
+    style="text-align: center;"
+    v-else-if="step.kind === 'start'"
+  >
+    <h2>Prima, dass Sie bisher alles so gut gemeistert haben!</h2>
+    <p>Dann kann es jetzt mit der Beurteilung der Videos losgehen.</p>
+    <button
+      @click="progressIndex++"
+      class="next-button"
+    >Weiter</button>
+  </div>
+
+  <!-- Context screens (intro, scenario, reminders). Consecutive context steps
+       render through this one branch, so the key forces a fresh instance per
+       step – Context.vue sets up its media once on mount. -->
   <Context
-    v-else-if="showContextIntro"
-    :text="context[`${getCurrentContext()}_intro`][currentGroup]"
-    :imageNumber="0"
-    :context="getCurrentContext()"
+    v-else-if="step.kind === 'context' && currentContext"
+    :key="progressIndex"
+    :text="contextAudio(currentContext, step.part)"
+    :imageNumber="step.imageNumber"
+    :context="currentContext"
     :group="currentGroup"
     @next="progressIndex++"
   />
 
-  <Context
-    v-else-if="showContextScenario"
-    :text="context[`${getCurrentContext()}_scenario`][currentGroup]"
-    :imageNumber="1"
-    :context="getCurrentContext()"
-    :group="currentGroup"
-    @next="progressIndex++"
-  />
-
-  <Context
-    v-else-if="showContextReminderAfter4"
-    :text="context[`${getCurrentContext()}_reminder`][currentGroup]"
-    :imageNumber="1"
-    :context="getCurrentContext()"
-    :group="currentGroup"
-    @next="progressIndex++"
-  />
-
-  <Context
-    v-else-if="showContextReminderAfter8"
-    :text="context[`${getCurrentContext()}_reminder`][currentGroup]"
-    :imageNumber="1"
-    :context="getCurrentContext()"
-    :group="currentGroup"
-    @next="progressIndex++"
-  />
-
-  <!-- Videos and Ratings -->
+  <!-- Video step: instruction audio, then the video with the self-report -->
   <InstructionAudio
-    v-else-if="(showContextVideosFirstSet || showContextVideosSecondSet || showContextVideosThirdSet) && !audioCompleted"
-    :videoIndex="videoIndex"
-    :context="getCurrentContext()"
+    v-else-if="step.kind === 'video' && currentContext && !audioCompleted"
+    :key="`instruction-${progressIndex}`"
+    :videoIndex="step.trialIndex"
+    :context="currentContext"
     @audio-ended="handleAudioEnded"
   />
   <Video
-    v-else-if="(showContextVideosFirstSet || showContextVideosSecondSet || showContextVideosThirdSet) && audioCompleted"
-    :videoIndex="videoIndex"
-    :studyGroup="currentGroup"
+    v-else-if="step.kind === 'video'"
+    :key="`video-${progressIndex}`"
+    :videoIndex="step.trialIndex"
     @video-ended="handleVideoEnded"
   />
   <Rating
-    v-else-if="showContextRatingsFirstSet || showContextRatingsSecondSet || showContextRatingsThirdSet"
-    :videoIndex="videoIndex"
-    :filename="currentFilename.replace(/\.[^/.]+$/, '')"
-    :context="getCurrentContext()"
+    v-else-if="step.kind === 'rating' && currentContext && currentTrial"
+    :key="`rating-${progressIndex}`"
+    :videoIndex="step.trialIndex"
+    :filename="currentTrial.filename.replace(/\.[^/.]+$/, '')"
+    :context="currentContext"
     @rating-submitted="submitRating"
   />
   <Loading v-else />

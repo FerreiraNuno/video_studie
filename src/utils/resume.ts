@@ -1,3 +1,5 @@
+import { PHASE2_LAST_STEP, isPhaseTwoRatingStep, phaseTwoVideoIndex } from './phaseTwoSteps'
+
 /**
  * In-phase resume points (pure, unit-tested).
  *
@@ -21,49 +23,11 @@ export interface StudyPosition {
 }
 
 // --- phase 2 --------------------------------------------------------------
-// Each context block is 28 steps: intro, scenario, 4×(video, rating),
-// reminder, 4×(video, rating), reminder, 4×(video, rating).
-export const PHASE2_CONTEXT_STARTS = [4, 32, 60] as const
-export const PHASE2_LAST_STEP = 87
-const PHASE2_BLOCK_LENGTH = 28
-const PHASE2_VIDEOS_PER_CONTEXT = 12
-const PHASE2_RATING_OFFSETS = new Set([3, 5, 7, 9, 12, 14, 16, 18, 21, 23, 25, 27])
-const PHASE2_VIDEO_OFFSETS = new Set([2, 4, 6, 8, 11, 13, 15, 17, 20, 22, 24, 26])
-
-function phaseTwoOffset (progressIndex: number): number | null {
-  for (const start of PHASE2_CONTEXT_STARTS) {
-    const offset = progressIndex - start
-    if (offset >= 0 && offset < PHASE2_BLOCK_LENGTH) return offset
-  }
-  return null
-}
-
-export function isPhaseTwoRatingStep (progressIndex: number): boolean {
-  const offset = phaseTwoOffset(progressIndex)
-  return offset !== null && PHASE2_RATING_OFFSETS.has(offset)
-}
-
-export function isPhaseTwoVideoStep (progressIndex: number): boolean {
-  const offset = phaseTwoOffset(progressIndex)
-  return offset !== null && PHASE2_VIDEO_OFFSETS.has(offset)
-}
-
-/**
- * The 0-based index of the video that a non-rating step shows next (at a video
- * step: the video of that step). It follows from the step alone: 12 videos per
- * context block, in a fixed pattern of offsets.
- */
-export function phaseTwoVideoIndex (progressIndex: number): number {
-  for (let section = 0; section < PHASE2_CONTEXT_STARTS.length; section++) {
-    const offset = progressIndex - PHASE2_CONTEXT_STARTS[section]
-    if (offset < 0) return section * PHASE2_VIDEOS_PER_CONTEXT
-    if (offset < PHASE2_BLOCK_LENGTH) {
-      const shown = [...PHASE2_VIDEO_OFFSETS].filter(v => v < offset).length
-      return section * PHASE2_VIDEOS_PER_CONTEXT + shown
-    }
-  }
-  return PHASE2_CONTEXT_STARTS.length * PHASE2_VIDEOS_PER_CONTEXT
-}
+// The step layout lives in phaseTwoSteps.ts; the helpers are re-exported so
+// callers of this module keep working.
+export {
+  PHASE2_CONTEXT_STARTS, PHASE2_LAST_STEP, isPhaseTwoRatingStep, isPhaseTwoVideoStep, phaseTwoVideoIndex,
+} from './phaseTwoSteps'
 
 /**
  * Where to resume phase 2 for a saved position. A rating step resumes at the
