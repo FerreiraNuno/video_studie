@@ -44,7 +44,13 @@ A reload during phase 2 or 3 restarts that phase from its first item. Re-submitt
 
 Project: **videoFragebogen** (`ctsptoeoypyrtoxuujlv`, `eu-central-1`), org `klinPsych`, on the **Free plan** since 2026-10-22 (needs the daily keep-alive below).
 
-**Migrations** live in [supabase/migrations/](supabase/migrations/) and are applied by hand in the dashboard SQL editor, in file order (01–05 are applied as of 2026-10-22). The Supabase MCP connector can run read-only SQL, but `apply_migration` and destructive statements come back `declined` without a prompt — write an idempotent file and ask Nuno to run it. There is no Supabase CLI setup.
+**Migrations** live in [supabase/migrations/](supabase/migrations/), are idempotent, and are applied in file order (01–06 applied as of 2026-10-22) with `psql` through the session-pooler URI in `.env.local` (`SUPABASE_DB_URL`, gitignored, full access — never print it):
+
+```bash
+set -a; . ./.env.local; set +a; psql "$SUPABASE_DB_URL" -X -v ON_ERROR_STOP=1 -f supabase/migrations/<file>.sql
+```
+
+The same connection is used to delete test participants' rows after a dev-server run. The Supabase MCP connector is useful for read-only SQL, logs and advisors only; its `apply_migration` and destructive statements come back `declined` without a prompt in the desktop app. There is no Supabase CLI setup.
 
 **Two data collections, two schemas:**
 - `public` — first collection (June 2025 – Oct 2026, ~130 participants, unbalanced trials). Archive; do not write to it. A local backup is in `backups/` (gitignored).
