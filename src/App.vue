@@ -18,8 +18,8 @@ const fastMode = isFastMode()
     <div
       v-if="fastMode"
       class="dev-fast-badge"
-      title="Entwicklungsmodus: Medien enden nach 1 s. Ausschalten mit ?fast=0"
-    >DEV: Medien auf {{ FAST_MEDIA_MS / 1000 }} s verkürzt</div>
+      title="Entwicklungsmodus, bleibt in diesem Browser aktiv bis er ausgeschaltet wird"
+    >DEV: Medien auf {{ FAST_MEDIA_MS / 1000 }} s verkürzt – <a href="?fast=0">ausschalten</a></div>
     <Login v-if="!supabaseStore.isAuthenticated" />
     <Main v-else />
   </div>
@@ -37,5 +37,10 @@ const fastMode = isFastMode()
   font-size: 0.75rem;
   font-weight: 600;
   border-bottom-left-radius: 6px;
+}
+
+.dev-fast-badge a {
+  color: #fff;
+  text-decoration: underline;
 }
 </style>

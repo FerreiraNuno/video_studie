@@ -44,7 +44,7 @@ The phase-2 step sequence (88 steps: intro/tests, then per context intro, scenar
 
 ## Clicking through by hand
 
-On the dev server, open `http://localhost:5173/?fast=1` once: every media step (context instruction, trial instruction audio, video + self-report, photo display) ends after 1 s and an orange badge marks the session ([src/lib/devFast.ts](src/lib/devFast.ts); `?fast=0` turns it off, the choice is kept in localStorage). It is guarded by `import.meta.env.DEV`, so production builds contain none of it. Trials ended this way carry the end reason `dev_fast`. Use a test participant number and delete its rows afterwards (see Supabase below).
+On the dev server, open `http://localhost:5173/?fast=1` once: every media step (context instruction, trial instruction audio, video + self-report, photo display) ends after 1 s and an orange badge marks the session ([src/lib/devFast.ts](src/lib/devFast.ts); the choice is kept in that browser's localStorage, so it stays on across reloads and re-logins until `?fast=0` is opened or the badge's "ausschalten" link is clicked). It is guarded by `import.meta.env.DEV`, so production builds contain none of it. Trials ended this way carry the end reason `dev_fast`. Use a test participant number and delete its rows afterwards (see Supabase below).
 
 ## Tests
 
