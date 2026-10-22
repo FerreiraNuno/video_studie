@@ -1,7 +1,14 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, defineProps, defineEmits } from 'vue'
-import { getCurrentVideo, getVideoSource, getAudioSource } from '@/utils/videoManager'
+import { ref, onMounted, onUnmounted } from 'vue'
+import { getCurrentVideo } from '@/utils/videoManager'
 import { useSupabaseStore } from '@/useSupabase.store'
+
+/**
+ * Plays the context's instruction audio before each video. Emits exactly once:
+ * when the audio ended, or when it cannot play (error / blocked), or when a
+ * timer derived from the audio's real duration expires. The old fixed 14.5 s
+ * timer cut off the SCT bus instruction (14.7 s) for every SCT participant.
+ */
 
 const supabaseStore = useSupabaseStore()
 const props = defineProps<{
@@ -13,64 +20,78 @@ const emit = defineEmits<{
   (e: 'audio-ended', filename: string): void
 }>()
 
+/** Longest instruction audio is 14.7 s; the cap only matters while metadata is unknown. */
+const HARD_CAP_MS = 25000
+const END_MARGIN_MS = 1000
+
 const audioRef = ref<HTMLAudioElement | null>(null)
 const audioSource = `${import.meta.env.BASE_URL}video_instructions/${props.context}_${supabaseStore.user.group}.mp3`
-const audioEnded = ref(false)
 
-// Track retry attempts
-const audioRetryCount = ref(0)
-const MAX_RETRIES = 3
+let finished = false
+let timer: number | null = null
 
-// Timer for fallback
-let fallbackTimer: number | null = null
-
-const startFallbackTimer = () => {
-  // Clear any existing timer
-  if (fallbackTimer) {
-    clearTimeout(fallbackTimer)
+function clearTimer () {
+  if (timer !== null) {
+    clearTimeout(timer)
+    timer = null
   }
-
-  // Set new timer
-  fallbackTimer = window.setTimeout(() => {
-    if (!audioEnded.value) {
-      console.log('Fallback timer triggered - audio did not end naturally')
-      audioEnded.value = true
-      const currentVideo = getCurrentVideo(props.videoIndex)
-      emit('audio-ended', currentVideo.filename)
-    }
-  }, 14500)
 }
 
-const playAudio = () => {
-  if (audioRef.value) {
-    audioRef.value.play()
+function finish (reason: string) {
+  if (finished) return
+  finished = true
+  clearTimer()
+  if (reason !== 'ended') console.warn(`Instruction audio for video ${props.videoIndex + 1} ended by ${reason}`)
+  emit('audio-ended', getCurrentVideo(props.videoIndex).filename)
+}
+
+function onPlay () {
+  const audio = audioRef.value
+  if (audio && Number.isFinite(audio.duration)) {
+    clearTimer()
+    timer = window.setTimeout(() => finish('timer'), (audio.duration - audio.currentTime) * 1000 + END_MARGIN_MS)
   }
+}
+
+function onEnded () {
+  finish('ended')
+}
+
+function onError () {
+  finish('error')
 }
 
 onMounted(() => {
-  if (audioRef.value) {
-    audioRef.value.addEventListener('ended', () => {
-      audioEnded.value = true
-      const currentVideo = getCurrentVideo(props.videoIndex)
-      emit('audio-ended', currentVideo.filename)
-    })
+  timer = window.setTimeout(() => finish('timer'), HARD_CAP_MS)
+  const audio = audioRef.value
+  if (!audio) {
+    finish('no element')
+    return
   }
-  playAudio()
-  startFallbackTimer()
+  audio.addEventListener('play', onPlay)
+  audio.addEventListener('ended', onEnded)
+  audio.addEventListener('error', onError)
+  audio.play().catch(e => {
+    console.warn('Instruction audio could not start:', e)
+    finish('blocked')
+  })
 })
 
 onUnmounted(() => {
-  // Clean up the fallback timer
-  if (fallbackTimer) {
-    clearTimeout(fallbackTimer)
-    fallbackTimer = null
+  finished = true
+  clearTimer()
+  const audio = audioRef.value
+  if (audio) {
+    audio.removeEventListener('play', onPlay)
+    audio.removeEventListener('ended', onEnded)
+    audio.removeEventListener('error', onError)
+    audio.pause()
   }
 })
 </script>
 
 <template>
   <audio
-    v-if="audioSource"
     ref="audioRef"
     :src="audioSource"
     preload="auto"
@@ -80,6 +101,5 @@ onUnmounted(() => {
 <style scoped>
 audio {
   display: none;
-  /* Hide audio controls */
 }
 </style>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import { getCurrentPhoto, getPhotoSource } from '@/utils/photoManager'
 import { useSupabaseStore } from '@/useSupabase.store'
 
@@ -15,12 +15,14 @@ const emit = defineEmits<{
 const photo = ref(getCurrentPhoto(props.photoIndex))
 const photoSource = ref(getPhotoSource(photo.value.filename))
 
+// Photo is shown for 3 seconds; the timer is cleared on unmount so it can
+// never fire into a later step.
+let timer: number | null = null
 onMounted(() => {
-  // Photo is shown for 3 seconds
-  const duration = 3000
-  setTimeout(() => {
-    emit('photo-ended')
-  }, duration)
+  timer = window.setTimeout(() => emit('photo-ended'), 3000)
+})
+onUnmounted(() => {
+  if (timer !== null) clearTimeout(timer)
 })
 </script>
 

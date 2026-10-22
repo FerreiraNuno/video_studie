@@ -5,10 +5,11 @@ import InstructionAudio from './PhaseTwoComponents/InstructionAudio.vue'
 import Loading from './PhaseTwoComponents/Loading.vue'
 import Context from './PhaseTwoComponents/Context.vue'
 import { useProgressStore, PHASE } from '../useProgress.store'
-import { computed, ref, onMounted } from 'vue'
+import { computed, ref, onMounted, watch } from 'vue'
 import { useSupabaseStore } from '@/useSupabase.store'
 import { initializeVideoOrder, getCurrentVideo, contextOrder, isVideoOrderInitialized, setTrialPlan, type Trial } from '@/utils/videoManager'
 import context from '../text/context.json'
+import { phaseTwoResumePoint, isPhaseTwoRatingStep, PHASE2_LAST_STEP } from '@/utils/resume'
 
 const testVideo = `${import.meta.env.BASE_URL}videos/testvideo.mp4`
 
@@ -49,6 +50,11 @@ onMounted(async () => {
         if (error) throw error
       }
     }
+    // Resume inside the phase after a reload (position saved after every step).
+    const resume = phaseTwoResumePoint(progressStore.position)
+    progressIndex.value = resume.progressIndex
+    videoIndex.value = resume.videoIndex
+    audioCompleted.value = false
     planReady.value = true
   } catch (e) {
     console.error('Could not prepare trial plan:', e)
@@ -174,7 +180,19 @@ const showContextRatingsThirdSet = computed(() => {
   ])
 })
 
-const phase2Finished = computed(() => progressIndex.value >= 87)
+const phase2Finished = computed(() => progressIndex.value >= PHASE2_LAST_STEP)
+
+// Persist the position after every step. A rating step is stored as the video
+// step before it (see utils/resume.ts), so a reload replays that video first.
+watch([progressIndex, videoIndex], ([p, v]) => {
+  if (!planReady.value || phase2Finished.value) return
+  const rating = isPhaseTwoRatingStep(p)
+  void progressStore.savePosition({
+    phase: PHASE.videos,
+    progressIndex: rating ? p - 1 : p,
+    videoIndex: rating ? Math.max(0, v - 1) : v,
+  })
+})
 
 function submitRating (ratings: { pain: number, credibility: number, difficulty: number, action?: number }, filename: string) {
   console.log('Submitting rating with filename:', filename.replace(/\.[^/.]+$/, ''))
@@ -191,13 +209,17 @@ function submitRating (ratings: { pain: number, credibility: number, difficulty:
   finishSection()
 }
 
+// Both handlers are idempotent: a second emit for the same step (a media
+// component firing twice) must not advance twice, which would skip a trial.
 function handleAudioEnded (filename: string) {
+  if (audioCompleted.value) return
   audioCompleted.value = true
   currentFilename.value = filename
   currentTrial.value = getCurrentVideo(videoIndex.value)
 }
 
 function handleVideoEnded (filename: string) {
+  if (!audioCompleted.value) return
   audioCompleted.value = false  // Reset for next round
   videoIndex.value++  // Increment video index after each video
   progressIndex.value++

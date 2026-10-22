@@ -4,6 +4,7 @@ import { createPersister, type Row } from './lib/persist'
 import { createSupabaseWriter } from './lib/supabaseWriter'
 import { ref } from "vue"
 import type { Trial, TrialPlan } from './utils/trialPlan'
+import type { StudyPosition } from './utils/resume'
 
 export type StudyGroup = 'CDM' | 'SCT' | 'KG'
 
@@ -37,10 +38,12 @@ export const useSupabaseStore = defineStore('supabaseStore', () => {
     return persister.flush(user.value.participantNumber)
   }
 
-  async function saveProgress (phase: number) {
+  /** Upserts the resume point: the phase and, within phases 2/3, the position inside it. */
+  async function saveProgress (phase: number, position: StudyPosition | null = null) {
     const { participantNumber, group } = user.value
     return persist('progress', {
       phase: phase,
+      position: position,
       participant_number: participantNumber,
       study_group: group,
     }, 'participant_number')
@@ -51,7 +54,7 @@ export const useSupabaseStore = defineStore('supabaseStore', () => {
 
     const { data, error } = await supabase
       .from('progress')
-      .select('phase, study_group')
+      .select('phase, study_group, position')
       .eq('participant_number', participantNumber)
       .eq('study_group', group)
       .maybeSingle()
@@ -127,6 +130,8 @@ export const useSupabaseStore = defineStore('supabaseStore', () => {
       private_pain_relation: formData.privatePainRelation,
       professional_pain_experience: formData.professionalPainExperience,
       professional_pain_activity: formData.professionalPainActivity,
+      wants_vp_hours: formData.wantsVPHours ?? null,
+      sona_id: formData.wantsVPHours && formData.sonaId ? String(formData.sonaId).trim() : null,
       context_order: contextOrder,
     }, 'participant_number')
   }
@@ -155,7 +160,7 @@ export const useSupabaseStore = defineStore('supabaseStore', () => {
       stress_level: ratings.stressLevel,
       empathy: ratings.empathy,
       photo_filename: filename.replace(/\.[^/.]+$/, ''),
-    }, 'participant_number,photo_index')
+    }, 'participant_number,photo_filename')
   }
 
   async function saveFinalRatings (ratings: {

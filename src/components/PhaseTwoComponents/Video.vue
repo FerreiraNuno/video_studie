@@ -1,7 +1,20 @@
 <script setup lang="ts">
-import { ref, onMounted, defineProps, defineEmits } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { getCurrentVideo, getVideoSource, getAudioSource } from '@/utils/videoManager'
 import { useSupabaseStore } from '@/useSupabase.store'
+
+/**
+ * One trial: the muted video plays while the self-report audio is heard.
+ * The trial ends when the audio has ended (unchanged study semantics).
+ *
+ * Robustness rules (the old version could leave a participant stuck forever
+ * when the audio never started, and could emit twice):
+ *   - `finish()` emits exactly once and is the only way out.
+ *   - A hard timer runs from mount, independent of playback; once the audio
+ *     plays, it is re-armed to the audio's remaining duration + margin.
+ *   - Media errors retry once, then finish. play() rejections are caught.
+ *   - Everything is cleaned up on unmount.
+ */
 
 const supabaseStore = useSupabaseStore()
 const props = defineProps<{
@@ -12,100 +25,115 @@ const emit = defineEmits<{
   (e: 'video-ended', filename: string): void
 }>()
 
+/** Longest self-report audio is 6.3 s, longest video 10 s. */
+const HARD_CAP_MS = 15000
+const END_MARGIN_MS = 1500
+
 const videoElement = ref<HTMLVideoElement | null>(null)
 const audioElement = ref<HTMLAudioElement | null>(null)
 const currentVideo = getCurrentVideo(props.videoIndex)
 const videoSource = getVideoSource(currentVideo.filename)
-const audioSource = currentVideo.audioType ? getAudioSource(currentVideo.audioType, supabaseStore.user.group) : null
+const audioSource = getAudioSource(currentVideo.audioType, supabaseStore.user.group)
 
-// Track if both media elements have finished
-const videoEnded = ref(false)
-const audioEnded = ref(false)
 const isLoading = ref(true)
 
-// Track retry attempts
-const videoRetryCount = ref(0)
-const audioRetryCount = ref(0)
-const MAX_RETRIES = 3
+let finished = false
+let timer: number | null = null
+let videoRetried = false
+let audioRetried = false
 
-// Timer for fallback
-let fallbackTimer: number | null = null
-
-const handleVideoError = () => {
-  if (videoRetryCount.value < MAX_RETRIES && videoElement.value) {
-    videoRetryCount.value++
-    console.log(`Retrying video load (attempt ${videoRetryCount.value})`)
-    setTimeout(() => {
-      videoElement.value?.load()
-    }, 2000)
-  } else {
-    console.error('Video failed to load after maximum retries')
-    emit('video-ended', currentVideo.filename)
+function clearTimer () {
+  if (timer !== null) {
+    clearTimeout(timer)
+    timer = null
   }
 }
 
-const handleAudioError = () => {
-  if (audioRetryCount.value < MAX_RETRIES && audioElement.value) {
-    audioRetryCount.value++
-    console.log(`Retrying audio load (attempt ${audioRetryCount.value})`)
-    setTimeout(() => {
-      audioElement.value?.load()
-    }, 2000)
-  } else {
-    console.error('Audio failed to load after maximum retries')
-    emit('video-ended', currentVideo.filename)
+function armTimer (ms: number) {
+  clearTimer()
+  timer = window.setTimeout(() => finish('timer'), ms)
+}
+
+function finish (reason: string) {
+  if (finished) return
+  finished = true
+  clearTimer()
+  if (reason !== 'audio ended') console.warn(`Trial ${props.videoIndex + 1} ended by ${reason}`)
+  emit('video-ended', currentVideo.filename)
+}
+
+function onVideoPlay () {
+  const video = videoElement.value
+  if (video) video.muted = true
+  isLoading.value = false
+  const audio = audioElement.value
+  if (audio && audio.paused) {
+    audio.play().catch(e => console.warn('Self-report audio could not start:', e))
   }
 }
 
-const startFallbackTimer = () => {
-  // Clear any existing timer
-  if (fallbackTimer) {
-    clearTimeout(fallbackTimer)
+function onVideoError () {
+  const video = videoElement.value
+  if (!videoRetried && video) {
+    videoRetried = true
+    window.setTimeout(() => video.load(), 1500)
+  } else {
+    finish('video error')
   }
+}
 
-  // Set new timer
-  fallbackTimer = window.setTimeout(() => {
-    if (!audioEnded.value) {
-      console.log('Fallback timer triggered - audio did not end naturally')
-      audioEnded.value = true
-      emit('video-ended', currentVideo.filename)
-    }
-  }, 7000)
+function onAudioPlay () {
+  const audio = audioElement.value
+  if (audio && Number.isFinite(audio.duration)) {
+    armTimer((audio.duration - audio.currentTime) * 1000 + END_MARGIN_MS)
+  }
+}
+
+function onAudioEnded () {
+  finish('audio ended')
+}
+
+function onAudioError () {
+  const audio = audioElement.value
+  if (!audioRetried && audio) {
+    audioRetried = true
+    window.setTimeout(() => {
+      audio.load()
+      audio.play().catch(() => { /* hard timer finishes the trial */ })
+    }, 1500)
+  } else {
+    finish('audio error')
+  }
 }
 
 onMounted(() => {
-  if (videoElement.value) {
-    // Ensure video is muted
-    videoElement.value.muted = true
+  armTimer(HARD_CAP_MS)
 
-    // Ensure video stays muted
-    videoElement.value.addEventListener('play', () => {
-      videoElement.value!.muted = true
-      isLoading.value = false
-      // Start audio when video starts playing
-      if (audioElement.value) {
-        audioElement.value.play()
-      }
-    })
-
-    // Add error handling
-    videoElement.value.addEventListener('error', handleVideoError)
+  const video = videoElement.value
+  if (video) {
+    video.muted = true
+    video.addEventListener('play', onVideoPlay)
+    video.addEventListener('error', onVideoError)
+    video.play().catch(() => { /* autoplay attribute will retry; the hard timer covers the rest */ })
   }
 
-  if (audioElement.value) {
-    audioElement.value.addEventListener('ended', () => {
-      audioEnded.value = true
-      emit('video-ended', currentVideo.filename)
-    })
-
-    // Add error handling
-    audioElement.value.addEventListener('error', handleAudioError)
-
-    // Start the fallback timer when audio starts playing
-    audioElement.value.addEventListener('play', () => {
-      startFallbackTimer()
-    })
+  const audio = audioElement.value
+  if (audio) {
+    audio.addEventListener('play', onAudioPlay)
+    audio.addEventListener('ended', onAudioEnded)
+    audio.addEventListener('error', onAudioError)
   }
+})
+
+onUnmounted(() => {
+  finished = true
+  clearTimer()
+  videoElement.value?.removeEventListener('play', onVideoPlay)
+  videoElement.value?.removeEventListener('error', onVideoError)
+  audioElement.value?.removeEventListener('play', onAudioPlay)
+  audioElement.value?.removeEventListener('ended', onAudioEnded)
+  audioElement.value?.removeEventListener('error', onAudioError)
+  audioElement.value?.pause()
 })
 </script>
 
@@ -127,7 +155,6 @@ onMounted(() => {
       </video>
     </div>
     <audio
-      v-if="audioSource"
       ref="audioElement"
       :src="audioSource"
       preload="auto"
@@ -173,32 +200,12 @@ onMounted(() => {
   }
 }
 
-h2 {
-  font-size: 1.5rem;
-  font-weight: bold;
-}
-
 video {
   height: 500px;
   max-width: 100%;
 }
 
-.blank-screen {
-  height: 500px;
-  width: 100%;
-  max-width: 100%;
-}
-
-.dev-mode-notice {
-  background-color: #fef3c7;
-  color: #92400e;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  font-size: 0.875rem;
-}
-
 audio {
   display: none;
-  /* Hide audio controls */
 }
 </style>

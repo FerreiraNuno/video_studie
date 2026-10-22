@@ -64,26 +64,47 @@ const allPhotos: Photo[] = [
   { filename: 'male_old_unspecific_08.png', personId: 'm_o_u_8', gender: 'male', ageGroup: 'old', photoType: 'unspecific' }
 ]
 
-// Create a shuffled list of photos
+// The participant's photo order. It is randomized ONCE when phase 3 is first
+// entered and persisted (progress.position.photoOrder) so a reload shows the
+// same order; see PhaseThree.vue.
 const shuffledPhotos = ref<Photo[]>([])
 
-// Function to initialize the photo order
-export function initializePhotoOrder () {
-  // Create a copy of all photos
-  const photos = [...allPhotos]
+export const allPhotoFilenames: readonly string[] = allPhotos.map(p => p.filename)
 
-  // Simple shuffle algorithm
+/** Generates a new random order and returns its filenames. */
+export function initializePhotoOrder (): string[] {
+  const photos = [...allPhotos]
   for (let i = photos.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1))
       ;[photos[i], photos[j]] = [photos[j], photos[i]]
   }
-
   shuffledPhotos.value = photos
+  return photos.map(p => p.filename)
+}
+
+/** Restores a saved order (filenames, must be a permutation of the catalog). */
+export function setPhotoOrder (filenames: readonly string[]): void {
+  const byName = new Map(allPhotos.map(p => [p.filename, p]))
+  const photos = filenames.map(f => {
+    const photo = byName.get(f)
+    if (!photo) throw new Error(`Unknown photo ${f}`)
+    return photo
+  })
+  if (photos.length !== allPhotos.length || new Set(photos).size !== allPhotos.length) {
+    throw new Error('Photo order is not a permutation of the catalog')
+  }
+  shuffledPhotos.value = photos
+}
+
+export function getPhotoOrder (): string[] {
+  return shuffledPhotos.value.map(p => p.filename)
 }
 
 // Function to get the current photo
 export function getCurrentPhoto (index: number): Photo {
-  return shuffledPhotos.value[index]
+  const photo = shuffledPhotos.value[index]
+  if (!photo) throw new Error(`No photo at index ${index}`)
+  return photo
 }
 
 // Function to get the photo source URL

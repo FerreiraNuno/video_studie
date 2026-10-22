@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineProps, ref, onMounted, computed } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useSupabaseStore } from '@/useSupabase.store'
 
 const supabaseStore = useSupabaseStore()
@@ -44,24 +44,59 @@ const isVideo = (url: string) => {
   return url.toLowerCase().endsWith('.mp4') || url.toLowerCase().endsWith('.webm')
 }
 
-const playAudio = () => {
-  if (audioRef.value) {
-    audioRef.value.play()
+// The "Weiter" button unlocks when the instruction audio has ended. The
+// unlock timer is derived from the audio's real duration (the old fixed 38 s
+// was shorter than one of the files); the cap only matters while metadata is
+// unknown. If the audio cannot play at all, the button unlocks right away.
+const HARD_CAP_MS = 45000
+const END_MARGIN_MS = 1000
+let timer: number | null = null
+
+function unlock () {
+  isAudioComplete.value = true
+  if (timer !== null) {
+    clearTimeout(timer)
+    timer = null
+  }
+}
+
+function armTimer (ms: number) {
+  if (timer !== null) clearTimeout(timer)
+  timer = window.setTimeout(unlock, ms)
+}
+
+function onPlay () {
+  const audio = audioRef.value
+  if (audio && Number.isFinite(audio.duration)) {
+    armTimer((audio.duration - audio.currentTime) * 1000 + END_MARGIN_MS)
   }
 }
 
 onMounted(() => {
-  playAudio()
-  if (audioRef.value) {
-    audioRef.value.addEventListener('ended', () => {
-      isAudioComplete.value = true
-    })
+  armTimer(HARD_CAP_MS)
+  const audio = audioRef.value
+  if (!audio) {
+    unlock()
+    return
   }
+  audio.addEventListener('play', onPlay)
+  audio.addEventListener('ended', unlock)
+  audio.addEventListener('error', unlock)
+  audio.play().catch(e => {
+    console.warn('Context audio could not start:', e)
+    unlock()
+  })
+})
 
-  // Fallback timer to ensure button becomes clickable after 38 seconds
-  setTimeout(() => {
-    isAudioComplete.value = true
-  }, 38000)
+onUnmounted(() => {
+  if (timer !== null) clearTimeout(timer)
+  const audio = audioRef.value
+  if (audio) {
+    audio.removeEventListener('play', onPlay)
+    audio.removeEventListener('ended', unlock)
+    audio.removeEventListener('error', unlock)
+    audio.pause()
+  }
 })
 </script>
 

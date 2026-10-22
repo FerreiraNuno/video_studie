@@ -1,24 +1,52 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useProgressStore, PHASE } from '../useProgress.store'
 import { useSupabaseStore } from '../useSupabase.store'
 import Photo from './PhaseThreeComponents/Photo.vue'
 import Rating from './PhaseThreeComponents/Rating.vue'
 import FinalQuestions from './PhaseThreeComponents/FinalQuestions.vue'
-import { initializePhotoOrder, getCurrentPhoto } from '@/utils/photoManager'
+import { initializePhotoOrder, setPhotoOrder, getPhotoOrder, getCurrentPhoto, allPhotoFilenames } from '@/utils/photoManager'
+import { phaseThreeResumePoint, isValidPhotoOrder, PHASE3_FINAL_STEP } from '@/utils/resume'
 
 const progressStore = useProgressStore()
 const supabaseStore = useSupabaseStore()
 
 const progressIndex = ref(0)
 const photoIndex = ref(0)
+const ready = ref(false)
 
-// Initialize photo order when component is mounted
+// The photo order is randomized once per participant and saved with the
+// position, so a reload shows the same order and resumes at the same photo.
 onMounted(() => {
-  initializePhotoOrder()
+  const saved = progressStore.position
+  if (saved?.phase === PHASE.photos && isValidPhotoOrder(saved.photoOrder, allPhotoFilenames)) {
+    setPhotoOrder(saved.photoOrder)
+  } else {
+    initializePhotoOrder()
+  }
+  const resume = phaseThreeResumePoint(saved)
+  progressIndex.value = resume.progressIndex
+  photoIndex.value = resume.photoIndex
+  ready.value = true
+  persistPosition()
 })
 
-const showIntro = computed(() => progressIndex.value === 0)
+function persistPosition () {
+  const p = progressIndex.value
+  const atRating = p > 0 && p % 2 === 0 && p < PHASE3_FINAL_STEP
+  void progressStore.savePosition({
+    phase: PHASE.photos,
+    progressIndex: atRating ? p - 1 : p,
+    photoIndex: photoIndex.value,
+    photoOrder: getPhotoOrder(),
+  })
+}
+
+watch([progressIndex, photoIndex], () => {
+  if (ready.value) persistPosition()
+})
+
+const showIntro = computed(() => ready.value && progressIndex.value === 0)
 const showPhoto = computed(() => progressIndex.value % 2 === 1 && photoIndex.value < 36)
 const showRating = computed(() => progressIndex.value % 2 === 0 && progressIndex.value > 0 && photoIndex.value < 36)
 const showFinalQuestions = computed(() => photoIndex.value >= 36)
@@ -41,7 +69,7 @@ function submitRating (ratings: {
 function finishSection () {
   photoIndex.value++
   if (photoIndex.value >= 36) { // Total number of photos
-    progressIndex.value = 72 // Set to a value that will trigger showFinalQuestions
+    progressIndex.value = PHASE3_FINAL_STEP // triggers showFinalQuestions
   } else {
     progressIndex.value++
   }

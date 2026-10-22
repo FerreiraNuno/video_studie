@@ -1,6 +1,7 @@
 import { defineStore } from "pinia"
 import { useSupabaseStore } from './useSupabase.store'
 import { ref, type Ref } from "vue"
+import type { StudyPosition } from './utils/resume'
 
 export const PHASE = {
   questionnaire: 1,
@@ -14,6 +15,8 @@ export const useProgressStore = defineStore('progressStore', () => {
 
   // state
   const phase: Ref<number | undefined> = ref(undefined)
+  /** Resume point inside the current phase (phases 2/3), null at a phase start. */
+  const position: Ref<StudyPosition | null> = ref(null)
 
 
   async function startStudy () {
@@ -30,7 +33,15 @@ export const useProgressStore = defineStore('progressStore', () => {
   async function setPhase (next: number) {
     if (phase.value === next) return
     phase.value = next
-    await supabaseStore.saveProgress(next)
+    position.value = null
+    await supabaseStore.saveProgress(next, null)
+  }
+
+  /** Persists the position inside the current phase (called by PhaseTwo/PhaseThree after every step). */
+  async function savePosition (next: StudyPosition) {
+    if (phase.value === undefined || next.phase !== phase.value) return
+    position.value = next
+    await supabaseStore.saveProgress(phase.value, next)
   }
 
   async function nextPhase () {
@@ -50,13 +61,17 @@ export const useProgressStore = defineStore('progressStore', () => {
       console.error('Fehler beim Laden des Fortschritts:', error)
     } else if (data) {
       phase.value = data.phase
+      const saved = data.position as StudyPosition | null
+      position.value = saved && saved.phase === data.phase ? saved : null
     }
   }
 
   return {
     phase,
+    position,
     startStudy,
     setPhase,
+    savePosition,
     nextPhase,
     loadProgress,
   }
