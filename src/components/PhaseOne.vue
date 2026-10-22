@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import { useProgressStore, PHASE } from '../useProgress.store'
 import { useSupabaseStore } from '../useSupabase.store'
-import { initializeVideoOrder, type TrialPlan } from '@/utils/videoManager'
+import { initializeVideoOrder, setTrialPlan, type TrialPlan } from '@/utils/videoManager'
 
 const progressStore = useProgressStore()
 const supabaseStore = useSupabaseStore()
@@ -11,7 +11,10 @@ const wantsVPHours = ref(false)
 const sonaId = ref('')
 const hasConsented = ref(false)
 const gender = ref('')
-const age = ref('')
+// '' until typed; v-model on a number input yields a number (or '' when cleared)
+const age = ref<number | ''>('')
+const MIN_AGE = 18
+const MAX_AGE = 64
 const education = ref('')
 const ethnicity = ref('')
 const currentActivity = ref('')
@@ -25,8 +28,10 @@ const professionalPainActivity = ref('')
 
 const errorMessage = ref('')
 const submitting = ref(false)
-// The plan is generated once per questionnaire; a retry after a failed save
-// re-sends the same plan instead of producing a second one.
+// The plan is generated once per participant; a retry after a failed save
+// re-sends the same plan instead of producing a second one, and a plan this
+// participant number already saved (an earlier submit whose form save failed,
+// followed by a reload) is reused rather than overwritten.
 let plan: TrialPlan | null = null
 
 const validateForm = () => {
@@ -38,8 +43,14 @@ const validateForm = () => {
     errorMessage.value = 'Bitte geben Sie Ihre SONA ID ein.'
     return false
   }
-  if (!gender.value || !age.value || !education.value || !ethnicity.value || !currentActivity.value) {
+  if (!gender.value || age.value === '' || !education.value || !ethnicity.value || !currentActivity.value) {
     errorMessage.value = 'Bitte füllen Sie alle Pflichtfelder aus.'
+    return false
+  }
+  // `age` is stored in an integer column: a non-integer would make the save
+  // fail on every retry and leave the participant stuck on this page.
+  if (!Number.isInteger(age.value) || age.value < MIN_AGE || age.value > MAX_AGE) {
+    errorMessage.value = `Bitte geben Sie Ihr Alter als ganze Zahl zwischen ${MIN_AGE} und ${MAX_AGE} an.`
     return false
   }
   if ((currentActivity.value === 'studierende' || currentActivity.value === 'berufstätig') && !currentActivityDetail.value) {
@@ -78,14 +89,24 @@ const submitForm = async () => {
 }
 
 async function saveQuestionnaire () {
-  // Generate (and validate) this participant's balanced trial plan once.
-  // It is persisted so phase 2 shows exactly this plan, also after a reload.
-  try {
-    if (!plan) plan = initializeVideoOrder()
-  } catch (e) {
-    console.error(e)
-    errorMessage.value = 'Interner Fehler bei der Zuteilung der Videos. Bitte wenden Sie sich an die Studienleitung.'
-    return
+  // This participant's balanced trial plan: the one already saved for the
+  // number, else a freshly generated (validated) one. It is persisted so
+  // phase 2 shows exactly this plan, also after a reload. A failed read must
+  // not fall through to generation: the upsert would replace the saved plan,
+  // and form_data.context_order (insert-once) would no longer match it.
+  if (!plan) {
+    const { plan: saved, error: loadError } = await supabaseStore.loadTrialPlan()
+    if (loadError) {
+      errorMessage.value = `Fehler beim Laden der Videozuteilung: ${loadError.message}`
+      return
+    }
+    try {
+      plan = saved ? setTrialPlan(saved) : initializeVideoOrder()
+    } catch (e) {
+      console.error(e)
+      errorMessage.value = 'Interner Fehler bei der Zuteilung der Videos. Bitte wenden Sie sich an die Studienleitung.'
+      return
+    }
   }
   const trialPlan = plan
 
@@ -193,7 +214,7 @@ async function saveQuestionnaire () {
       <div>
         <label>Wie alt sind Sie (in Jahren)?</label>
         <br>
-        <input type="number" v-model="age" />
+        <input type="number" v-model="age" :min="MIN_AGE" :max="MAX_AGE" step="1" inputmode="numeric" />
       </div>
 
       <div>

@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useSupabaseStore } from '../useSupabase.store'
+import { useProgressStore, PHASE } from '../useProgress.store'
 
 const supabaseStore = useSupabaseStore()
+const progressStore = useProgressStore()
 
 const isInformed = ref('')
 const wantsDeletion = ref('')
@@ -24,6 +26,9 @@ async function handleSubmit () {
     wantsDeletion: wantsDeletion.value,
     agreesSilence: agreesSilence.value
   })
+  // Mark the study as finished: a later login shows the closing message
+  // instead of the debrief and the questions again.
+  await progressStore.setPhase(PHASE.completed)
   showClosingMessage.value = true
 }
 </script>

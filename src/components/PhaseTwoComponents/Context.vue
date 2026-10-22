@@ -116,6 +116,7 @@ onUnmounted(() => {
           class="media"
           autoplay
           loop
+          muted
           playsinline
         ></video>
       </div>

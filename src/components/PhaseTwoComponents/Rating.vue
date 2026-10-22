@@ -1,23 +1,22 @@
 <script setup lang="ts">
-import { ref, defineProps, defineEmits, onMounted, computed } from 'vue'
+import { ref, computed } from 'vue'
 import { useSupabaseStore } from '@/useSupabase.store'
 import RatingScale from '../shared/RatingScale.vue'
-
-const painRating = ref<number | null>(null)
-const credibilityRating = ref<number | null>(null)
-const difficultyRating = ref<number | null>(null)
-const actionRating = ref<number | null>(null)
-const currentStep = ref(1)
-const buttonDisabled = ref(false)
-
-const supabaseStore = useSupabaseStore()
-const isCDM = computed(() => supabaseStore.user.group === 'CDM' && props.context !== 'none')
 
 const props = defineProps<{
   videoIndex: number
   filename: string
   context: 'bus' | 'doctor' | 'pension' | 'none'
 }>()
+
+const painRating = ref<number | null>(null)
+const credibilityRating = ref<number | null>(null)
+const difficultyRating = ref<number | null>(null)
+const actionRating = ref<number | null>(null)
+const currentStep = ref(1)
+
+const supabaseStore = useSupabaseStore()
+const isCDM = computed(() => supabaseStore.user.group === 'CDM' && props.context !== 'none')
 
 const emit = defineEmits<{
   (e: 'rating-submitted', ratings: { pain: number, credibility: number, difficulty: number, action?: number }, filename: string, videoIndex: number): void
@@ -105,8 +104,7 @@ const actionQuestion = computed(() => {
     <button
       @click="nextStep"
       class="next-button"
-      :disabled="buttonDisabled ||
-        (currentStep === 1 && painRating === null) ||
+      :disabled="(currentStep === 1 && painRating === null) ||
         (currentStep === 2 && credibilityRating === null) ||
         (currentStep === 3 && difficultyRating === null) ||
         (currentStep === 4 && isCDM && actionRating === null)"

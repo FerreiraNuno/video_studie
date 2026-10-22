@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import {
-  phaseTwoResumePoint, phaseThreeResumePoint, isPhaseTwoRatingStep, isPhaseTwoVideoStep, isValidPhotoOrder,
-  PHASE2_CONTEXT_STARTS, PHASE3_FINAL_STEP,
+  phaseTwoResumePoint, phaseTwoVideoIndex, phaseThreeResumePoint, isPhaseTwoRatingStep, isPhaseTwoVideoStep,
+  isValidPhotoOrder, PHASE2_CONTEXT_STARTS, PHASE2_LAST_STEP, PHASE3_FINAL_STEP,
 } from '../resume'
 
 describe('phase 2 steps', () => {
@@ -27,6 +27,22 @@ describe('phase 2 steps', () => {
   })
 })
 
+describe('phaseTwoVideoIndex', () => {
+  it('counts 12 videos per context block in presentation order', () => {
+    for (const intro of [0, 1, 2, 3]) expect(phaseTwoVideoIndex(intro)).toBe(0)
+    PHASE2_CONTEXT_STARTS.forEach((start, section) => {
+      const base = section * 12
+      expect(phaseTwoVideoIndex(start)).toBe(base)          // intro
+      expect(phaseTwoVideoIndex(start + 1)).toBe(base)      // scenario
+      const videos = [2, 4, 6, 8, 11, 13, 15, 17, 20, 22, 24, 26]
+      videos.forEach((o, i) => expect(phaseTwoVideoIndex(start + o)).toBe(base + i))
+      expect(phaseTwoVideoIndex(start + 10)).toBe(base + 4) // reminder after 4
+      expect(phaseTwoVideoIndex(start + 19)).toBe(base + 8) // reminder after 8
+    })
+    expect(phaseTwoVideoIndex(PHASE2_LAST_STEP + 1)).toBe(36)
+  })
+})
+
 describe('phaseTwoResumePoint', () => {
   it('starts from the beginning without a saved position or for another phase', () => {
     expect(phaseTwoResumePoint(null)).toEqual({ progressIndex: 0, videoIndex: 0 })
@@ -46,10 +62,16 @@ describe('phaseTwoResumePoint', () => {
     expect(phaseTwoResumePoint({ phase: 2, progressIndex: 87, videoIndex: 36 })).toEqual({ progressIndex: 86, videoIndex: 35 })
   })
 
+  it('derives the video index from the step, ignoring an inconsistent saved value', () => {
+    // a saved videoIndex of 36 at a video step would make the video step throw
+    expect(phaseTwoResumePoint({ phase: 2, progressIndex: 6, videoIndex: 36 })).toEqual({ progressIndex: 6, videoIndex: 0 })
+    expect(phaseTwoResumePoint({ phase: 2, progressIndex: 10, videoIndex: 99 })).toEqual({ progressIndex: 10, videoIndex: 2 })
+    expect(phaseTwoResumePoint({ phase: 2, progressIndex: 42 })).toEqual({ progressIndex: 42, videoIndex: 16 })
+  })
+
   it('rejects out-of-range or malformed positions', () => {
     expect(phaseTwoResumePoint({ phase: 2, progressIndex: 88, videoIndex: 36 })).toEqual({ progressIndex: 0, videoIndex: 0 })
     expect(phaseTwoResumePoint({ phase: 2, progressIndex: -1 })).toEqual({ progressIndex: 0, videoIndex: 0 })
-    expect(phaseTwoResumePoint({ phase: 2, progressIndex: 10, videoIndex: 99 })).toEqual({ progressIndex: 0, videoIndex: 0 })
     expect(phaseTwoResumePoint({ phase: 2, progressIndex: 1.5 })).toEqual({ progressIndex: 0, videoIndex: 0 })
   })
 })

@@ -1,13 +1,21 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import EndingQuestions from '../components/EndingQuestions.vue'
+import { useProgressStore, PHASE } from '../useProgress.store'
 
+const progressStore = useProgressStore()
 const showQuestions = ref(false)
+const completed = computed(() => (progressStore.phase ?? 0) >= PHASE.completed)
 </script>
 
 <template>
   <div class="ending-container">
-    <template v-if="!showQuestions">
+    <p
+      v-if="completed"
+      class="closing-message"
+    >Die Studie ist nun beendet. Vielen Dank für Ihre Teilnahme! Sie können das Fenster nun schließen.</p>
+
+    <template v-else-if="!showQuestions">
       <h2>Liebe Teilnehmerin, lieber Teilnehmer,</h2>
 
       <h2>Vielen Dank für Ihre Teilnahme an unserer Online-Studie!</h2>
@@ -84,5 +92,12 @@ a {
 .continue-button:hover {
   background-color: #0056b3;
 
+}
+
+.closing-message {
+  margin-top: 2rem;
+  font-weight: bold;
+  font-size: 1.2rem;
+  text-align: center;
 }
 </style>

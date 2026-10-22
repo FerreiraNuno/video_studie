@@ -12,7 +12,7 @@ export interface StudyPosition {
   /** phase the position belongs to; positions of another phase are ignored */
   phase: number
   progressIndex: number
-  /** phase 2: 0-based index of the next video (= number of rated videos) */
+  /** phase 2: 0-based index of the next video (= number of rated videos); informational, derived from progressIndex on resume */
   videoIndex?: number
   /** phase 3: 0-based index of the current photo */
   photoIndex?: number
@@ -26,6 +26,7 @@ export interface StudyPosition {
 export const PHASE2_CONTEXT_STARTS = [4, 32, 60] as const
 export const PHASE2_LAST_STEP = 87
 const PHASE2_BLOCK_LENGTH = 28
+const PHASE2_VIDEOS_PER_CONTEXT = 12
 const PHASE2_RATING_OFFSETS = new Set([3, 5, 7, 9, 12, 14, 16, 18, 21, 23, 25, 27])
 const PHASE2_VIDEO_OFFSETS = new Set([2, 4, 6, 8, 11, 13, 15, 17, 20, 22, 24, 26])
 
@@ -48,20 +49,37 @@ export function isPhaseTwoVideoStep (progressIndex: number): boolean {
 }
 
 /**
+ * The 0-based index of the video that a non-rating step shows next (at a video
+ * step: the video of that step). It follows from the step alone: 12 videos per
+ * context block, in a fixed pattern of offsets.
+ */
+export function phaseTwoVideoIndex (progressIndex: number): number {
+  for (let section = 0; section < PHASE2_CONTEXT_STARTS.length; section++) {
+    const offset = progressIndex - PHASE2_CONTEXT_STARTS[section]
+    if (offset < 0) return section * PHASE2_VIDEOS_PER_CONTEXT
+    if (offset < PHASE2_BLOCK_LENGTH) {
+      const shown = [...PHASE2_VIDEO_OFFSETS].filter(v => v < offset).length
+      return section * PHASE2_VIDEOS_PER_CONTEXT + shown
+    }
+  }
+  return PHASE2_CONTEXT_STARTS.length * PHASE2_VIDEOS_PER_CONTEXT
+}
+
+/**
  * Where to resume phase 2 for a saved position. A rating step resumes at the
- * video step before it (the video index was already incremented when the
- * video ended, so it is decremented again). Anything out of range → start.
+ * video step before it, so the participant re-watches the video. The video
+ * index is derived from the step rather than taken from the saved row: the
+ * two must agree, and a row where they do not (a hand-edited or partially
+ * written position) would otherwise crash the video step. Anything out of
+ * range → start.
  */
 export function phaseTwoResumePoint (saved: StudyPosition | null | undefined): { progressIndex: number, videoIndex: number } {
   const start = { progressIndex: 0, videoIndex: 0 }
   if (!saved || saved.phase !== 2) return start
-  const { progressIndex, videoIndex = 0 } = saved
+  const { progressIndex } = saved
   if (!Number.isInteger(progressIndex) || progressIndex < 0 || progressIndex > PHASE2_LAST_STEP) return start
-  if (!Number.isInteger(videoIndex) || videoIndex < 0 || videoIndex > 36) return start
-  if (isPhaseTwoRatingStep(progressIndex)) {
-    return { progressIndex: progressIndex - 1, videoIndex: Math.max(0, videoIndex - 1) }
-  }
-  return { progressIndex, videoIndex }
+  const step = isPhaseTwoRatingStep(progressIndex) ? progressIndex - 1 : progressIndex
+  return { progressIndex: step, videoIndex: phaseTwoVideoIndex(step) }
 }
 
 // --- phase 3 --------------------------------------------------------------

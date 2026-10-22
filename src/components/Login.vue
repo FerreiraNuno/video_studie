@@ -41,6 +41,11 @@ async function handleLogin () {
     supabaseStore.user.participantNumber = participantNumber.value
     supabaseStore.user.group = selectedGroup.value
     loading.value = true
+    // Deliver writes an earlier session of this participant could not send –
+    // BEFORE the resume point is read: the outbox may hold a newer `progress`
+    // row than the server has, and reading first would resume the participant
+    // at the older step (replaying trials whose ratings are then refused).
+    await supabaseStore.flushOutbox()
     // One read of the resume point; on failure the participant stays on the
     // login page (never fall back to phase 1 – see progressStore.startStudy).
     const { error } = await progressStore.startStudy()
@@ -52,8 +57,6 @@ async function handleLogin () {
     }
     errorMessage.value = ''
     supabaseStore.isAuthenticated = true
-    // Deliver writes an earlier session of this participant could not send.
-    void supabaseStore.flushOutbox()
     window.addEventListener('online', () => { void supabaseStore.flushOutbox() })
   } else {
     errorMessage.value = "Passwort ist ungültig"

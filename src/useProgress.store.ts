@@ -8,6 +8,8 @@ export const PHASE = {
   videos: 2,
   photos: 3,
   ending: 4,
+  /** debrief questions answered – the study is over for this participant */
+  completed: 5,
 } as const
 
 export const useProgressStore = defineStore('progressStore', () => {
@@ -52,12 +54,6 @@ export const useProgressStore = defineStore('progressStore', () => {
     await supabaseStore.saveProgress(phase.value, next)
   }
 
-  async function nextPhase () {
-    if (phase.value === undefined) return
-    await setPhase(phase.value + 1)
-  }
-
-
   // helpers
   async function loadProgress () {
     const { data, error } = await supabaseStore.loadProgress()
@@ -79,7 +75,6 @@ export const useProgressStore = defineStore('progressStore', () => {
     startStudy,
     setPhase,
     savePosition,
-    nextPhase,
     loadProgress,
   }
 })
