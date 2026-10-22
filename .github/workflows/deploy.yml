@@ -35,6 +35,8 @@ jobs:
           rm -rf node_modules package-lock.json
           npm install
           npm ci
+      - name: Run tests (trial balancing)
+        run: npm test
       - name: Inject environment variables
         run: echo "VITE_API_BACKEND_URL=${{ secrets.VITE_API_BACKEND_URL }}" >> .env && echo "VITE_API_BACKEND_KEY=${{ secrets.VITE_API_BACKEND_KEY }}" >> .env
       - name: Build with Vite

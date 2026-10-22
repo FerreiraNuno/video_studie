@@ -1,18 +1,20 @@
-import { ref } from 'vue'
+import { shallowRef, computed } from 'vue'
+import {
+  generateTrialPlan,
+  assertValidTrialPlan,
+  describeTrialPlan,
+  type CatalogVideo,
+  type Trial,
+  type TrialPlan,
+  type Context,
+  type AudioType
+} from './trialPlan'
 
-// Define the video structure
-interface Video {
-  filename: string
-  personId: string  // Unique identifier for each person
-  gender: 'male' | 'female'
-  ageGroup: 'young' | 'old'
-  videoType: 'pain-specific' | 'unspecific'
-  context?: 'bus' | 'doctor' | 'pension'  // Optional since it will be assigned during initialization
-  audioType?: 'no_pain' | 'slight_pain' | 'strong_pain'  // Optional since it will be assigned during initialization
-}
+export type { Trial, TrialPlan, Context, AudioType }
 
-// Create a list of all videos with their metadata
-const allVideos: Video[] = [
+// Fixed catalog of the 36 people shown in phase 2 (and as photos in phase 3).
+// videoType 'pain-specific' = facial pain expression YES, 'unspecific' = NO.
+export const allVideos: CatalogVideo[] = [
   // Young females (5 individuals)
   // Pain-specific
   { filename: 'female_young_pain_01.mp4', personId: 'f_y_p_1', gender: 'female', ageGroup: 'young', videoType: 'pain-specific' },
@@ -66,272 +68,57 @@ const allVideos: Video[] = [
   { filename: 'male_old_unspecific_08.mp4', personId: 'm_o_u_8', gender: 'male', ageGroup: 'old', videoType: 'unspecific' }
 ]
 
-// Create a shuffled list of videos for each context
-const shuffledVideos = ref<Video[]>([])
-export const contextOrder = ref<('bus' | 'doctor' | 'pension')[]>([])
+// ---------------------------------------------------------------------------
+// Session state: the trial plan of the current participant.
+//
+// The plan is generated ONCE per participant (in phase 1), persisted to the
+// `trial_plans` table and re-used in phase 2 – so a page reload or the
+// phase 1 → phase 2 transition never re-randomizes it. The old implementation
+// mutated the shared catalog objects and re-ran the assignment on every
+// mount, which carried stale audio assignments into a new context assignment
+// and broke the 2-per-combination balance.
+// ---------------------------------------------------------------------------
+const trialPlan = shallowRef<TrialPlan | null>(null)
 
-// Function to randomize context order
-function randomizeContextOrder () {
-  const contexts: ('bus' | 'doctor' | 'pension')[] = ['bus', 'doctor', 'pension']
-  const shuffled = [...contexts]
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
-  }
-  contextOrder.value = shuffled
+/** Order in which the three contexts are shown (empty until a plan exists). */
+export const contextOrder = computed<Context[]>(() => trialPlan.value?.contextOrder ?? [])
+
+export function isVideoOrderInitialized (): boolean {
+  return trialPlan.value !== null
 }
 
-// Function to initialize the video order
-export function initializeVideoOrder () {
-  // Randomize context order first
-  randomizeContextOrder()
-
-  // Create a copy of all videos
-  const videos = [...allVideos]
-
-  // Group videos by context
-  const contextGroups = {
-    bus: [] as Video[],
-    doctor: [] as Video[],
-    pension: [] as Video[]
-  }
-
-  // Track gender distribution per context
-  const genderCounts = {
-    bus: { male: 0, female: 0 },
-    doctor: { male: 0, female: 0 },
-    pension: { male: 0, female: 0 }
-  }
-
-  // Helper function to shuffle an array
-  const shuffleArray = <T> (array: T[]): T[] => {
-    const newArray = [...array]
-    for (let i = newArray.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1))
-        ;[newArray[i], newArray[j]] = [newArray[j], newArray[i]]
-    }
-    return newArray
-  }
-
-  // Helper function to get available contexts
-  const getAvailableContexts = (excludeContext?: 'bus' | 'doctor' | 'pension'): ('bus' | 'doctor' | 'pension')[] => {
-    const contexts: ('bus' | 'doctor' | 'pension')[] = ['bus', 'doctor', 'pension']
-    return excludeContext ? contexts.filter(c => c !== excludeContext) : contexts
-  }
-
-  // Helper function to get context with fewest videos of specific gender
-  const getContextWithFewestVideos = (
-    gender: 'male' | 'female',
-    excludeContext?: 'bus' | 'doctor' | 'pension'
-  ): 'bus' | 'doctor' | 'pension' => {
-    const availableContexts = getAvailableContexts(excludeContext)
-    return availableContexts.reduce((minContext, context) =>
-      genderCounts[context][gender] < genderCounts[minContext][gender] ? context : minContext
-      , availableContexts[0])
-  }
-
-  // Helper function to check if age distribution is valid
-  const isValidAgeDistribution = (): boolean => {
-    return Object.entries(contextGroups).every(([context, videos]) => {
-      const youngCount = videos.filter(v => v.ageGroup === 'young').length
-      const oldCount = videos.filter(v => v.ageGroup === 'old').length
-      return youngCount >= oldCount
-    })
-  }
-
-  // Helper function to distribute videos
-  const distributeVideos = () => {
-    // Reset context groups and gender counts
-    Object.keys(contextGroups).forEach(context => {
-      contextGroups[context as keyof typeof contextGroups] = []
-      genderCounts[context as keyof typeof genderCounts] = { male: 0, female: 0 }
-    })
-
-    // First, separate videos by type
-    const painSpecificVideos = videos.filter(v => v.videoType === 'pain-specific')
-    const unspecificVideos = videos.filter(v => v.videoType === 'unspecific')
-
-    // Shuffle both groups
-    const shuffledPainSpecific = shuffleArray([...painSpecificVideos])
-    const shuffledUnspecific = shuffleArray([...unspecificVideos])
-
-    // Distribute pain-specific videos first
-    shuffledPainSpecific.forEach(video => {
-      const context = getContextWithFewestVideos(video.gender)
-      video.context = context
-      contextGroups[context].push(video)
-      genderCounts[context][video.gender]++
-    })
-
-    // Then distribute unspecific videos
-    shuffledUnspecific.forEach(video => {
-      const context = getContextWithFewestVideos(video.gender)
-      video.context = context
-      contextGroups[context].push(video)
-      genderCounts[context][video.gender]++
-    })
-
-    // Shuffle videos within each context
-    Object.keys(contextGroups).forEach(context => {
-      contextGroups[context as keyof typeof contextGroups] = shuffleArray(contextGroups[context as keyof typeof contextGroups])
-    })
-  }
-
-  // Helper function to assign audio files
-  const assignAudioFiles = () => {
-    const audioTypes: ('no_pain' | 'slight_pain' | 'strong_pain')[] = ['no_pain', 'slight_pain', 'strong_pain']
-    const videoTypes: ('pain-specific' | 'unspecific')[] = ['pain-specific', 'unspecific']
-
-    console.log('Starting audio file assignment...')
-
-    // For each context
-    Object.entries(contextGroups).forEach(([context, videos]) => {
-      console.log(`\nProcessing context: ${context}`)
-
-      // For each video type
-      videoTypes.forEach(videoType => {
-        console.log(`\nProcessing video type: ${videoType}`)
-
-        // Get videos of this type
-        const typeVideos = videos.filter(v => v.videoType === videoType)
-        console.log(`Found ${typeVideos.length} videos of type ${videoType}`)
-
-        // Shuffle the videos to randomize audio assignment
-        const shuffledVideos = shuffleArray([...typeVideos])
-
-        // Get male and female videos
-        const maleVideos = shuffledVideos.filter(v => v.gender === 'male')
-        const femaleVideos = shuffledVideos.filter(v => v.gender === 'female')
-        console.log(`Male videos: ${maleVideos.length}, Female videos: ${femaleVideos.length}`)
-
-        // Assign each audio type to one male and one female video
-        audioTypes.forEach(audioType => {
-          // Find an unassigned male video
-          const maleVideo = maleVideos.find(v => !v.audioType)
-          if (maleVideo) {
-            maleVideo.audioType = audioType
-            console.log(`Assigned ${audioType} to male video: ${maleVideo.filename}`)
-          }
-
-          // Find an unassigned female video
-          const femaleVideo = femaleVideos.find(v => !v.audioType)
-          if (femaleVideo) {
-            femaleVideo.audioType = audioType
-            console.log(`Assigned ${audioType} to female video: ${femaleVideo.filename}`)
-          }
-        })
-      })
-    })
-
-    // Verify all videos have audio types
-    const allVideos = Object.values(contextGroups).flat()
-    const videosWithoutAudio = allVideos.filter(v => !v.audioType)
-    if (videosWithoutAudio.length > 0) {
-      console.error('Found videos without audio types:', videosWithoutAudio.map(v => v.filename.replace(/\.[^/.]+$/, '')))
-    } else {
-      console.log('All videos have been assigned audio types')
-    }
-  }
-
-  // Keep redistributing until we get a valid age distribution
-  let attempts = 0
-  const maxAttempts = 1000
-  do {
-    distributeVideos()
-    attempts++
-    if (attempts >= maxAttempts) {
-      console.error('Failed to find a valid distribution after', maxAttempts, 'attempts')
-      break
-    }
-  } while (!isValidAgeDistribution())
-
-  // Assign audio files after we have a valid distribution
-  assignAudioFiles()
-
-  // Combine all videos in the order specified by contextOrder
-  shuffledVideos.value = [
-    ...contextGroups[contextOrder.value[0]],
-    ...contextGroups[contextOrder.value[1]],
-    ...contextGroups[contextOrder.value[2]]
-  ]
-
-  console.log('Context order:', contextOrder.value)
-  console.log('Final shuffled videos array:', shuffledVideos.value.map(v => ({
-    filename: v.filename.replace(/\.[^/.]+$/, ''),
-    audioType: v.audioType
-  })))
-
-  // Log distribution for verification
-  const contexts: (keyof typeof contextGroups)[] = ['bus', 'doctor', 'pension']
-  for (const context of contexts) {
-    contextGroups[context].forEach((video: Video) => {
-      console.log(`${context.charAt(0).toUpperCase() + context.slice(1)} video: ${video.personId}---${video.videoType}---${video.audioType || 'no audio'}---${video.filename.replace(/\.[^/.]+$/, '')}`)
-    })
-    console.log("--------------------------------")
-  }
-  console.log("--------------------------------")
-
-  // Log how many pain-specific and unspecific videos there are for each context
-  console.log('Bus pain-specific:', contextGroups.bus.filter(v => v.videoType === 'pain-specific').length)
-  console.log('Bus unspecific:', contextGroups.bus.filter(v => v.videoType === 'unspecific').length)
-  console.log('Doctor pain-specific:', contextGroups.doctor.filter(v => v.videoType === 'pain-specific').length)
-  console.log('Doctor unspecific:', contextGroups.doctor.filter(v => v.videoType === 'unspecific').length)
-  console.log('Pension pain-specific:', contextGroups.pension.filter(v => v.videoType === 'pain-specific').length)
-  console.log('Pension unspecific:', contextGroups.pension.filter(v => v.videoType === 'unspecific').length)
-  console.log("--------------------------------")
-
-  // Log how many young and old videos there are for each context
-  console.log('Bus young:', contextGroups.bus.filter(v => v.ageGroup === 'young').length)
-  console.log('Bus old:', contextGroups.bus.filter(v => v.ageGroup === 'old').length)
-  console.log('Doctor young:', contextGroups.doctor.filter(v => v.ageGroup === 'young').length)
-  console.log('Doctor old:', contextGroups.doctor.filter(v => v.ageGroup === 'old').length)
-  console.log('Pension young:', contextGroups.pension.filter(v => v.ageGroup === 'young').length)
-  console.log('Pension old:', contextGroups.pension.filter(v => v.ageGroup === 'old').length)
-  console.log("--------------------------------")
-
-  // Log how many male and female videos there are for each context
-  console.log('Bus male:', contextGroups.bus.filter(v => v.gender === 'male').length)
-  console.log('Bus female:', contextGroups.bus.filter(v => v.gender === 'female').length)
-  console.log('Doctor male:', contextGroups.doctor.filter(v => v.gender === 'male').length)
-  console.log('Doctor female:', contextGroups.doctor.filter(v => v.gender === 'female').length)
-  console.log('Pension male:', contextGroups.pension.filter(v => v.gender === 'male').length)
-  console.log('Pension female:', contextGroups.pension.filter(v => v.gender === 'female').length)
-  console.log("--------------------------------")
-
-  // Log audio distribution for each context
-  contexts.forEach(context => {
-    console.log(`${context.charAt(0).toUpperCase() + context.slice(1)} audio distribution:`)
-    const contextVideos = contextGroups[context]
-    const audioTypes = ['no_pain', 'slight_pain', 'strong_pain'] as const
-    const videoTypes = ['pain-specific', 'unspecific'] as const
-
-    videoTypes.forEach(videoType => {
-      console.log(`\n${videoType}:`)
-      audioTypes.forEach(audioType => {
-        const maleWithAudio = contextVideos.filter(v =>
-          v.gender === 'male' &&
-          v.videoType === videoType &&
-          v.audioType === audioType
-        ).length
-        const femaleWithAudio = contextVideos.filter(v =>
-          v.gender === 'female' &&
-          v.videoType === videoType &&
-          v.audioType === audioType
-        ).length
-        console.log(`${audioType}: ${maleWithAudio} male, ${femaleWithAudio} female`)
-      })
-    })
-    console.log("--------------------------------")
-  })
+export function getTrialPlan (): TrialPlan | null {
+  return trialPlan.value
 }
 
-// Function to get the current video
-export function getCurrentVideo (index: number): Video {
-  console.log('Getting video at index:', index)
-  console.log('Available videos:', shuffledVideos.value)
-  const video = shuffledVideos.value[index]
-  console.log('Returning video:', video)
-  return video
+/** Generates a NEW validated plan (throws TrialPlanError if it cannot be balanced). */
+export function initializeVideoOrder (): TrialPlan {
+  const plan = generateTrialPlan(allVideos)
+  trialPlan.value = plan
+  console.log('Trial plan generated and validated\n' + describeTrialPlan(plan))
+  return plan
+}
+
+/** Returns the existing plan, generating one only if none exists yet. */
+export function ensureVideoOrder (): TrialPlan {
+  return trialPlan.value ?? initializeVideoOrder()
+}
+
+/** Restores a previously saved plan (e.g. loaded from Supabase); it is re-validated. */
+export function setTrialPlan (plan: TrialPlan): TrialPlan {
+  assertValidTrialPlan(plan, allVideos)
+  trialPlan.value = plan
+  console.log('Trial plan restored and validated\n' + describeTrialPlan(plan))
+  return plan
+}
+
+/** Trial at 0-based index (0..35) in presentation order. */
+export function getCurrentVideo (index: number): Trial {
+  const plan = trialPlan.value
+  if (!plan) throw new Error('Trial plan not initialized')
+  const trial = plan.trials[index]
+  if (!trial) throw new Error(`No trial at index ${index}`)
+  return trial
 }
 
 // Function to get the video source URL

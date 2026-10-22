@@ -7,7 +7,7 @@ import Context from './PhaseTwoComponents/Context.vue'
 import { useProgressStore } from '../useProgress.store'
 import { computed, ref, onMounted } from 'vue'
 import { useSupabaseStore } from '@/useSupabase.store'
-import { initializeVideoOrder, getCurrentVideo, contextOrder } from '@/utils/videoManager'
+import { initializeVideoOrder, getCurrentVideo, contextOrder, isVideoOrderInitialized, setTrialPlan, type Trial } from '@/utils/videoManager'
 import context from '../text/context.json'
 
 const testVideo = `${import.meta.env.BASE_URL}videos/testvideo.mp4`
@@ -18,7 +18,9 @@ const supabaseStore = useSupabaseStore()
 
 const progressIndex = ref(0)
 const currentFilename = ref('')
-const currentAudioType = ref<'no_pain' | 'slight_pain' | 'strong_pain' | null>(null)
+const currentTrial = ref<Trial | null>(null)  // the trial whose video was just shown and is being rated
+const planReady = ref(false)
+const planError = ref('')
 const audioHeard = ref(false)
 const videoSeen = ref(false)
 const videoIndex = ref(0)  // Simple counter for videos
@@ -27,9 +29,28 @@ const audioCompleted = ref(false)  // New state to track audio completion
 // Get the current group from the store
 const currentGroup = computed(() => supabaseStore.user.group)
 
-// Initialize video order when component is mounted
-onMounted(() => {
-  initializeVideoOrder()
+// Make sure the participant's trial plan is available:
+// 1. still in memory from phase 1 (normal flow), else
+// 2. the plan saved in Supabase (resume after reload), else
+// 3. generate a new one and save it (should only happen for participants
+//    without a saved plan).
+onMounted(async () => {
+  try {
+    if (!isVideoOrderInitialized()) {
+      const { plan } = await supabaseStore.loadTrialPlan()
+      if (plan) {
+        setTrialPlan(plan)
+      } else {
+        const newPlan = initializeVideoOrder()
+        const { error } = await supabaseStore.saveTrialPlan(newPlan)
+        if (error) throw error
+      }
+    }
+    planReady.value = true
+  } catch (e) {
+    console.error('Could not prepare trial plan:', e)
+    planError.value = 'Die Videozuteilung konnte nicht geladen werden. Bitte laden Sie die Seite neu oder wenden Sie sich an die Studienleitung.'
+  }
 })
 
 // Helper function to check if current index is in a list
@@ -152,21 +173,24 @@ const showContextRatingsThirdSet = computed(() => {
 
 const phase2Finished = computed(() => progressIndex.value >= 87)
 
-function submitRating (ratings: { pain: number, credibility: number, difficulty: number }, filename: string) {
+function submitRating (ratings: { pain: number, credibility: number, difficulty: number, action?: number }, filename: string) {
   console.log('Submitting rating with filename:', filename.replace(/\.[^/.]+$/, ''))
-  if (!currentAudioType.value) {
-    console.error('No audio type found for video')
+  const trial = currentTrial.value
+  if (!trial) {
+    console.error('No trial found for rating')
     return
   }
-  supabaseStore.saveRating(videoIndex.value, ratings, filename.replace(/\.[^/.]+$/, ''), currentAudioType.value)
+  if (trial.position !== videoIndex.value) {
+    console.warn(`Trial position ${trial.position} does not match video counter ${videoIndex.value}`)
+  }
+  supabaseStore.saveRating(ratings, trial)
   finishSection()
 }
 
 function handleAudioEnded (filename: string) {
   audioCompleted.value = true
   currentFilename.value = filename
-  const currentVideo = getCurrentVideo(videoIndex.value)
-  currentAudioType.value = currentVideo.audioType || null
+  currentTrial.value = getCurrentVideo(videoIndex.value)
 }
 
 function handleVideoEnded (filename: string) {
@@ -191,7 +215,16 @@ function finishPhaseTwo () {
 <template>
   <div
     class="instruction"
-    v-if="showIntro"
+    v-if="planError"
+  >
+    <p>{{ planError }}</p>
+  </div>
+
+  <Loading v-else-if="!planReady" />
+
+  <div
+    class="instruction"
+    v-else-if="showIntro"
   >
     <h2>Nun beginnt der 2. Teil der Studie.</h2>
     <p>Sie sehen gleich eine Reihe von Videos mit verschiedenen Personen. Ihre Aufgabe ist es, die Schmerzen der

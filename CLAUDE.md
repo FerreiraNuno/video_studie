@@ -32,19 +32,28 @@ Progress (which phase a participant last reached) is tracked per-participant in 
 
 ### Video/photo assignment
 
-[src/utils/videoManager.ts](src/utils/videoManager.ts) and [src/utils/photoManager.ts](src/utils/photoManager.ts) hold the fixed catalog of 26 people (young/old × male/female × pain-specific/unspecific) and randomize, per session: context order, which people appear in which context, and which of 3 audio tracks (no/slight/strong pain) is paired with each video — balanced by gender/age/context.
+[src/utils/videoManager.ts](src/utils/videoManager.ts) and [src/utils/photoManager.ts](src/utils/photoManager.ts) hold the fixed catalog of 36 people (young/old × male/female × pain-specific/unspecific).
+
+The phase-2 **trial plan** is built by the pure module [src/utils/trialPlan.ts](src/utils/trialPlan.ts) (`generateTrialPlan` / `validateTrialPlan`). Hard requirement, validated on generation and covered by `npm test` ([src/utils/__tests__/trialPlan.test.ts](src/utils/__tests__/trialPlan.test.ts)): within each context every combination of self-report (`audioType`: no/slight/strong pain) × facial expression (`videoType`: pain-specific = yes / unspecific = no) appears **exactly twice** (one male, one female) → 12 trials per context. Context order, person→context assignment, audio pairing and order within a context are randomized under that constraint; per context young ≥ old.
+
+The plan is generated **once** per participant (PhaseOne submit), saved to `trial_plans`, and re-used in PhaseTwo (loaded from the DB after a reload). Never call `initializeVideoOrder()` a second time for the same participant — the pre-Oct-2026 code did exactly that (PhaseOne + PhaseTwo mount) and, because it mutated shared catalog objects, carried stale audio assignments into a fresh context assignment, which destroyed the balance for almost all of the first 130 participants.
 
 ## Supabase
 
 Project: **videoFragebogen** (`ctsptoeoypyrtoxuujlv`, `eu-central-1`).
 
-Active tables (all in `public`, RLS currently disabled — intentional for this study, anon key is used client-side):
+**Two data collections, two schemas:**
+- `public` — first collection (June 2025 – Oct 2026, ~130 participants, unbalanced trials). Archive; do not write to it. A local backup is in `backups/` (gitignored).
+- `study_v2` — second collection after the balancing fix. The client ([src/lib/supabaseClient.ts](src/lib/supabaseClient.ts)) is pinned to this schema via `db.schema`. Created by [supabase/migrations/20261022_01_study_v2_schema.sql](supabase/migrations/20261022_01_study_v2_schema.sql); the schema must also be listed under "Exposed schemas" in the Supabase API settings.
+
+Active tables (same names in both schemas, RLS disabled — intentional for this study, anon key is used client-side):
 
 | Table | Written by | Purpose |
 |---|---|---|
 | `form_data` | `saveUserData` | Phase 1 demographics + consent |
 | `progress` | `saveProgress`/`loadProgress` | Per-participant resume point (upsert on `participant_number`) |
-| `video_ratings` | `saveRating` | Pain/credibility/difficulty ratings per video seen |
+| `trial_plans` | `saveTrialPlan`/`loadTrialPlan` | (`study_v2` only) the participant's balanced trial plan as JSON, one row per participant |
+| `video_ratings` | `saveRating` | Pain/credibility/difficulty ratings per video seen; in `study_v2` also `context`, `video_type`, `person_id`. `video_index` is 1-based (1–36). View `v_balance_check` must show n = 2 everywhere |
 | `photo_ratings` | `savePhotoRating` | Trait ratings per photo seen (trustworthiness, sympathy, aura, valence, attractiveness, stress, empathy) |
 | `final_ratings` | `saveFinalRatings` | End-of-study ratings (exaggeration, faking, understating, suppression, empathy per context) |
 | `ending_questions` | `saveEndingQuestions` | Debrief consent questions (informed, wants deletion, agrees to silence) |

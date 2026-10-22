@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import { useProgressStore } from '../useProgress.store'
 import { useSupabaseStore } from '../useSupabase.store'
-import { contextOrder, initializeVideoOrder } from '@/utils/videoManager'
+import { initializeVideoOrder } from '@/utils/videoManager'
 
 const progressStore = useProgressStore()
 const supabaseStore = useSupabaseStore()
@@ -62,8 +62,16 @@ const submitForm = async () => {
     return
   }
 
-  // Initialize video order to populate contextOrder
-  initializeVideoOrder()
+  // Generate (and validate) this participant's balanced trial plan once.
+  // It is persisted so phase 2 shows exactly this plan, also after a reload.
+  let plan
+  try {
+    plan = initializeVideoOrder()
+  } catch (e) {
+    console.error(e)
+    errorMessage.value = 'Interner Fehler bei der Zuteilung der Videos. Bitte wenden Sie sich an die Studienleitung.'
+    return
+  }
 
   const formData = {
     wantsVPHours: wantsVPHours.value,
@@ -83,8 +91,14 @@ const submitForm = async () => {
   }
 
   // Convert context order array to comma-separated string
-  const contextOrderString = contextOrder.value.join(',')
+  const contextOrderString = plan.contextOrder.join(',')
   console.log('Context order being saved:', contextOrderString)
+
+  const { error: planError } = await supabaseStore.saveTrialPlan(plan)
+  if (planError) {
+    errorMessage.value = `Fehler beim Speichern der Videozuteilung: ${planError.message}`
+    return
+  }
 
   const response = await supabaseStore.saveUserData(formData, contextOrderString)
   if (response?.code) {

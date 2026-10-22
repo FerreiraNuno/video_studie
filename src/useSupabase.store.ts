@@ -2,6 +2,7 @@ import { defineStore } from "pinia"
 import { supabase } from './lib/supabaseClient'
 import { ref } from "vue"
 import { useProgressStore } from './useProgress.store'
+import type { Trial, TrialPlan } from './utils/trialPlan'
 
 export type StudyGroup = 'CDM' | 'SCT' | 'KG'
 
@@ -46,7 +47,13 @@ export const useSupabaseStore = defineStore('supabaseStore', () => {
     return { data, error }
   }
 
-  async function saveRating (videoIndex: number, ratings: { pain: number, credibility: number, difficulty: number, action?: number }, filename: string, audioType: 'no_pain' | 'slight_pain' | 'strong_pain') {
+  /**
+   * Saves one video rating. `trial` is the plan entry of the video that was just
+   * rated; its position (1..36) is stored as `video_index`, and the design
+   * cells (context, facial expression = video_type, self-report = audio_type)
+   * are stored explicitly so balance can be verified directly in the data.
+   */
+  async function saveRating (ratings: { pain: number, credibility: number, difficulty: number, action?: number }, trial: Trial) {
     if (!isAuthenticated.value) {
       console.error('User is not authenticated')
       return { error: 'User is not authenticated' }
@@ -58,31 +65,23 @@ export const useSupabaseStore = defineStore('supabaseStore', () => {
       return { error: 'No participant number found' }
     }
 
-    console.log('Saving rating with data:', {
+    const row = {
       participant_number: participantNumber,
-      video_index: videoIndex,
+      video_index: trial.position,
       pain_rating: ratings.pain,
       credibility_rating: ratings.credibility,
       difficulty_rating: ratings.difficulty,
       action_rating: ratings.action,
-      video_filename: filename.replace(/\.[^/.]+$/, ''),
-      audio_type: audioType,
-      study_group: group
-    })
+      video_filename: trial.filename.replace(/\.[^/.]+$/, ''),
+      audio_type: trial.audioType,
+      study_group: group,
+      context: trial.context,
+      video_type: trial.videoType,
+      person_id: trial.personId,
+    }
+    console.log('Saving rating with data:', row)
 
-    const { data, error } = await supabase.from('video_ratings').insert([
-      {
-        participant_number: participantNumber,
-        video_index: videoIndex,
-        pain_rating: ratings.pain,
-        credibility_rating: ratings.credibility,
-        difficulty_rating: ratings.difficulty,
-        action_rating: ratings.action,
-        video_filename: filename.replace(/\.[^/.]+$/, ''),
-        audio_type: audioType,
-        study_group: group,
-      },
-    ])
+    const { data, error } = await supabase.from('video_ratings').insert([row])
 
     if (error) {
       console.error('Error saving rating:', error)
@@ -91,6 +90,33 @@ export const useSupabaseStore = defineStore('supabaseStore', () => {
       console.log('Rating saved successfully')
       return { data }
     }
+  }
+
+  /** Persists the participant's trial plan (one row per participant, overwritten on conflict). */
+  async function saveTrialPlan (plan: TrialPlan) {
+    const { participantNumber, group } = user.value
+    const { error } = await supabase.from('trial_plans').upsert(
+      {
+        participant_number: participantNumber,
+        study_group: group,
+        context_order: plan.contextOrder.join(','),
+        plan: plan,
+      },
+      { onConflict: 'participant_number' }
+    )
+    if (error) console.error('Error saving trial plan:', error)
+    return { error }
+  }
+
+  async function loadTrialPlan () {
+    const { participantNumber } = user.value
+    const { data, error } = await supabase
+      .from('trial_plans')
+      .select('plan, context_order')
+      .eq('participant_number', participantNumber)
+      .maybeSingle()
+    if (error) console.error('Error loading trial plan:', error)
+    return { plan: (data?.plan ?? null) as TrialPlan | null, error }
   }
 
   async function saveUserData (formData: any, contextOrder?: string) {
@@ -225,6 +251,8 @@ export const useSupabaseStore = defineStore('supabaseStore', () => {
     saveProgress,
     loadProgress,
     saveRating,
+    saveTrialPlan,
+    loadTrialPlan,
     saveUserData,
     savePhotoRating,
     saveFinalRatings,
