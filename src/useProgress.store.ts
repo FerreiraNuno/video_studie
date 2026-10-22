@@ -19,9 +19,17 @@ export const useProgressStore = defineStore('progressStore', () => {
   const position: Ref<StudyPosition | null> = ref(null)
 
 
-  async function startStudy () {
-    await loadProgress()
+  /**
+   * Loads the resume point and enters the study. Returns the read error, if
+   * any – the caller must not proceed then: an earlier version fell back to
+   * phase 1 on a failed read, which would show a participant in phase 2/3 the
+   * questionnaire again and overwrite their trial plan on submit.
+   */
+  async function startStudy (): Promise<{ error: { message: string, code?: string } | null }> {
+    const { error } = await loadProgress()
+    if (error) return { error }
     if (!phase.value) phase.value = PHASE.questionnaire
+    return { error: null }
   }
 
   /**
@@ -54,16 +62,15 @@ export const useProgressStore = defineStore('progressStore', () => {
   async function loadProgress () {
     const { data, error } = await supabaseStore.loadProgress()
     if (error) {
-      if (error.code === 'PGRST116') { // PGRST116 is the "Row not found" error code
-        console.log('Kein Fortschritt gefunden, starte bei Index 0')
-        return
-      }
       console.error('Fehler beim Laden des Fortschritts:', error)
-    } else if (data) {
+      return { error }
+    }
+    if (data) {
       phase.value = data.phase
       const saved = data.position as StudyPosition | null
       position.value = saved && saved.phase === data.phase ? saved : null
     }
+    return { error: null }
   }
 
   return {

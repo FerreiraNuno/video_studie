@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import Rating from './PhaseTwoComponents/Rating.vue'
-import Video from './PhaseTwoComponents/Video.vue'
-import InstructionAudio from './PhaseTwoComponents/InstructionAudio.vue'
+import Video, { type TrialEndReason } from './PhaseTwoComponents/Video.vue'
+import InstructionAudio, { type InstructionEndReason } from './PhaseTwoComponents/InstructionAudio.vue'
 import Loading from './PhaseTwoComponents/Loading.vue'
 import Context from './PhaseTwoComponents/Context.vue'
 import { useProgressStore, PHASE } from '../useProgress.store'
@@ -21,6 +21,10 @@ const supabaseStore = useSupabaseStore()
 const progressIndex = ref(0)
 const currentFilename = ref('')
 const currentTrial = ref<Trial | null>(null)  // the trial whose video was just shown and is being rated
+// How the instruction audio and the video of the current trial ended; saved
+// with the rating so trials without a proper stimulus can be excluded.
+const instructionEndReason = ref<InstructionEndReason | null>(null)
+const trialEndReason = ref<TrialEndReason | null>(null)
 const planReady = ref(false)
 const planError = ref('')
 const audioHeard = ref(false)
@@ -216,21 +220,27 @@ function submitRating (ratings: { pain: number, credibility: number, difficulty:
     console.warn(`Trial position ${trial.position} does not match video counter ${videoIndex.value}`)
   }
   // Retries + outbox happen inside the store; the participant continues immediately.
-  void supabaseStore.saveRating(ratings, trial)
+  void supabaseStore.saveRating(ratings, trial, {
+    instructionEndReason: instructionEndReason.value,
+    trialEndReason: trialEndReason.value,
+  })
   finishSection()
 }
 
 // Both handlers are idempotent: a second emit for the same step (a media
 // component firing twice) must not advance twice, which would skip a trial.
-function handleAudioEnded (filename: string) {
+function handleAudioEnded (filename: string, reason: InstructionEndReason) {
   if (audioCompleted.value) return
   audioCompleted.value = true
   currentFilename.value = filename
   currentTrial.value = getCurrentVideo(videoIndex.value)
+  instructionEndReason.value = reason
+  trialEndReason.value = null
 }
 
-function handleVideoEnded (filename: string) {
+function handleVideoEnded (filename: string, reason: TrialEndReason) {
   if (!audioCompleted.value) return
+  trialEndReason.value = reason
   audioCompleted.value = false  // Reset for next round
   videoIndex.value++  // Increment video index after each video
   progressIndex.value++

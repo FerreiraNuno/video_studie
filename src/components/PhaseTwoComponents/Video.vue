@@ -25,8 +25,11 @@ const props = defineProps<{
   videoIndex: number
 }>()
 
+/** Why the trial ended; stored with the rating so trials without a proper stimulus can be excluded. */
+export type TrialEndReason = 'audio_ended' | 'timer' | 'video_error' | 'audio_error'
+
 const emit = defineEmits<{
-  (e: 'video-ended', filename: string): void
+  (e: 'video-ended', filename: string, reason: TrialEndReason): void
 }>()
 
 /** Longest self-report audio is 6.3 s, longest video 10 s. */
@@ -58,12 +61,12 @@ function armTimer (ms: number) {
   timer = window.setTimeout(() => finish('timer'), ms)
 }
 
-function finish (reason: string) {
+function finish (reason: TrialEndReason) {
   if (finished) return
   finished = true
   clearTimer()
-  if (reason !== 'audio ended') console.warn(`Trial ${props.videoIndex + 1} ended by ${reason}`)
-  emit('video-ended', currentVideo.filename)
+  if (reason !== 'audio_ended') console.warn(`Trial ${props.videoIndex + 1} ended by ${reason}`)
+  emit('video-ended', currentVideo.filename, reason)
 }
 
 let audioStarted = false
@@ -90,7 +93,7 @@ function onVideoError () {
     videoRetried = true
     window.setTimeout(() => video.load(), 1500)
   } else {
-    finish('video error')
+    finish('video_error')
   }
 }
 
@@ -102,7 +105,7 @@ function onAudioPlay () {
 }
 
 function onAudioEnded () {
-  finish('audio ended')
+  finish('audio_ended')
 }
 
 function onAudioError () {
@@ -114,7 +117,7 @@ function onAudioError () {
       audio.play().catch(() => { /* hard timer finishes the trial */ })
     }, 1500)
   } else {
-    finish('audio error')
+    finish('audio_error')
   }
 }
 

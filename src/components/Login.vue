@@ -41,18 +41,20 @@ async function handleLogin () {
     supabaseStore.user.participantNumber = participantNumber.value
     supabaseStore.user.group = selectedGroup.value
     loading.value = true
-    const response = await supabaseStore.loadProgress()
+    // One read of the resume point; on failure the participant stays on the
+    // login page (never fall back to phase 1 – see progressStore.startStudy).
+    const { error } = await progressStore.startStudy()
     loading.value = false
-    if (response.error && response.error.code !== 'PGRST116') {
-      console.error('Login: progress could not be loaded:', response.error)
+    if (error) {
+      console.error('Login: progress could not be loaded:', error)
       errorMessage.value = 'Die Verbindung zum Server ist fehlgeschlagen. Bitte prüfen Sie Ihre Internetverbindung und versuchen Sie es erneut.'
-    } else {
-      supabaseStore.isAuthenticated = true
-      // Deliver writes an earlier session of this participant could not send.
-      void supabaseStore.flushOutbox()
-      window.addEventListener('online', () => { void supabaseStore.flushOutbox() })
-      await progressStore.startStudy()
+      return
     }
+    errorMessage.value = ''
+    supabaseStore.isAuthenticated = true
+    // Deliver writes an earlier session of this participant could not send.
+    void supabaseStore.flushOutbox()
+    window.addEventListener('online', () => { void supabaseStore.flushOutbox() })
   } else {
     errorMessage.value = "Passwort ist ungültig"
   }

@@ -46,7 +46,7 @@ A reload during phase 2 or 3 resumes at the current video / photo via `progress.
 
 Project: **videoFragebogen** (`ctsptoeoypyrtoxuujlv`, `eu-central-1`), org `klinPsych`, on the **Free plan** since 2026-10-22 (needs the daily keep-alive below).
 
-**Migrations** live in [supabase/migrations/](supabase/migrations/), are idempotent, and are applied in file order (01–06 applied as of 2026-10-22) with `psql` through the session-pooler URI in `.env.local` (`SUPABASE_DB_URL`, gitignored, full access — never print it):
+**Migrations** live in [supabase/migrations/](supabase/migrations/), are idempotent, and are applied in file order (01–07 applied as of 2026-10-23) with `psql` through the session-pooler URI in `.env.local` (`SUPABASE_DB_URL`, gitignored, full access — never print it):
 
 ```bash
 set -a; . ./.env.local; set +a; psql "$SUPABASE_DB_URL" -X -v ON_ERROR_STOP=1 -f supabase/migrations/<file>.sql
@@ -65,7 +65,7 @@ Active tables (same names in both schemas; the anon key is used client-side, RLS
 | `form_data` | `saveUserData` | Phase 1 demographics + consent |
 | `progress` | `saveProgress`/`loadProgress` | Per-participant resume point (upsert on `participant_number`) |
 | `trial_plans` | `saveTrialPlan`/`loadTrialPlan` | (`study_v2` only) the participant's balanced trial plan as JSON, one row per participant |
-| `video_ratings` | `saveRating` | Pain/credibility/difficulty ratings per video seen; in `study_v2` also `context`, `video_type`, `person_id`. `video_index` is 1-based (1–36). View `v_balance_check` must show n = 2 everywhere |
+| `video_ratings` | `saveRating` | Pain/credibility/difficulty ratings per video seen; in `study_v2` also `context`, `video_type`, `person_id`, and how the stimulus ended (`instruction_end_reason`, `trial_end_reason`; anything other than `ended` / `audio_ended` means the participant did not get the full stimulus and the trial should be excluded; null after a reload during the rating). `video_index` is 1-based (1–36). View `v_balance_check` must show n = 2 everywhere |
 | `photo_ratings` | `savePhotoRating` | Trait ratings per photo seen (trustworthiness, sympathy, aura, valence, attractiveness, stress, empathy) |
 | `final_ratings` | `saveFinalRatings` | End-of-study ratings (exaggeration, faking, understating, suppression, empathy per context) |
 | `ending_questions` | `saveEndingQuestions` | Debrief consent questions (informed, wants deletion, agrees to silence) |
@@ -74,7 +74,9 @@ All Supabase reads/writes go through [src/useSupabase.store.ts](src/useSupabase.
 
 **Writes never go straight to the client.** Every save goes through the persister in [src/lib/persist.ts](src/lib/persist.ts): the row is parked in a localStorage outbox first, written once on its natural key (e.g. `participant_number,video_index`; insert for data tables, upsert for `progress`/`trial_plans`), retried with back-off, and removed from the outbox only after the server confirmed it. Leftovers are flushed on the next login of that participant number and on the browser's `online` event. The unique indexes behind the `onConflict` keys come from [supabase/migrations/20261022_03_unique_keys_for_idempotent_writes.sql](supabase/migrations/20261022_03_unique_keys_for_idempotent_writes.sql) — a new table needs a natural key there before the app may write to it. Background: in the first collection fire-and-forget inserts silently dropped single ratings, and an insert with a column the table did not yet have (`empathy`, Sept 2025 – July 2026) cost 96 participants all their photo ratings.
 
-Phase transitions use `progressStore.setPhase(PHASE.x)` with an explicit target, never a blind increment.
+Phase transitions use `progressStore.setPhase(PHASE.x)` with an explicit target, never a blind increment. `progress` writes are serialized, newest value wins ([src/lib/serializeLatest.ts](src/lib/serializeLatest.ts)), so two upserts of the row can never land out of order. Login loads progress exactly once via `progressStore.startStudy()`; a failed read keeps the participant on the login page — it must never fall back to phase 1, because submitting the questionnaire again would overwrite the trial plan.
+
+All Supabase requests time out after 20 s ([src/lib/fetchWithTimeout.ts](src/lib/fetchWithTimeout.ts)); the timeout surfaces as a normal error that the persister retries.
 
 **Row Level Security** ([supabase/migrations/20261022_04_row_level_security.sql](supabase/migrations/20261022_04_row_level_security.sql)): the anon key may only insert into the data tables (no read, update or delete; a retry that hits the unique index is treated as success, see [src/lib/supabaseWriter.ts](src/lib/supabaseWriter.ts)); `progress` and `trial_plans` are readable and upsertable; the `public` archive is not reachable through the API at all. Reading data therefore needs the dashboard, SQL, or the service_role key (repo secret `SUPABASE_SERVICE_KEY`, used only by the backup workflow). A new table needs policies here, or the app's writes fail with 42501.
 

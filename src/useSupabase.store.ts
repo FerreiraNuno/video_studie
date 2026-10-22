@@ -2,6 +2,7 @@ import { defineStore } from "pinia"
 import { supabase } from './lib/supabaseClient'
 import { createPersister, type Row } from './lib/persist'
 import { createSupabaseWriter } from './lib/supabaseWriter'
+import { serializeLatest } from './lib/serializeLatest'
 import { ref } from "vue"
 import type { Trial, TrialPlan } from './utils/trialPlan'
 import type { StudyPosition } from './utils/resume'
@@ -38,15 +39,19 @@ export const useSupabaseStore = defineStore('supabaseStore', () => {
     return persister.flush(user.value.participantNumber)
   }
 
+  // Progress writes run one at a time, newest value wins (see serializeLatest):
+  // two upserts of the same row in flight at once could land in either order.
+  const writeProgress = serializeLatest((row: Row) => persist('progress', row, 'participant_number'))
+
   /** Upserts the resume point: the phase and, within phases 2/3, the position inside it. */
   async function saveProgress (phase: number, position: StudyPosition | null = null) {
     const { participantNumber, group } = user.value
-    return persist('progress', {
+    return writeProgress({
       phase: phase,
       position: position,
       participant_number: participantNumber,
       study_group: group,
-    }, 'participant_number')
+    })
   }
 
   async function loadProgress () {
@@ -68,7 +73,12 @@ export const useSupabaseStore = defineStore('supabaseStore', () => {
    * cells (context, facial expression = video_type, self-report = audio_type)
    * are stored explicitly so balance can be verified directly in the data.
    */
-  async function saveRating (ratings: { pain: number, credibility: number, difficulty: number, action?: number }, trial: Trial) {
+  async function saveRating (
+    ratings: { pain: number, credibility: number, difficulty: number, action?: number },
+    trial: Trial,
+    /** how the instruction audio / the trial ended (see Video.vue, InstructionAudio.vue); null after a reload during the rating */
+    media: { instructionEndReason: string | null, trialEndReason: string | null } = { instructionEndReason: null, trialEndReason: null }
+  ) {
     const { participantNumber, group } = user.value
     if (!isAuthenticated.value || !participantNumber) {
       console.error('Cannot save rating: not authenticated')
@@ -88,6 +98,8 @@ export const useSupabaseStore = defineStore('supabaseStore', () => {
       context: trial.context,
       video_type: trial.videoType,
       person_id: trial.personId,
+      instruction_end_reason: media.instructionEndReason,
+      trial_end_reason: media.trialEndReason,
     }, 'participant_number,video_index')
   }
 

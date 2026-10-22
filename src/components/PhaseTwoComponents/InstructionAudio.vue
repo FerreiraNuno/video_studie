@@ -16,8 +16,11 @@ const props = defineProps<{
   context: string
 }>()
 
+/** Why the instruction step ended; stored with the rating of the following video. */
+export type InstructionEndReason = 'ended' | 'timer' | 'error' | 'blocked' | 'no_element'
+
 const emit = defineEmits<{
-  (e: 'audio-ended', filename: string): void
+  (e: 'audio-ended', filename: string, reason: InstructionEndReason): void
 }>()
 
 /** Longest instruction audio is 14.7 s; the cap only matters while metadata is unknown. */
@@ -37,12 +40,12 @@ function clearTimer () {
   }
 }
 
-function finish (reason: string) {
+function finish (reason: InstructionEndReason) {
   if (finished) return
   finished = true
   clearTimer()
   if (reason !== 'ended') console.warn(`Instruction audio for video ${props.videoIndex + 1} ended by ${reason}`)
-  emit('audio-ended', getCurrentVideo(props.videoIndex).filename)
+  emit('audio-ended', getCurrentVideo(props.videoIndex).filename, reason)
 }
 
 function onPlay () {
@@ -65,7 +68,7 @@ onMounted(() => {
   timer = window.setTimeout(() => finish('timer'), HARD_CAP_MS)
   const audio = audioRef.value
   if (!audio) {
-    finish('no element')
+    finish('no_element')
     return
   }
   audio.addEventListener('play', onPlay)
