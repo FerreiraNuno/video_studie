@@ -109,6 +109,19 @@ describe('Video', () => {
     expect(emitted()).toEqual([[getCurrentVideo(0).filename, 'audio_error']])
   })
 
+  it('ends after one second with reason dev_fast when the dev fast mode is on', () => {
+    localStorage.setItem('devFastMode', '1')
+    try {
+      const { emitted } = mountVideo(0)
+      vi.advanceTimersByTime(999)
+      expect(emitted()).toHaveLength(0)
+      vi.advanceTimersByTime(1)
+      expect(emitted()).toEqual([[getCurrentVideo(0).filename, 'dev_fast']])
+    } finally {
+      localStorage.removeItem('devFastMode')
+    }
+  })
+
   it('never emits after unmount', () => {
     const { wrapper, audio, emitted } = mountVideo(0)
     const pause = vi.spyOn(audio, 'pause')

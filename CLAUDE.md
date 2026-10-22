@@ -42,6 +42,10 @@ The plan is generated **once** per participant (PhaseOne submit; a plan already 
 
 The phase-2 step sequence (88 steps: intro/tests, then per context intro, scenario, 12 video+rating pairs with reminders after 4 and 8) is generated once in [src/utils/phaseTwoSteps.ts](src/utils/phaseTwoSteps.ts); [PhaseTwo.vue](src/components/PhaseTwo.vue) renders `PHASE2_STEPS[progressIndex]` and the resume helpers read the same table, so do not hard-code step numbers anywhere else. A reload during phase 2 or 3 resumes at the current video / photo via `progress.position` (see [src/utils/resume.ts](src/utils/resume.ts); the phase-3 photo order is stored there too, randomized once per participant). Should the position be missing (e.g. an old row), the phase restarts; re-submitted ratings for stored positions are then ignored by the insert-once write path (first answer wins).
 
+## Clicking through by hand
+
+On the dev server, open `http://localhost:5173/?fast=1` once: every media step (context instruction, trial instruction audio, video + self-report, photo display) ends after 1 s and an orange badge marks the session ([src/lib/devFast.ts](src/lib/devFast.ts); `?fast=0` turns it off, the choice is kept in localStorage). It is guarded by `import.meta.env.DEV`, so production builds contain none of it. Trials ended this way carry the end reason `dev_fast`. Use a test participant number and delete its rows afterwards (see Supabase below).
+
 ## Tests
 
 `npm test` (Vitest, < 2 s) and `npm run test:e2e` (Playwright, ~2 min); both run in the deploy workflow before the build, so a red run blocks the deploy.
@@ -74,7 +78,7 @@ Active tables (same names in both schemas; the anon key is used client-side, RLS
 | `form_data` | `saveUserData` | Phase 1 demographics + consent |
 | `progress` | `saveProgress`/`loadProgress` | Per-participant resume point (upsert on `participant_number`) |
 | `trial_plans` | `saveTrialPlan`/`loadTrialPlan` | (`study_v2` only) the participant's balanced trial plan as JSON, one row per participant |
-| `video_ratings` | `saveRating` | Pain/credibility/difficulty ratings per video seen; in `study_v2` also `context`, `video_type`, `person_id`, and how the stimulus ended (`instruction_end_reason`, `trial_end_reason`; anything other than `ended` / `audio_ended` means the participant did not get the full stimulus and the trial should be excluded; null after a reload during the rating). `video_index` is 1-based (1–36). View `v_balance_check` must show n = 2 everywhere |
+| `video_ratings` | `saveRating` | Pain/credibility/difficulty ratings per video seen; in `study_v2` also `context`, `video_type`, `person_id`, and how the stimulus ended (`instruction_end_reason`, `trial_end_reason`; anything other than `ended` / `audio_ended` means the participant did not get the full stimulus and the trial should be excluded; `dev_fast` = dev fast mode, never real data; null after a reload during the rating). `video_index` is 1-based (1–36). View `v_balance_check` must show n = 2 everywhere |
 | `photo_ratings` | `savePhotoRating` | Trait ratings per photo seen (trustworthiness, sympathy, aura, valence, attractiveness, stress, empathy) |
 | `final_ratings` | `saveFinalRatings` | End-of-study ratings (exaggeration, faking, understating, suppression, empathy per context) |
 | `ending_questions` | `saveEndingQuestions` | Debrief consent questions (informed, wants deletion, agrees to silence) |

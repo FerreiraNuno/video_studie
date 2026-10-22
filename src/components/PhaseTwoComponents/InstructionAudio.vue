@@ -2,6 +2,7 @@
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useSupabaseStore } from '@/useSupabase.store'
 import { useStimuliStore } from '@/useStimuli.store'
+import { isFastMode, FAST_MEDIA_MS } from '@/lib/devFast'
 
 /**
  * Plays the context's instruction audio before each video. Emits exactly once:
@@ -18,7 +19,7 @@ const props = defineProps<{
 }>()
 
 /** Why the instruction step ended; stored with the rating of the following video. */
-export type InstructionEndReason = 'ended' | 'timer' | 'error' | 'blocked' | 'no_element'
+export type InstructionEndReason = 'ended' | 'timer' | 'error' | 'blocked' | 'no_element' | 'dev_fast'
 
 const emit = defineEmits<{
   (e: 'audio-ended', filename: string, reason: InstructionEndReason): void
@@ -45,11 +46,12 @@ function finish (reason: InstructionEndReason) {
   if (finished) return
   finished = true
   clearTimer()
-  if (reason !== 'ended') console.warn(`Instruction audio for video ${props.videoIndex + 1} ended by ${reason}`)
+  if (reason !== 'ended' && reason !== 'dev_fast') console.warn(`Instruction audio for video ${props.videoIndex + 1} ended by ${reason}`)
   emit('audio-ended', stimuliStore.trial(props.videoIndex).filename, reason)
 }
 
 function onPlay () {
+  if (fast) return
   const audio = audioRef.value
   if (audio && Number.isFinite(audio.duration)) {
     clearTimer()
@@ -65,8 +67,13 @@ function onError () {
   finish('error')
 }
 
+// Dev fast mode: the step ends after FAST_MEDIA_MS (see src/lib/devFast.ts).
+const fast = isFastMode()
+
 onMounted(() => {
-  timer = window.setTimeout(() => finish('timer'), HARD_CAP_MS)
+  timer = fast
+    ? window.setTimeout(() => finish('dev_fast'), FAST_MEDIA_MS)
+    : window.setTimeout(() => finish('timer'), HARD_CAP_MS)
   const audio = audioRef.value
   if (!audio) {
     finish('no_element')

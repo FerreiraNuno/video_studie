@@ -3,6 +3,7 @@ import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { getVideoSource, getAudioSource } from '@/utils/videoManager'
 import { useSupabaseStore } from '@/useSupabase.store'
 import { useStimuliStore } from '@/useStimuli.store'
+import { isFastMode, FAST_MEDIA_MS } from '@/lib/devFast'
 
 /**
  * One trial: the muted video plays while the self-report audio is heard.
@@ -28,7 +29,7 @@ const props = defineProps<{
 }>()
 
 /** Why the trial ended; stored with the rating so trials without a proper stimulus can be excluded. */
-export type TrialEndReason = 'audio_ended' | 'timer' | 'video_error' | 'audio_error'
+export type TrialEndReason = 'audio_ended' | 'timer' | 'video_error' | 'audio_error' | 'dev_fast'
 
 const emit = defineEmits<{
   (e: 'video-ended', filename: string, reason: TrialEndReason): void
@@ -58,16 +59,16 @@ function clearTimer () {
   }
 }
 
-function armTimer (ms: number) {
+function armTimer (ms: number, reason: TrialEndReason = 'timer') {
   clearTimer()
-  timer = window.setTimeout(() => finish('timer'), ms)
+  timer = window.setTimeout(() => finish(reason), ms)
 }
 
 function finish (reason: TrialEndReason) {
   if (finished) return
   finished = true
   clearTimer()
-  if (reason !== 'audio_ended') console.warn(`Trial ${props.videoIndex + 1} ended by ${reason}`)
+  if (reason !== 'audio_ended' && reason !== 'dev_fast') console.warn(`Trial ${props.videoIndex + 1} ended by ${reason}`)
   emit('video-ended', currentVideo.filename, reason)
 }
 
@@ -100,6 +101,7 @@ function onVideoError () {
 }
 
 function onAudioPlay () {
+  if (fast) return
   const audio = audioElement.value
   if (audio && Number.isFinite(audio.duration)) {
     armTimer((audio.duration - audio.currentTime) * 1000 + END_MARGIN_MS)
@@ -123,8 +125,12 @@ function onAudioError () {
   }
 }
 
+// Dev fast mode: the trial ends after FAST_MEDIA_MS regardless of the media (see src/lib/devFast.ts).
+const fast = isFastMode()
+
 onMounted(() => {
-  armTimer(HARD_CAP_MS)
+  if (fast) armTimer(FAST_MEDIA_MS, 'dev_fast')
+  else armTimer(HARD_CAP_MS)
 
   const video = videoElement.value
   if (video) {

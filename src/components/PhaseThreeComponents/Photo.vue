@@ -2,6 +2,7 @@
 import { onMounted, onUnmounted, ref } from 'vue'
 import { getPhotoSource, allPhotoFilenames } from '@/utils/photoManager'
 import { useStimuliStore } from '@/useStimuli.store'
+import { isFastMode, FAST_MEDIA_MS } from '@/lib/devFast'
 
 const props = defineProps<{
   photoIndex: number
@@ -21,7 +22,7 @@ const photoSource = ref(getPhotoSource(photo.value.filename))
 // participant saw anything. If the image does not load within LOAD_CAP_MS or
 // fails, the step ends anyway. The timer is cleared on unmount so it can
 // never fire into a later step.
-const DISPLAY_MS = 3000
+const DISPLAY_MS = isFastMode() ? FAST_MEDIA_MS : 3000   // dev fast mode: 1 s (see src/lib/devFast.ts)
 const LOAD_CAP_MS = 20000
 let timer: number | null = null
 let displayed = false

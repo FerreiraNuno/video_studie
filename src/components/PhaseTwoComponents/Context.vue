@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
 import { useSupabaseStore } from '@/useSupabase.store'
+import { isFastMode, FAST_MEDIA_MS } from '@/lib/devFast'
 
 const supabaseStore = useSupabaseStore()
 const emit = defineEmits<{
@@ -66,14 +67,18 @@ function armTimer (ms: number) {
 }
 
 function onPlay () {
+  if (fast) return
   const audio = audioRef.value
   if (audio && Number.isFinite(audio.duration)) {
     armTimer((audio.duration - audio.currentTime) * 1000 + END_MARGIN_MS)
   }
 }
 
+// Dev fast mode: "Weiter" unlocks after FAST_MEDIA_MS (see src/lib/devFast.ts).
+const fast = isFastMode()
+
 onMounted(() => {
-  armTimer(HARD_CAP_MS)
+  armTimer(fast ? FAST_MEDIA_MS : HARD_CAP_MS)
   const audio = audioRef.value
   if (!audio) {
     unlock()
