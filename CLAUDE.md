@@ -76,7 +76,7 @@ The same connection is used to delete test participants' rows after a dev-server
 
 **Two data collections, two schemas:**
 - `public` — first collection (June 2025 – Oct 2026, ~130 participants, unbalanced trials). Archive; do not write to it. A local backup is in `backups/` (gitignored).
-- `study_v2` — second collection after the balancing fix. The client ([src/lib/supabaseClient.ts](src/lib/supabaseClient.ts)) is pinned to this schema via `db.schema`. Created by [supabase/migrations/20261022_01_study_v2_schema.sql](supabase/migrations/20261022_01_study_v2_schema.sql); the schema must also be listed under "Exposed schemas" in the Supabase API settings.
+- `study_v2` — second collection after the balancing fix. Participants **328 and 363** in it are **test records**, not study data: carried over from the first collection. The client ([src/lib/supabaseClient.ts](src/lib/supabaseClient.ts)) is pinned to this schema via `db.schema`. Created by [supabase/migrations/20261022_01_study_v2_schema.sql](supabase/migrations/20261022_01_study_v2_schema.sql); the schema must also be listed under "Exposed schemas" in the Supabase API settings.
 
 Active tables (same names in both schemas; the anon key is used client-side, RLS makes the data tables **write-only** for it — see below):
 
