@@ -1,7 +1,7 @@
 /**
  * The evaluators' download page (/daten.html) against a faked Edge Function:
  * a wrong password shows the server's German message, the right one saves
- * the returned file under the server's filename.
+ * the returned ZIP under the server's filename.
  */
 import { test, expect } from '@playwright/test'
 
@@ -19,10 +19,10 @@ test.beforeEach(async ({ page }) => {
     return route.fulfill({
       status: 200,
       headers: {
-        'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        'Content-Disposition': 'attachment; filename="schmerzbeurteilung_daten_2026-10-23.xlsx"',
+        'Content-Type': 'application/zip',
+        'Content-Disposition': 'attachment; filename="schmerzbeurteilung_daten_2026-10-23.zip"',
       },
-      body: Buffer.from('PK\u0003\u0004fake-xlsx'),
+      body: Buffer.from('PK\u0003\u0004fake-zip'),
     })
   })
   await page.goto('/daten.html')
@@ -31,17 +31,17 @@ test.beforeEach(async ({ page }) => {
 test('shows the German error for a wrong password and keeps the form usable', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Datenexport' })).toBeVisible()
   await page.getByLabel('Passwort für die Auswertung').fill('falsch')
-  await page.getByRole('button', { name: 'Daten als Excel herunterladen' }).click()
+  await page.getByRole('button', { name: 'Daten herunterladen' }).click()
   await expect(page.getByRole('status')).toHaveText('Das Passwort ist nicht richtig.')
-  await expect(page.getByRole('button', { name: 'Daten als Excel herunterladen' })).toBeEnabled()
+  await expect(page.getByRole('button', { name: 'Daten herunterladen' })).toBeEnabled()
 })
 
-test('downloads the workbook with the right password', async ({ page }) => {
+test('downloads the ZIP with the right password', async ({ page }) => {
   await page.getByLabel('Passwort für die Auswertung').fill(PASSWORD)
   const downloadPromise = page.waitForEvent('download')
-  await page.getByRole('button', { name: 'Daten als Excel herunterladen' }).click()
+  await page.getByRole('button', { name: 'Daten herunterladen' }).click()
   const download = await downloadPromise
-  expect(download.suggestedFilename()).toBe('schmerzbeurteilung_daten_2026-10-23.xlsx')
+  expect(download.suggestedFilename()).toBe('schmerzbeurteilung_daten_2026-10-23.zip')
   await expect(page.getByRole('status')).toContainText('wurde heruntergeladen')
 })
 
@@ -51,7 +51,7 @@ test('sends the password to the function, never a database key', async ({ page }
     if (request.url().includes('/functions/v1/export-data')) sent.push(request.headers())
   })
   await page.getByLabel('Passwort für die Auswertung').fill(PASSWORD)
-  await page.getByRole('button', { name: 'Daten als Excel herunterladen' }).click()
+  await page.getByRole('button', { name: 'Daten herunterladen' }).click()
   await expect(page.getByRole('status')).toContainText('wurde heruntergeladen')
   expect(sent.length).toBeGreaterThan(0)
   for (const headers of sent) {

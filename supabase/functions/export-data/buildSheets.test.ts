@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { buildSheets, describePerson, personIdFromFilename, trialValidity, type StudyData } from './buildSheets'
+import { buildSheets, toCsv, describePerson, personIdFromFilename, trialValidity, type StudyData } from './buildSheets'
 
 const data: StudyData = {
   form_data: [{
@@ -39,13 +39,20 @@ const data: StudyData = {
 }
 
 describe('buildSheets', () => {
-  const sheets = buildSheets(data, new Date('2026-10-23T12:00:00Z'))
+  const sheets = buildSheets(data)
   const sheet = (name: string) => sheets.find(s => s.name === name)!
 
-  it('produces the seven German sheets with Excel-safe names', () => {
-    expect(sheets.map(s => s.name)).toEqual(['Hinweise', 'Teilnehmende', 'Videobewertungen', 'Fotobewertungen', 'Abschlussfragen', 'Nachbefragung', 'Videoplan'])
-    for (const s of sheets) expect(s.name.length).toBeLessThanOrEqual(31)
-    expect(sheet('Hinweise').rows[1][0]).toContain('2026-10-23 12:00')
+  it('produces the six German tables', () => {
+    expect(sheets.map(s => s.name)).toEqual(['Teilnehmende', 'Videobewertungen', 'Fotobewertungen', 'Abschlussfragen', 'Nachbefragung', 'Videoplan'])
+  })
+
+  it('encodes CSV the way German Excel opens it: BOM, semicolons, CRLF, quoting', () => {
+    const csv = toCsv({ name: 'x', rows: [['Probandennummer', 'Text'], ['101', 'mit; Semikolon und "Anführung"'], ['102', null]] })
+    expect(csv.charCodeAt(0)).toBe(0xFEFF)
+    expect(csv.slice(1)).toBe('Probandennummer;Text\r\n101;"mit; Semikolon und ""Anführung"""' + '\r\n102;\r\n')
+    const nachbefragung = toCsv(sheet('Nachbefragung')).split('\r\n')
+    expect(nachbefragung[0]).toBe('\uFEFFProbandennummer;Über Hintergrund aufgeklärt;Löschung gewünscht;Stillschweigen zugesagt;Zeitpunkt')
+    expect(nachbefragung[1]).toBe('101;ja;nein;ja;2026-10-23 10:30')
   })
 
   it('joins the questionnaire with the participant\'s progress and spells out codes', () => {

@@ -1,20 +1,21 @@
 /**
  * Edge Function `export-data`: the evaluators' data download.
  *
- *   POST { password }  →  schmerzbeurteilung_daten_<date>.xlsx
+ *   POST { password }  →  schmerzbeurteilung_daten_<date>.zip
+ *                         (Teilnehmende.csv, Videobewertungen.csv, …)
  *
  * The browser never sees a database key: this function holds the service
  * role key (injected by Supabase as SUPABASE_SERVICE_ROLE_KEY) and compares
  * the typed password with the EXPORT_PASSWORD secret. On success it reads
- * every study_v2 table and returns one Excel workbook (sheets built in
+ * every study_v2 table and returns one ZIP with a CSV per table (built in
  * buildSheets.ts). The page that calls it is /daten.html of the study app.
  *
  * Deploy:   npx supabase functions deploy export-data --project-ref ctsptoeoypyrtoxuujlv
  * Password: npx supabase secrets set EXPORT_PASSWORD='…' --project-ref ctsptoeoypyrtoxuujlv
  */
 import { createClient } from 'npm:@supabase/supabase-js@2.47.16'
-import * as XLSX from 'npm:xlsx@0.18.5'
-import { buildSheets, type Row, type StudyData } from './buildSheets.ts'
+import { zipSync, strToU8 } from 'npm:fflate@0.8.2'
+import { buildSheets, toCsv, type Row, type StudyData } from './buildSheets.ts'
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
@@ -81,20 +82,15 @@ Deno.serve(async (req) => {
     return json(502, { error: 'Die Daten konnten nicht gelesen werden. Bitte später erneut versuchen.' })
   }
 
-  const now = new Date()
-  const workbook = XLSX.utils.book_new()
-  for (const sheet of buildSheets(data, now)) {
-    const ws = XLSX.utils.aoa_to_sheet(sheet.rows)
-    if (sheet.widths) ws['!cols'] = sheet.widths.map(wch => ({ wch }))
-    XLSX.utils.book_append_sheet(workbook, ws, sheet.name)
-  }
-  const bytes = XLSX.write(workbook, { type: 'array', bookType: 'xlsx' }) as ArrayBuffer
-  const filename = `schmerzbeurteilung_daten_${now.toISOString().slice(0, 10)}.xlsx`
+  const files: Record<string, Uint8Array> = {}
+  for (const sheet of buildSheets(data)) files[`${sheet.name}.csv`] = strToU8(toCsv(sheet))
+  const bytes = zipSync(files, { level: 6 })
+  const filename = `schmerzbeurteilung_daten_${new Date().toISOString().slice(0, 10)}.zip`
 
   return new Response(bytes, {
     headers: {
       ...CORS_HEADERS,
-      'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'Content-Type': 'application/zip',
       'Content-Disposition': `attachment; filename="${filename}"`,
       'Cache-Control': 'no-store',
     },

@@ -3,7 +3,7 @@
  *
  * One password field, one button. The password goes to the Edge Function
  * `export-data` (supabase/functions/export-data), which holds the database
- * key and answers with the Excel workbook; this page only saves the file.
+ * key and answers with a ZIP of CSV files; this page only saves the file.
  * No Vue, no study code: the page must stay trivially simple.
  */
 import './assets/daten.css'
@@ -24,7 +24,7 @@ function show (message: string, kind: 'info' | 'error' | 'success') {
 /** Filename from the Content-Disposition header, with a dated fallback. */
 export function filenameFrom (contentDisposition: string | null, today = new Date()): string {
   const match = /filename="?([^";]+)"?/.exec(contentDisposition ?? '')
-  return match?.[1] ?? `schmerzbeurteilung_daten_${today.toISOString().slice(0, 10)}.xlsx`
+  return match?.[1] ?? `schmerzbeurteilung_daten_${today.toISOString().slice(0, 10)}.zip`
 }
 
 async function download (password: string) {
@@ -55,7 +55,7 @@ async function download (password: string) {
     link.click()
     link.remove()
     setTimeout(() => URL.revokeObjectURL(url), 10_000)
-    show(`Die Datei „${filename}“ wurde heruntergeladen. Sie finden sie in Ihrem Download-Ordner.`, 'success')
+    show(`„${filename}“ wurde heruntergeladen.`, 'success')
   } catch (e) {
     console.error('export failed', e)
     show('Keine Verbindung zum Server. Bitte prüfen Sie Ihre Internetverbindung und versuchen Sie es erneut.', 'error')

@@ -1,22 +1,20 @@
 /**
- * Turns the raw study_v2 rows into the sheets of the evaluators' workbook.
+ * Turns the raw study_v2 rows into the evaluators' tables, one CSV each.
  *
  * Pure and dependency-free so it can be unit-tested with Vitest (the Deno
- * entry point index.ts only adds the HTTP handling and the xlsx encoding).
- * Everything the evaluators see is German and self-explanatory: labels
- * instead of codes, one "Gültig" column instead of two end-reason codes,
- * and a "Hinweise" sheet that explains every column.
+ * entry point index.ts only adds the HTTP handling and the ZIP). Everything
+ * the evaluators see is German and self-explanatory: labels instead of
+ * codes and one "Gültig" column instead of two end-reason codes.
  */
 
 export type Cell = string | number | boolean | null
 export type Row = Record<string, unknown>
 
 export interface Sheet {
-  /** sheet name, max 31 chars (Excel limit) */
+  /** file name without extension */
   name: string
+  /** header row first */
   rows: Cell[][]
-  /** column widths in characters, optional */
-  widths?: number[]
 }
 
 export interface StudyData {
@@ -78,37 +76,12 @@ export function isTestRow (row: Row): boolean {
   return row.instruction_end_reason === 'dev_fast' || row.trial_end_reason === 'dev_fast'
 }
 
-export function buildSheets (data: StudyData, exportedAt: Date): Sheet[] {
+export function buildSheets (data: StudyData): Sheet[] {
   const progressByParticipant = new Map(data.progress.map(p => [String(p.participant_number), p]))
   const videoRatings = data.video_ratings.filter(r => !isTestRow(r)).sort(byParticipantAndIndex('video_index'))
 
-  const hinweise: Sheet = {
-    name: 'Hinweise',
-    widths: [110],
-    rows: [
-      ['Datenexport Studie Schmerzbeurteilung (Universität Gießen, Abteilung Klinische Psychologie)'],
-      [`Stand: ${timestamp(exportedAt.toISOString())} UTC. Jeder Download enthält den aktuellen Datenbestand.`],
-      [''],
-      ['Teilnehmende sind nur über ihre Probandennummer identifiziert. Die erste Ziffer ist die Gruppe: 1 = CDM, 2 = SCT, 3 = KG.'],
-      [''],
-      ['Blatt "Teilnehmende": Fragebogen aus Teil 1 und der aktuelle Stand (bis zu welchem Teil die Person gekommen ist).'],
-      ['Blatt "Videobewertungen": eine Zeile pro gesehenem Video (36 pro vollständige Person, 12 pro Kontext).'],
-      ['   Mimik = zeigt das Gesicht im Video Schmerz (ja/nein). Selbstbericht = was die Person in der Tonaufnahme über ihre Schmerzen sagt.'],
-      ['   Skalen 0–10: Schmerzintensität, Glaubhaftigkeit, Schwierigkeit; Handlung nur in Gruppe CDM (Platz freimachen / Schmerzmittel verschreiben / Rente zustimmen).'],
-      ['   Gültig = ja: Instruktion und Tonaufnahme liefen vollständig. nein: die Darbietung wurde abgebrochen (Technik) – diese Zeile sollte ausgeschlossen werden.'],
-      ['   unklar: die Seite wurde während der Bewertung neu geladen; die Darbietung davor war vermutlich vollständig.'],
-      ['Blatt "Fotobewertungen": eine Zeile pro Foto (36 pro vollständige Person), Skalen 0–10.'],
-      ['Blatt "Abschlussfragen": Fragen nach Teil 3 (Übertreibung usw. 0–10; Hineinversetzen 0–10; freie Antwort zum Studienzweck).'],
-      ['Blatt "Nachbefragung": Fragen nach der Aufklärung. Achtung: "Löschung gewünscht = ja" bedeutet, dass die Daten dieser Person nicht ausgewertet werden dürfen.'],
-      ['Blatt "Videoplan": welche Person in welchem Kontext mit welchem Selbstbericht gezeigt wurde (pro Teilnehmer:in ausbalanciert).'],
-      [''],
-      ['Zeitangaben sind in UTC (deutsche Zeit = +1 h im Winter, +2 h im Sommer). Testläufe des Entwicklers sind nicht enthalten.'],
-    ],
-  }
-
   const teilnehmende: Sheet = {
     name: 'Teilnehmende',
-    widths: [16, 12, 12, 8, 22, 18, 18, 22, 20, 18, 24, 22, 26, 22, 20, 12, 26, 22, 18, 24],
     rows: [[
       'Probandennummer', 'Gruppe', 'Geschlecht', 'Alter', 'Bildungsabschluss', 'Ethnizität', 'Tätigkeit', 'Tätigkeit (Detail)',
       'Chronische Schmerzen', 'Schmerzort', 'Schmerzen im privaten Umfeld', 'Beziehung zur Person',
@@ -131,7 +104,6 @@ export function buildSheets (data: StudyData, exportedAt: Date): Sheet[] {
 
   const videobewertungen: Sheet = {
     name: 'Videobewertungen',
-    widths: [16, 12, 9, 13, 13, 11, 16, 12, 18, 16, 15, 14, 10, 26, 24, 22, 17],
     rows: [[
       'Probandennummer', 'Gruppe', 'Position', 'Kontextblock', 'Kontext', 'Person', 'Geschlecht Person', 'Alter Person',
       'Mimik (Schmerz im Gesicht)', 'Selbstbericht', 'Schmerzintensität', 'Glaubhaftigkeit', 'Schwierigkeit', 'Handlung (nur CDM)',
@@ -152,7 +124,6 @@ export function buildSheets (data: StudyData, exportedAt: Date): Sheet[] {
 
   const fotobewertungen: Sheet = {
     name: 'Fotobewertungen',
-    widths: [16, 9, 11, 16, 12, 20, 12, 14, 12, 14, 12, 10, 17, 30],
     rows: [[
       'Probandennummer', 'Position', 'Person', 'Geschlecht Person', 'Alter Person',
       'Vertrauenswürdigkeit', 'Sympathie', 'Ausstrahlung', 'Eindruck', 'Attraktivität', 'Stresslevel', 'Mitleid', 'Zeitpunkt', 'Foto (Datei)',
@@ -170,7 +141,6 @@ export function buildSheets (data: StudyData, exportedAt: Date): Sheet[] {
 
   const abschlussfragen: Sheet = {
     name: 'Abschlussfragen',
-    widths: [16, 14, 14, 14, 14, 24, 28, 30, 60, 17],
     rows: [[
       'Probandennummer', 'Übertrieben', 'Vorgetäuscht', 'Untertrieben', 'Unterdrückt',
       'Hineinversetzen: Bus', 'Hineinversetzen: Arztpraxis / IT-Firma', 'Hineinversetzen: Rentenstelle / Reinigungskraft',
@@ -186,7 +156,6 @@ export function buildSheets (data: StudyData, exportedAt: Date): Sheet[] {
 
   const nachbefragung: Sheet = {
     name: 'Nachbefragung',
-    widths: [16, 26, 20, 26, 17],
     rows: [['Probandennummer', 'Über Hintergrund aufgeklärt', 'Löschung gewünscht', 'Stillschweigen zugesagt', 'Zeitpunkt']],
   }
   for (const r of [...data.ending_questions].sort(byParticipant)) {
@@ -195,7 +164,6 @@ export function buildSheets (data: StudyData, exportedAt: Date): Sheet[] {
 
   const videoplan: Sheet = {
     name: 'Videoplan',
-    widths: [16, 9, 13, 11, 18, 16, 26],
     rows: [['Probandennummer', 'Position', 'Kontext', 'Person', 'Mimik (Schmerz im Gesicht)', 'Selbstbericht', 'Video (Datei)']],
   }
   for (const t of [...data.trial_plans].sort(byParticipant)) {
@@ -208,7 +176,7 @@ export function buildSheets (data: StudyData, exportedAt: Date): Sheet[] {
     }
   }
 
-  return [hinweise, teilnehmende, videobewertungen, fotobewertungen, abschlussfragen, nachbefragung, videoplan]
+  return [teilnehmende, videobewertungen, fotobewertungen, abschlussfragen, nachbefragung, videoplan]
 }
 
 /** `female_young_pain_01` → `f_y_p_1` (same rule as the carry-over migration). */
@@ -216,4 +184,18 @@ export function personIdFromFilename (filename: unknown): string | null {
   const m = /^(female|male)_(young|old)_(pain|unspecific)_(\d+)/.exec(String(filename ?? ''))
   if (!m) return null
   return `${m[1][0]}_${m[2][0]}_${m[3][0]}_${Number(m[4])}`
+}
+
+/**
+ * CSV as German Excel opens it by double-click: UTF-8 with BOM, semicolon
+ * separated, CRLF line ends, fields quoted when needed. Numbers keep the
+ * decimal point (ratings are integers, so this never matters).
+ */
+export function toCsv (sheet: Sheet): string {
+  const cell = (v: Cell): string => {
+    if (v === null) return ''
+    const text = typeof v === 'boolean' ? (v ? 'ja' : 'nein') : String(v)
+    return /[;"\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text
+  }
+  return '\uFEFF' + sheet.rows.map(row => row.map(cell).join(';')).join('\r\n') + '\r\n'
 }
