@@ -2,7 +2,7 @@
  * Edge Function `export-data`: the evaluators' data download.
  *
  *   POST { password }  →  schmerzbeurteilung_daten_<date>.zip
- *                         (Teilnehmende.csv, Videobewertungen.csv, …)
+ *                         (one CSV per table: video_ratings.csv, …)
  *
  * The browser never sees a database key: this function holds the service
  * role key (injected by Supabase as SUPABASE_SERVICE_ROLE_KEY) and compares
@@ -15,7 +15,7 @@
  */
 import { createClient } from 'npm:@supabase/supabase-js@2.47.16'
 import { zipSync, strToU8 } from 'npm:fflate@0.8.2'
-import { buildSheets, toCsv, type Row, type StudyData } from './buildSheets.ts'
+import { buildSheets, toCsv, TABLES, type Row, type StudyData } from './buildSheets.ts'
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
@@ -23,7 +23,6 @@ const CORS_HEADERS = {
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 }
 
-const TABLES: Array<keyof StudyData> = ['form_data', 'progress', 'trial_plans', 'video_ratings', 'photo_ratings', 'final_ratings', 'ending_questions']
 const PAGE = 1000
 
 function json (status: number, body: unknown): Response {
